@@ -1,0 +1,4 @@
+File=skout.kcfg
+ClassName=SkoutSettings
+Singleton=true
+Mutators=true

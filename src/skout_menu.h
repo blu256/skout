@@ -1,0 +1,46 @@
+/*******************************************************************************
+  Skout - a Be-style panel for TDE
+  Copyright (C) 2023 Mavridis Philippe <mavridisf@gmail.com>
+
+  This program is free software: you can redistribute it and/or modify it under
+  the terms of the GNU General Public License as published by the Free Software
+  Foundation, either version 3 of the License, or (at your option) any later
+  version.
+
+  This program is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+  You should have received a copy of the GNU General Public License along with
+  this program. If not, see <http://www.gnu.org/licenses/>.
+
+  Improvements and feedback are welcome!
+*******************************************************************************/
+
+#ifndef _SKOUT_MENU_H
+#define _SKOUT_MENU_H
+
+// TDE
+#include <tdepopupmenu.h>
+#include <kservicegroup.h>
+
+class SkoutPanel;
+
+class SkoutMenu : public TDEPopupMenu {
+  TQ_OBJECT
+
+  public:
+    SkoutMenu(SkoutPanel *panel, KServiceGroup::Ptr group = nullptr);
+    virtual ~SkoutMenu();
+
+    SkoutPanel *panel();
+
+  public slots:
+    void populate();
+    void launch(int item);
+
+  private:
+    KServiceGroup::Ptr m_group;
+    KServiceGroup::List m_list;
+};
+
+#endif // _SKOUT_MENU_H

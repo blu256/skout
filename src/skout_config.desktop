@@ -1,0 +1,16 @@
+[Desktop Entry]
+Type=Application
+Exec=tdecmshell skout_config.desktop
+Icon=skout
+X-DocPath=skout/index.html
+
+X-TDE-Library=skout
+X-TDE-Init=skout
+X-TDE-ParentApp=kcontrol
+
+Name=Skout
+Comment=Skout configuration (Be-style panel)
+
+Keywords=panel;kicker;skout
+
+Categories=Qt;TDE;X-TDE-settings-system;

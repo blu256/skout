@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Skout
+GenericName=Skout
+Comment=A Be-like panel for TDE
+Type=Application
+Exec=skout
+Encoding=UTF-8
+Icon=skou
+Categories=Qt;TDE;Utility;X-TDE-Utilities-Desktop;
+StartupNotify=false
+Terminal=false

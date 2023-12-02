@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+                           http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
+  <kcfgfile arg="true" />
+
+  <group name="General"> 
+    <entry key="EnableSkout" type="Bool">
+      <default>false</default>
+      <label>Enable Skout panel</label>
+      <whatsthis>Enable this option to use the Skout panel instead of Kicker.</whatsthis>
+    </entry>
+    <entry key="Position" type="Enum">
+      <choices>
+        <choice name="TopLeft"/>
+        <choice name="TopRight"/>
+      </choices>
+      <default>TopRight</default>
+      <label>Panel position</label>
+      <whatsthis>This option defines where on the screen the panel will appear.</whatsthis>
+    </entry>
+  </group>
+</kcfg>
