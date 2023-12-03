@@ -146,9 +146,12 @@ void SkoutTaskGrouper::drawButton(TQPainter *p) {
 }
 
 void SkoutTaskGrouper::contextMenuEvent(TQContextMenuEvent *cme) {
-    if (!pinnable()) return;
-
     TDEPopupMenu ctx;
+    int item;
+
+    item = ctx.insertItem(SmallIcon("taskbar"), i18n("Minimize all"),
+                          container(), SLOT(toggleIconifiedAll()));
+    ctx.setItemChecked(item, container()->allIconified());
 
     if (pinnable()) {
       if (pinned()) {
@@ -173,7 +176,7 @@ void SkoutTaskGrouper::mousePressEvent(TQMouseEvent *me) {
             }
             return;
         case MidButton:
-            kdDebug() << "minimize all" << endl;
+            container()->toggleIconifiedAll();
             return;
         default:
             me->ignore();

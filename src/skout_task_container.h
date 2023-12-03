@@ -57,12 +57,15 @@ class SkoutTaskContainer : public TQVBox {
     bool pinned()   { return m_grouper->pinned(); }
     bool pinnable() { return m_grouper->pinnable(); }
 
+    bool allIconified();
+
     SkoutTaskMan *manager() const { return static_cast<SkoutTaskMan *>(parent()); }
     SkoutTaskGrouper *grouper() const { return m_grouper; }
 
   public slots:
     void update();
     void updateActive(WId w);
+    void toggleIconifiedAll();
 
   signals:
     void pinChanged(bool pinned);

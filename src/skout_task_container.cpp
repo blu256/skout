@@ -167,4 +167,26 @@ void SkoutTaskContainer::updateActive(WId w) {
     }
 }
 
+void SkoutTaskContainer::toggleIconifiedAll() {
+    TQObjectList tasklist = tasks();
+    TQObjectListIt it(tasklist);
+    while (it.current()) {
+        static_cast<SkoutTask *>(it.current())->toggleIconified();
+        ++it;
+    }
+}
+
+bool SkoutTaskContainer::allIconified() {
+    bool all = true;
+    TQObjectList tasklist = tasks();
+    TQObjectListIt it(tasklist);
+    while (it.current()) {
+        if (!static_cast<SkoutTask *>(it.current())->iconified()) {
+            all = false;
+        }
+        ++it;
+    }
+    return all;
+}
+
 #include "skout_task_container.moc"
