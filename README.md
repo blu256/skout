@@ -10,6 +10,7 @@ It is currently in development, so not all features might be implemented.
 Features:
 * Desktop menu
 * System tray
-* Grouping taskbar
+* Grouping taskbar with pinnable applications and window operations
+* Integration with ksystraycmd to place any application windows in system tray
 * 2 positions on desktop (top left and top right)
 * TDE Control Centre module
