@@ -46,6 +46,7 @@ set( CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -Wl,--no-undefined"
 
 ### Add subdirectories #########################################################
 add_subdirectory( src )
+add_subdirectory( data )
 tde_conditional_add_project_docs( BUILD_DOC )
 tde_conditional_add_project_translations( BUILD_TRANSLATIONS )
 

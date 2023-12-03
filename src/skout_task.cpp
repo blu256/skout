@@ -23,14 +23,22 @@
 
 // TDE
 #include <tdeapplication.h>
+#include <kstandarddirs.h>
 #include <kiconloader.h>
 #include <twinmodule.h>
+#include <tdepopupmenu.h>
+#include <kpassivepopup.h>
+#include <tdelocale.h>
+#include <kprocess.h>
 #include <netwm.h>
 #include <kdebug.h>
 
 // Skout
 #include "skout_task.h"
 #include "skout_task_container.h"
+
+// Other
+#include <cerrno>
 
 SkoutTask::SkoutTask(SkoutTaskContainer *parent, WId w)
   : SkoutTaskButton(parent),
@@ -95,36 +103,126 @@ void SkoutTask::mousePressEvent(TQMouseEvent *me) {
     }
 }
 
+void SkoutTask::contextMenuEvent(TQContextMenuEvent *cme) {
+    TDEPopupMenu ctx(this);
+    ctx.setCheckable(true);
+
+    int item;
+    item = ctx.insertItem(SmallIcon("go-top"), i18n("Stays on top"),
+                          this, SLOT(toggleStayAbove()));
+    ctx.setItemChecked(item, staysAbove());
+
+    item = ctx.insertItem(SmallIcon("go-bottom"), i18n("Stays on bottom"),
+                          this, SLOT(toggleStayBelow()));
+    ctx.setItemChecked(item, staysBelow());
+
+    ctx.insertSeparator();
+
+    ctx.insertItem(SmallIcon("kicker"), i18n("Hide into tray"),
+                   this, SLOT(sendToTray()));
+
+    ctx.insertSeparator();
+
+    item = ctx.insertItem(SmallIcon("view-fullscreen"), i18n("Fullscreen"),
+                          this, SLOT(toggleFullScreen()));
+    ctx.setItemChecked(item, fullScreen());
+
+    ctx.insertSeparator();
+
+    item = ctx.insertItem(TQPixmap(locate("data", "skout/pics/iconify.png")),
+                          i18n("Minimize"), this, SLOT(toggleIconified()));
+    ctx.setItemChecked(item, iconified());
+
+    item = ctx.insertItem(TQPixmap(locate("data", "skout/pics/maximize.png")),
+                          i18n("Maximize"), this, SLOT(toggleMaximized()));
+    ctx.setItemChecked(item, maximized());
+
+    ctx.insertSeparator();
+
+    ctx.insertItem(TQPixmap(locate("data", "skout/pics/close.png")),
+                   i18n("Close"), this, SLOT(close()));
+
+    ctx.exec(cme->globalPos());
+}
+
+void SkoutTask::sendToTray() {
+    TDEProcess ksystray;
+    ksystray << "ksystraycmd" << "--hidden"
+             << "--wid" << TQString::number(windowID());
+    bool ok = ksystray.start(TDEProcess::DontCare);
+    if (!ok) {
+        KPassivePopup::message(
+            i18n("Unable to send \"%1\" to tray").arg(name()),
+            i18n(strerror(errno)),
+            SmallIcon("error"),
+            this);
+    }
+}
+
+bool SkoutTask::checkWindowState(unsigned long state) {
+    KWin::WindowInfo i(info());
+    return i.valid() && (i.state() & state);
+}
+
+void SkoutTask::addWindowState(unsigned long state) {
+    KWin::setState(windowID(), state);
+}
+
+void SkoutTask::removeWindowState(unsigned long state) {
+    KWin::clearState(windowID(), state);
+}
+
+void SkoutTask::setWindowState(unsigned long state, bool set) {
+    if (set) addWindowState(state);
+    else removeWindowState(state);
+}
+
 void SkoutTask::setMaximized(bool maximized) {
-    unsigned int state = info().state();
-    if (maximized) {
-        KWin::setState(windowID(), state & (NET::MaxVert|NET::MaxHoriz));
-    }
-    else {
-        KWin::setState(windowID(), state & ~(NET::MaxVert|NET::MaxHoriz));
-    }
+    setWindowState(NET::MaxVert|NET::MaxHoriz, maximized);
 }
 
 void SkoutTask::setIconified(bool iconified) {
-    if (iconified) {
-        KWin::iconifyWindow(windowID());
-    }
-    else {
-        KWin::deIconifyWindow(windowID());
-    }
+    if (iconified) KWin::iconifyWindow(windowID());
+    else KWin::deIconifyWindow(windowID());
 }
 
-#if 0
-void SkoutTask::toggleFullscreen() {
-    unsigned int state = info().state();
-    if (state & NET::FullScreen) {
-        KWin::setState(windowID(), state & ~NET::FullScreen);
-    }
-    else {
-        KWin::setState(windowID(), state & NET::FullScreen);
-    }
+void SkoutTask::setFullScreen(bool fullscreen) {
+    setWindowState(NET::FullScreen, fullscreen);
 }
-#endif
+
+void SkoutTask::setStayAbove(bool stay) {
+    if (stay && staysBelow()) {
+        setStayBelow(false);
+    }
+    setWindowState(NET::StaysOnTop, stay);
+}
+
+void SkoutTask::setStayBelow(bool stay) {
+    if (stay && staysAbove()) {
+        setStayAbove(false);
+    }
+    setWindowState(NET::KeepBelow, stay);
+}
+
+void SkoutTask::toggleStayAbove() {
+    setStayAbove(!staysAbove());
+}
+
+void SkoutTask::toggleStayBelow() {
+    setStayBelow(!staysBelow());
+}
+
+void SkoutTask::toggleIconified() {
+    setIconified(!iconified());
+}
+
+void SkoutTask::toggleMaximized() {
+    setMaximized(!maximized());
+}
+
+void SkoutTask::toggleFullScreen() {
+    setFullScreen(!fullScreen());
+}
 
 void SkoutTask::close() {
     NETRootInfo ri(tqt_xdisplay(), NET::CloseWindow);
@@ -136,7 +234,33 @@ void SkoutTask::activate() {
 }
 
 bool SkoutTask::active() {
-    return container()->manager()->panel()->twin()->activeWindow() == windowID();
+    return container()->manager()->panel()->twin()->activeWindow()
+           == windowID();
+}
+
+bool SkoutTask::staysAbove() {
+    return checkWindowState(NET::StaysOnTop);
+}
+
+bool SkoutTask::staysBelow() {
+    return checkWindowState(NET::KeepBelow);
+}
+
+bool SkoutTask::iconified() {
+    KWin::WindowInfo i(info());
+    return i.valid() && i.isMinimized();
+}
+
+bool SkoutTask::maximized() {
+    return checkWindowState(NET::MaxVert|NET::MaxHoriz);
+}
+
+bool SkoutTask::fullScreen() {
+    return checkWindowState(NET::FullScreen);
+}
+
+bool SkoutTask::shaded() {
+    return checkWindowState(NET::Shaded);
 }
 
 TQFont SkoutTask::font() {

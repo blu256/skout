@@ -44,21 +44,42 @@ class SkoutTask : public SkoutTaskButton {
     KWin::WindowInfo info();
 
     bool active();
+    bool staysAbove();
+    bool staysBelow();
+    bool iconified();
+    bool maximized();
+    bool fullScreen();
+    bool shaded();
 
   public slots:
+    void sendToTray();
     void setIconified(bool iconified);
     void setMaximized(bool maximized);
-    //void setFullscreen(bool fullscreen);
+    void setFullScreen(bool fullscreen);
+    void setStayAbove(bool stay);
+    void setStayBelow(bool stay);
+
+    void toggleStayAbove();
+    void toggleStayBelow();
+    void toggleIconified();
+    void toggleMaximized();
+    void toggleFullScreen();
     void close();
     void activate();
 
   protected:
     void mousePressEvent(TQMouseEvent *);
+    void contextMenuEvent(TQContextMenuEvent *);
     TQFont font();
     TQColorGroup colors();
 
   private:
     WId m_window_id;
+
+    bool checkWindowState(unsigned long state);
+    void addWindowState(unsigned long state);
+    void removeWindowState(unsigned long state);
+    void setWindowState(unsigned long state, bool set);
 };
 
 typedef TQPtrList<SkoutTask> TaskList;
