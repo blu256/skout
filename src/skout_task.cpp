@@ -146,7 +146,8 @@ TQFont SkoutTask::font() {
 TQColorGroup SkoutTask::colors() {
     TQColorGroup cg = palette().active();
     if (active()) {
-        cg.setColor(TQColorGroup::Button,     cg.highlight());
+        TQColor highlight = blendColors(cg.button(), cg.highlight());
+        cg.setColor(TQColorGroup::Button,     highlight);
         cg.setColor(TQColorGroup::ButtonText, cg.highlightedText());
     }
     else if (!container()->active()) {

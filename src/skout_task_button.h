@@ -47,6 +47,8 @@ class SkoutTaskButton : public TQToolButton {
     static TQFont normalFont();
     static TQFont boldFont();
 
+    static TQColor blendColors(const TQColor c1, const TQColor c2);
+
   public slots:
     void update();
 

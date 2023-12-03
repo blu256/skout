@@ -71,6 +71,14 @@ TQColorGroup SkoutTaskButton::colors() {
     return container()->palette().active();
 }
 
+TQColor SkoutTaskButton::blendColors(const TQColor c1, const TQColor c2) {
+    TQRgb rgb1 = c1.rgb();
+    TQRgb rgb2 = c2.rgb();
+    return TQColor((tqRed(rgb1)   + tqRed(rgb2))   / 2,
+                   (tqGreen(rgb1) + tqGreen(rgb2)) / 2,
+                   (tqBlue(rgb1)  + tqBlue(rgb2))  / 2);
+}
+
 SkoutTaskContainer *SkoutTaskButton::container() const {
     return static_cast<SkoutTaskContainer *>(parent());
 }
@@ -168,7 +176,7 @@ void SkoutTaskButton::drawButtonLabel(TQPainter *p) {
         label.append(ellipsis);
     }
 
-    p->setPen(colors().foreground());
+    p->setPen(colors().buttonText());
     p->drawText(textOffset, label);
 }
 
