@@ -79,7 +79,6 @@ KWinModule *SkoutPanel::twin() {
 
 void SkoutPanel::applyPosition() {
     TQRect desktop = TQApplication::desktop()->geometry();
-    TQSize panelSize(sizeHint());
 
     TQPoint origin;
     switch (position()) {
@@ -89,7 +88,7 @@ void SkoutPanel::applyPosition() {
 
         case PanelPosition::TopRight:
         default:
-            origin = desktop.topRight() - TQPoint(panelSize.width(), 0);
+            origin = desktop.topRight() - TQPoint(width(), 0);
             break;
     }
 
@@ -137,6 +136,10 @@ void SkoutPanel::resizeEvent(TQResizeEvent *) {
     setFixedWidth(200);
     if (!m_initialized) return;
     reserveStrut();
+    applyPosition();
+}
+
+void SkoutPanel::moveEvent(TQMoveEvent *) {
     applyPosition();
 }
 

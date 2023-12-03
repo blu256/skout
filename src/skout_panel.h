@@ -50,6 +50,7 @@ class SkoutPanel : public TQFrame {
 
   protected:
     void resizeEvent(TQResizeEvent *);
+    void moveEvent(TQMoveEvent *);
 
   private:
     SkoutMenuBtn *w_menubtn;
