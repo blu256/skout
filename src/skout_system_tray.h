@@ -75,6 +75,7 @@ class SkoutSysTray : public SkoutWidget {
 
   private slots:
     void trayWindowAdded(WId w);
+    void paletteChanged();
     void updateTrayWindows();
 
   private:

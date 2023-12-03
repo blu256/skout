@@ -25,6 +25,7 @@
 *******************************************************************************/
 
 // TDE
+#include <tdeapplication.h>
 #include <twinmodule.h>
 #include <kdebug.h>
 
@@ -59,6 +60,9 @@ SkoutSysTray::SkoutSysTray(SkoutPanel *parent)
 
     connect(twin, SIGNAL(systemTrayWindowRemoved(WId)),
             this, SLOT(updateTrayWindows()));
+
+    connect(kapp, SIGNAL(tdedisplayPaletteChanged()),
+            this, SLOT(paletteChanged()));
 
     acquireSystemTray();
     relayout(true);
@@ -215,6 +219,13 @@ void SkoutSysTray::relayout(bool force) {
     }
 
     m_doingRelayout = false;
+}
+
+void SkoutSysTray::paletteChanged() {
+    TrayEmbedList::const_iterator it;
+    for (it = m_tray.begin(); it != m_tray.end(); ++it) {
+        XClearArea(x11Display(), (*it)->embeddedWinId(), 0, 0, 0, 0, True);
+    }
 }
 
 TrayEmbed::TrayEmbed(bool _tde_tray, TQWidget *parent)
