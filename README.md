@@ -1,7 +1,7 @@
 Skout
 -----
 
-Skout is a panel for TDE in the spirit of Tracker, the desktop panel of BeOS and now Haiku.
+Skout is a panel for TDE in the spirit of Deskbar, the desktop panel of BeOS and now Haiku.
 
 ![Screenshot of Skout in top right corner of TDE](doc/screenshot.png)
 
