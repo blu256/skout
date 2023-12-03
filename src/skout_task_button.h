@@ -49,6 +49,8 @@ class SkoutTaskButton : public TQToolButton {
 
     static TQColor blendColors(const TQColor c1, const TQColor c2);
 
+    TQPoint margin() const { return m_margin; }
+
   public slots:
     void update();
 

@@ -36,6 +36,11 @@ class SkoutTaskGrouper : public SkoutTaskButton {
 
     void setIcon(TQPixmap icon);
 
+    bool expanded() { return m_expanded; }
+    void setExpanded(bool expanded) { m_expanded = expanded; repaint(); }
+
+    static void updateStaticPixmaps();
+
   public slots:
     void toggle(bool show);
 
@@ -45,6 +50,7 @@ class SkoutTaskGrouper : public SkoutTaskButton {
     void drawButton(TQPainter *p);
 
   private:
+    bool m_expanded;
     TQString m_name;
     TQPixmap m_icon;
 };
