@@ -20,6 +20,7 @@
 #define _SKOUT_TASK_H
 
 // TDE
+#include <kservice.h>
 #include <twin.h>
 
 // Skout
@@ -37,11 +38,17 @@ class SkoutTask : public SkoutTaskButton {
     TQString name();
     TQPixmap icon();
     TQPixmap icon(TQSize size);
+    TQString applicationName();
     TQString className();
     TQString classClass();
 
+    //KService::Ptr service() { return m_service; }
     WId windowID() { return m_window_id; }
     KWin::WindowInfo info();
+    pid_t pid();
+    TQString executablePath();
+    TQString executable();
+    TQString cmdline();
 
     bool active();
     bool staysAbove();

@@ -22,7 +22,12 @@
 
 // TDE
 #include <tdeapplication.h>
+#include <kstandarddirs.h>
 #include <kiconloader.h>
+#include <tdepopupmenu.h>
+#include <kpassivepopup.h>
+#include <tdelocale.h>
+#include <kdebug.h>
 
 // Skout
 #include "skout_task_grouper.h"
@@ -30,51 +35,81 @@
 
 static TQPixmap *pxHide = nullptr;
 static TQPixmap *pxExpand = nullptr;
+static TQPixmap *pxLink = nullptr;
 
 SkoutTaskGrouper::SkoutTaskGrouper(SkoutTaskContainer *parent, TQString name)
   : SkoutTaskButton(parent, true, true),
-    m_name(name),
-    m_expanded(true)
+    m_expanded(true),
+    m_pinned(false)
 {
-    if (!pxHide || !pxExpand || pxHide->isNull() || pxExpand->isNull()) {
+    if (!pxHide || !pxExpand || !pxLink ||
+        pxHide->isNull() || pxExpand->isNull() || pxLink->isNull())
+    {
         updateStaticPixmaps();
     }
     setOn(true);
-    connect(this, SIGNAL(toggled(bool)), SLOT(toggle(bool)));
+    connect(this, SIGNAL(toggled(bool)), SLOT(setExpanded(bool)));
 }
 
 SkoutTaskGrouper::~SkoutTaskGrouper() {
 }
 
+#define ICON(icon, group, size) \
+    new TQPixmap(kapp->iconLoader()->loadIcon(icon, group, size));
+#define ICON_SMALL(icon) ICON(icon, TDEIcon::Small, smallIconSize().height())
+#define ICON_BIG(icon)   ICON(icon, TDEIcon::Panel, bigIconSize().height())
 void SkoutTaskGrouper::updateStaticPixmaps() {
-    int h = smallIconSize().height();
-    pxHide = new TQPixmap(kapp->iconLoader()->loadIcon("1uparrow", TDEIcon::Small, h));
-    pxExpand = new TQPixmap(kapp->iconLoader()->loadIcon("1downarrow", TDEIcon::Small, h));
+    TDEIconLoader *il = kapp->iconLoader();
+    pxHide   = new TQPixmap(il->loadIcon("1uparrow",
+                                         TDEIcon::Small, smallIconSize().height()));
+
+    pxExpand = new TQPixmap(il->loadIcon("1downarrow",
+                                         TDEIcon::Small, smallIconSize().height()));
+
+    pxLink   = new TQPixmap(il->loadIcon(il->theme()->linkOverlay(),
+                                         TDEIcon::Panel, bigIconSize().height()));
 }
+#undef ICON
+#undef ICON_SMALL
+#undef ICON_BIG
 
 TQString SkoutTaskGrouper::name() {
-    return m_name;
+    return container()->applicationName();
 }
 
 TQPixmap SkoutTaskGrouper::icon() {
-    return m_icon.isNull() ? defaultIcon() : m_icon;
+    TQPixmap groupIcon = container()->groupIcon();
+    return groupIcon.isNull() ? defaultIcon() : groupIcon;
 }
 
-void SkoutTaskGrouper::setIcon(TQPixmap icon) {
-    m_icon = icon;
-    update();
-}
-
-void SkoutTaskGrouper::toggle(bool show) {
-    setExpanded(show);
+void SkoutTaskGrouper::setExpanded(bool expanded) {
+    m_expanded = expanded;
     TQObjectList widgets = container()->tasks();
     TQObjectListIt it(widgets);
     TQWidget *w;
     while ((w = static_cast<TQWidget *>(it.current())) != nullptr) {
-        if (show) w->show();
+        if (expanded) w->show();
         else w->hide();
         ++it;
     }
+    repaint();
+}
+
+bool SkoutTaskGrouper::pinnable() {
+    return (container()->service() != nullptr);
+}
+
+void SkoutTaskGrouper::pin() {
+    if (!pinnable()) return;
+    m_pinned = true;
+    repaint();
+    emit pinChanged(true);
+}
+
+void SkoutTaskGrouper::unpin() {
+    m_pinned = false;
+    repaint();
+    emit pinChanged(false);
 }
 
 TQFont SkoutTaskGrouper::font() {
@@ -93,12 +128,76 @@ TQColorGroup SkoutTaskGrouper::colors() {
 void SkoutTaskGrouper::drawButton(TQPainter *p) {
     SkoutTaskButton::drawButton(p);
 
-    TQPixmap pix = *(expanded() ? pxHide : pxExpand);
-    TQPoint offset = smallIconOffset();
+    // arrow
+    if (container()->tasks().count() > 0) {
+        TQPixmap pix = *(expanded() ? pxHide : pxExpand);
+        TQPoint offset = smallIconOffset();
 
-    TQPoint origin(width() - margin().x() - pix.width() - offset.x(),
-                   margin().y() + offset.y());
-    p->drawPixmap(origin, pix);
+        TQPoint origin(width() - margin().x() - pix.width() - offset.x(),
+                      margin().y() + offset.y());
+        p->drawPixmap(origin, pix);
+    }
+
+    // link
+    if (m_pinned) {
+        TQPoint origin = TQPoint(margin());
+        p->drawPixmap(origin, *pxLink);
+    }
+}
+
+void SkoutTaskGrouper::contextMenuEvent(TQContextMenuEvent *cme) {
+    if (!pinnable()) return;
+
+    TDEPopupMenu ctx;
+
+    if (pinnable()) {
+      if (pinned()) {
+          ctx.insertItem(TQPixmap(locate("data", "skout/pics/pindown.png")),
+                        i18n("Unpin application"), this, SLOT(unpin()));
+      }
+      else {
+          ctx.insertItem(TQPixmap(locate("data", "skout/pics/pinup.png")),
+                        i18n("Pin application"), this, SLOT(pin()));
+      }
+    }
+
+    ctx.exec(cme->globalPos());
+    cme->accept();
+}
+
+void SkoutTaskGrouper::mousePressEvent(TQMouseEvent *me) {
+    switch (me->button()) {
+        case LeftButton:
+            if (container()->tasks().count() && !(me->state() & ControlButton)) {
+                toggle();
+            }
+            return;
+        case MidButton:
+            kdDebug() << "minimize all" << endl;
+            return;
+        default:
+            me->ignore();
+    }
+}
+void SkoutTaskGrouper::mouseDoubleClickEvent(TQMouseEvent *me) {
+    if (me->button() == LeftButton && container()->service()) {
+        KService::Ptr svc = container()->service();
+        TQString path(svc->desktopEntryPath());
+        if (path.isNull()) return;
+
+        TQString error;
+        if (kapp->startServiceByDesktopPath(path, TQString::null, &error) != 0) {
+            KPassivePopup::message(i18n("Unable to launch %1").arg(svc->name()),
+                                   i18n(error.local8Bit()), SmallIcon("error"),
+                                   this);
+        }
+
+        // HACK the second click gets consumed
+        if (container()->tasks().count() && !(me->state() & ControlButton)) {
+            toggle();
+        }
+    }
+    me->ignore();
 }
 
 #include "skout_task_grouper.moc"

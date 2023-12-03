@@ -22,9 +22,6 @@
 // TQt
 #include <tqframe.h>
 
-// Skout
-// #include "skoutsettings.h"
-
 class KWinModule;
 
 class SkoutMenuBtn;
@@ -61,10 +58,9 @@ class SkoutPanel : public TQFrame {
 
     int m_width;
     bool m_initialized;
+    PanelPosition m_pos;
 
     KWinModule *m_twin;
-
-    PanelPosition m_pos;
 
     void initWidgets();
     void setWindowType();

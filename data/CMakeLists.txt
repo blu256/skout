@@ -7,6 +7,6 @@
 ################################################################################
 
 INSTALL(
-  FILES iconify.png maximize.png close.png
+  FILES iconify.png maximize.png close.png pindown.png pinup.png
   DESTINATION ${DATA_INSTALL_DIR}/skout/pics
 )

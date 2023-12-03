@@ -20,6 +20,7 @@
 #include <tqtimer.h>
 #include <tqpainter.h>
 #include <tqpalette.h>
+#include <tqfileinfo.h>
 
 // TDE
 #include <tdeapplication.h>
@@ -30,12 +31,14 @@
 #include <kpassivepopup.h>
 #include <tdelocale.h>
 #include <kprocess.h>
-#include <netwm.h>
 #include <kdebug.h>
 
 // Skout
 #include "skout_task.h"
 #include "skout_task_container.h"
+
+// NetWM
+#include <netwm.h>
 
 // Other
 #include <cerrno>
@@ -47,6 +50,10 @@ SkoutTask::SkoutTask(SkoutTaskContainer *parent, WId w)
     setOn(info().isMinimized());
     connect(this, SIGNAL(toggled(bool)), SLOT(setIconified(bool)));
     parent->update();
+
+    if (!parent->grouper()->expanded()) {
+        hide();
+    }
 }
 
 SkoutTask::~SkoutTask() {
@@ -88,6 +95,10 @@ TQString SkoutTask::className() {
 
 TQString SkoutTask::classClass() {
     return SkoutTaskMan::classClass(windowID());
+}
+
+TQString SkoutTask::applicationName() {
+    return container()->applicationName();
 }
 
 void SkoutTask::mousePressEvent(TQMouseEvent *me) {
@@ -279,6 +290,34 @@ TQColorGroup SkoutTask::colors() {
         cg.setColor(TQColorGroup::ButtonText, cg.foreground());
     }
     return cg;
+}
+
+/* Yes, I know this is deprecated and the actual application might be on another
+   host, but this is the best way I can think of to get the application's
+   executable and figure out its corresponding desktop file. */
+pid_t SkoutTask::pid() {
+    KWin::Info i = KWin::info(windowID());
+    return i.pid;
+}
+
+TQString SkoutTask::cmdline() {
+    TQFile file(TQString("/proc/%1/cmdline").arg(pid()));
+    if (file.exists() && file.open(IO_ReadOnly)) {
+        return TQString::fromLocal8Bit(file.readAll());
+    }
+    return TQString::null;
+}
+
+TQString SkoutTask::executablePath() {
+    TQFileInfo info(TQString("/proc/%1/exe").arg(pid()));
+    if (info.exists() && info.isSymLink()) {
+        return info.readLink();
+    }
+    return TQString::null;
+}
+
+TQString SkoutTask::executable() {
+    return TQFileInfo(executablePath()).fileName();
 }
 
 #include "skout_task.moc"

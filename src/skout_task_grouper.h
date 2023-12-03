@@ -34,25 +34,32 @@ class SkoutTaskGrouper : public SkoutTaskButton {
     TQString name();
     TQPixmap icon();
 
-    void setIcon(TQPixmap icon);
-
     bool expanded() { return m_expanded; }
-    void setExpanded(bool expanded) { m_expanded = expanded; repaint(); }
 
     static void updateStaticPixmaps();
 
+    bool pinnable();
+    bool pinned() { return m_pinned; }
+
   public slots:
-    void toggle(bool show);
+    void setExpanded(bool show);
+    void pin();
+    void unpin();
 
   protected:
     TQFont font();
     TQColorGroup colors();
     void drawButton(TQPainter *p);
+    void contextMenuEvent(TQContextMenuEvent *);
+    void mousePressEvent(TQMouseEvent *);
+    void mouseDoubleClickEvent(TQMouseEvent *);
 
   private:
     bool m_expanded;
-    TQString m_name;
-    TQPixmap m_icon;
+    bool m_pinned;
+
+  signals:
+    void pinChanged(bool pinned);
 };
 
 #endif // _SKOUT_TASK_GROUPER_H

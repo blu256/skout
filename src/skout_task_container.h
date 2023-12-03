@@ -19,11 +19,15 @@
 #ifndef _SKOUT_TASK_CONTAINER_H
 #define _SKOUT_TASK_CONTAINER_H
 
+// TDE
+#include <kservice.h>
+
 // TQt
 #include <tqvbox.h>
 
 // Skout
 #include "skout_task_manager.h"
+#include "skout_task_grouper.h"
 
 class SkoutTaskMan;
 class SkoutTaskGrouper;
@@ -33,26 +37,45 @@ class SkoutTaskContainer : public TQVBox {
   TQ_OBJECT
 
   public:
-    SkoutTaskContainer(SkoutTaskMan *parent, TQString appname);
+    SkoutTaskContainer(SkoutTaskMan *parent, TQString wclass, TQString appname);
     ~SkoutTaskContainer();
 
+    // Constructor for pinned applications
+    SkoutTaskContainer(SkoutTaskMan *parent, KService::Ptr service, TQString wclass);
+
+    void init();
+
+    TQString windowClass() const { return m_wclass; }
     TQString applicationName() const { return m_appname; }
     TQPixmap groupIcon();
 
     TQObjectList tasks();
 
-    bool active() { return m_active; }
+    KService::Ptr service() { return m_service; }
+
+    bool active()   { return m_active; }
+    bool pinned()   { return m_grouper->pinned(); }
+    bool pinnable() { return m_grouper->pinnable(); }
 
     SkoutTaskMan *manager() const { return static_cast<SkoutTaskMan *>(parent()); }
+    SkoutTaskGrouper *grouper() const { return m_grouper; }
 
   public slots:
     void update();
     void updateActive(WId w);
 
+  signals:
+    void pinChanged(bool pinned);
+
   private:
+    KService::Ptr m_service;
+    TQString m_wclass;
     TQString m_appname;
     SkoutTaskGrouper *m_grouper;
     bool m_active;
+
+  private slots:
+    void findService();
 };
 
 #endif // _SKOUT_TASK_CONTAINER_H

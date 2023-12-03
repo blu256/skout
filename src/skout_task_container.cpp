@@ -30,14 +30,34 @@
 #include "skout_task.h"
 #include "skout_utils.h"
 
-SkoutTaskContainer::SkoutTaskContainer(SkoutTaskMan *parent, TQString appname)
+SkoutTaskContainer::SkoutTaskContainer(SkoutTaskMan *parent,
+                                       TQString wclass, TQString appname)
   : TQVBox(parent),
+    m_service(nullptr),
+    m_wclass(wclass),
     m_appname(appname),
     m_active(false)
 {
-    m_grouper = new SkoutTaskGrouper(this, appname);
+    init();
+}
 
-    connect(parent, SIGNAL(windowActivated(WId)), SLOT(updateActive(WId)));
+SkoutTaskContainer::SkoutTaskContainer(SkoutTaskMan *parent,
+                                       KService::Ptr service, TQString wclass)
+  : TQVBox(parent),
+    m_service(service),
+    m_wclass(wclass),
+    m_active(false)
+{
+    init();
+    m_appname = m_service->name();
+    m_grouper->pin();
+}
+
+void SkoutTaskContainer::init() {
+    m_grouper = new SkoutTaskGrouper(this, m_appname);
+
+    connect(manager(), SIGNAL(windowActivated(WId)), SLOT(updateActive(WId)));
+    connect(m_grouper, SIGNAL(pinChanged(bool)), SIGNAL(pinChanged(bool)));
 
     show();
 }
@@ -51,20 +71,77 @@ TQObjectList SkoutTaskContainer::tasks() {
 }
 
 TQPixmap SkoutTaskContainer::groupIcon() {
+    // If we have identified the service, check its desktop file value
+    if (m_service) {
+        TQPixmap pix = m_service->pixmap(TDEIcon::Panel,
+                                         SkoutTask::bigIconSize().height());
+        if (!pix.isNull()) {
+            return pix;
+        }
+    }
+
+    // Otherwise get the icon of the first task
     TQObjectList tasklist = tasks();
     if (tasklist.count()) {
         SkoutTask *task = static_cast<SkoutTask *>(tasklist.getFirst());
         return task->icon(SkoutTask::bigIconSize());
     }
+
+    // If both fail, fallback to default icon
     return SkoutTask::defaultIcon(SkoutTask::bigIconSize());
 }
 
+void SkoutTaskContainer::findService() {
+    if (m_service) return;
+
+    TQObjectList tasklist = tasks();
+    TQObjectListIt it(tasklist);
+    while (it.current()) {
+        SkoutTask *task = static_cast<SkoutTask *>(it.current());
+
+        m_service = KService::serviceByStorageId(task->className());
+        if (m_service) return;
+
+        m_service = KService::serviceByStorageId(task->classClass());
+        if (m_service) return;
+
+        m_service = KService::serviceByName(task->classClass());
+        if (m_service) return;
+
+        m_service = KService::serviceByStorageId(task->executable());
+        if (m_service) return;
+
+        // last resort: find by executable
+        KService::List all = KService::allServices();
+        KService::List::ConstIterator svc;
+        for (svc = all.begin(); svc != all.end(); ++svc) {
+            TQString exec((*svc)->exec());
+            if (exec == task->executablePath() ||
+                exec == task->executable())
+            {
+                m_service = (*svc);
+                return;
+            }
+        }
+
+        ++it;
+    }
+    kdWarning() << "Unable to find desktop file for window class " << windowClass() << endl;
+}
+
 void SkoutTaskContainer::update() {
-    if (!tasks().count()) {
+    if (!tasks().count() && !pinned()) {
         deleteLater();
         return;
     }
-    m_grouper->setIcon(groupIcon());
+
+    if (!m_service) {
+        findService();
+    }
+    if (m_service) {
+        m_appname = m_service->name();
+    }
+    m_grouper->update();
 }
 
 void SkoutTaskContainer::updateActive(WId w) {

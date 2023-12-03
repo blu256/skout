@@ -44,6 +44,8 @@ class SkoutTaskMan : public SkoutWidget {
     void addWindow(WId w);
     void removeWindow(WId w);
     void updateWindow(WId w, unsigned int changes);
+    void savePinnedApplications();
+    void relayout();
 
   signals:
     void windowActivated(WId w);
@@ -52,8 +54,11 @@ class SkoutTaskMan : public SkoutWidget {
     TQDict<SkoutTaskContainer> m_containers;
     TQIntDict<SkoutTask> m_tasks;
 
+    void addContainer(SkoutTaskContainer *c);
+
   private slots:
-    void containerDeleted();
+    void slotContainerDeleted();
+    void slotPinChanged(bool pinned);
 };
 
 #endif // _SKOUT_TASKMANAGER_H

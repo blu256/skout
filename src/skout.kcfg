@@ -21,4 +21,9 @@
       <whatsthis>This option defines where on the screen the panel will appear.</whatsthis>
     </entry>
   </group>
+  <group name="TaskMan">
+    <entry key="PinnedApplications" type="StringList">
+      <label>Pinned windows</label>
+    </entry>
+  </group>
 </kcfg>
