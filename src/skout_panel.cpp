@@ -50,6 +50,8 @@ SkoutPanel::SkoutPanel(PanelPosition pos)
     new TQVBoxLayout(this);
     layout()->setAutoAdd(true);
     layout()->setResizeMode(TQLayout::Fixed);
+    layout()->setMargin(0);
+    layout()->setSpacing(0);
     initWidgets();
 
     setSizePolicy(TQSizePolicy::Ignored, TQSizePolicy::MinimumExpanding);
