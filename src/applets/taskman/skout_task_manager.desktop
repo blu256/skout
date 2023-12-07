@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Task Manager
+Comment=A window list on steroids
+Type=SkoutApplet
+Icon=taskbar
+
+X-TDE-Library=skoutapplet_taskman
+X-TDE-UniqueApplet=true

@@ -19,40 +19,49 @@
 // TQt
 #include <tqapplication.h>
 #include <tqlayout.h>
+#include <tqfile.h>
 
 // TDE
+#include <kstandarddirs.h>
+#include <kdesktopfile.h>
+#include <kpassivepopup.h>
+#include <kiconloader.h>
+#include <klibloader.h>
+#include <tdelocale.h>
 #include <twin.h>
-#include <twinmodule.h>
 #include <kdebug.h>
-#include <netwm_def.h>
-#include <kspy.h>
 
 // Skout
 #include "skout_panel.h"
+#include "skout_applet.h"
 #include "skout_menu_button.h"
-#include "skout_system_tray.h"
-#include "skout_task_manager.h"
 #include "skout_utils.h"
+#include "skoutsettings.h"
+
+// NetWM
+#include <netwm_def.h>
 
 SkoutPanel::SkoutPanel(PanelPosition pos)
   : TQFrame(0, "Skout", TQt::WStyle_Customize | TQt::WStyle_NoBorder |
                         TQt::WStyle_StaysOnTop | TQt::WDestructiveClose),
     m_pos(pos),
     m_width(200),
-    m_twin(nullptr),
     w_menubtn(nullptr),
-    w_systray(nullptr),
-    w_taskman(nullptr),
     m_initialized(false)
 {
-    m_twin = new KWinModule(this);
-
     new TQVBoxLayout(this);
     layout()->setAutoAdd(true);
     layout()->setResizeMode(TQLayout::Fixed);
     layout()->setMargin(0);
     layout()->setSpacing(0);
-    initWidgets();
+
+    w_menubtn = new SkoutMenuBtn(this);
+
+
+    TDEGlobal::dirs()->addResourceType("applets",
+        TDEGlobal::dirs()->kde_default("data") + "skout/applets");
+    loadAppletDatabase();
+    initApplets();
 
     setSizePolicy(TQSizePolicy::Ignored, TQSizePolicy::MinimumExpanding);
     setFrameStyle(TQFrame::Panel | TQFrame::Raised);
@@ -67,14 +76,6 @@ SkoutPanel::SkoutPanel(PanelPosition pos)
 
 SkoutPanel::~SkoutPanel() {
     ZAP(w_menubtn)
-    ZAP(w_systray)
-    ZAP(w_taskman)
-    ZAP(m_twin);
-}
-
-KWinModule *SkoutPanel::twin() {
-    Q_ASSERT(m_twin);
-    return m_twin;
 }
 
 void SkoutPanel::applyPosition() {
@@ -126,10 +127,89 @@ void SkoutPanel::reserveStrut() {
       strut.bottom_width, strut.bottom_start, strut.bottom_end);
 }
 
-void SkoutPanel::initWidgets() {
-    w_menubtn = new SkoutMenuBtn(this);
-    w_systray = new SkoutSysTray(this);
-    w_taskman = new SkoutTaskMan(this);
+void SkoutPanel::loadAppletDatabase() {
+    TQStringList applets = TDEGlobal::dirs()->findAllResources("applets",
+                                                               "*.desktop",
+                                                               true, true);
+    for (TQStringList::ConstIterator it = applets.constBegin();
+         it != applets.constEnd(); ++it)
+    {
+        KDesktopFile df((*it), true);
+        if (df.readType() != "SkoutApplet" ||
+            df.readEntry("X-TDE-Library").left(12) != "skoutapplet_")
+        {
+            kdWarning() << "SkoutPanel: " << df.fileName()
+                        << " is not a valid applet" << endl;
+            continue;
+        }
+
+        AppletData data;
+        data.name = df.readName();
+        data.icon = df.readIcon();
+        data.library = df.readEntry("X-TDE-Library");
+
+        TQString id = data.library.mid(12);
+        if (m_appletdb.contains(id)) {
+            kdWarning() << "SkoutPanel: applet data with id '" << id << "' "
+                        << "already exists, skipping." << endl;
+            continue;
+        }
+        m_appletdb[id] = data;
+    }
+}
+
+void SkoutPanel::initApplets() {
+    TQStringList applets = SkoutSettings::applets();
+    TQStringList::ConstIterator it;
+    for (it = applets.constBegin(); it != applets.constEnd(); ++it) {
+        TQString id((*it));
+        if (!m_appletdb.contains(id)) {
+            KPassivePopup::message(
+                i18n("Unable to load \"%1\" applet!").arg(id),
+                i18n("Applet not found. Please check if the applet is properly "
+                     "installed."),
+                SmallIcon("error"),
+                this);
+            continue;
+        }
+
+        AppletData data = m_appletdb[id];
+        const char *libPath = TQFile::encodeName(data.library);
+        KLibrary *lib = KLibLoader::self()->library(libPath);
+        if (!lib) {
+            KPassivePopup::message(
+                i18n("Unable to load \"%1\" applet!").arg(id),
+                KLibLoader::self()->lastErrorMessage(),
+                SmallIcon("error"),
+                this);
+            continue;
+        }
+
+        if (!lib->hasSymbol("init")) {
+            KPassivePopup::message(
+                i18n("Unable to load \"%1\" applet!").arg(id),
+                i18n("This is not a valid applet."),
+                SmallIcon("error"),
+                this);
+            KLibLoader::self()->unloadLibrary(libPath);
+            continue;
+        }
+
+        void *init = lib->symbol("init");
+        SkoutApplet *(*c)(SkoutPanel *) = (SkoutApplet *(*)(SkoutPanel *))init;
+        SkoutApplet *applet = c(this);
+        if (!applet->valid()) {
+            KPassivePopup::message(
+                i18n("Unable to load \"%1\" applet!").arg(id),
+                applet->lastErrorMessage(),
+                SmallIcon("error"),
+                this);
+            delete applet;
+            KLibLoader::self()->unloadLibrary(libPath);
+            continue;
+        }
+        m_applets.append(applet);
+    }
 }
 
 void SkoutPanel::resizeEvent(TQResizeEvent *) {

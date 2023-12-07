@@ -16,64 +16,58 @@
   Improvements and feedback are welcome!
 *******************************************************************************/
 
-#ifndef _SKOUT_PANEL_H
-#define _SKOUT_PANEL_H
+#ifndef _SKOUT_TASKMANAGER_H
+#define _SKOUT_TASKMANAGER_H
 
 // TQt
-#include <tqframe.h>
-#include <tqmap.h>
+#include <tqdict.h>
+#include <tqintdict.h>
 
-class KWinModule;
+// TDE
+#include <twinmodule.h>
 
-class SkoutMenuBtn;
-class SkoutApplet;
+// Skout
+#include "skout_applet.h"
 
-enum PanelPosition {
-  TopLeft, TopRight
-};
+typedef TQValueList<WId> WIdList;
 
-struct AppletData {
-    TQString name;
-    TQString icon;
-    TQString library;
-};
+class SkoutPanel;
+class SkoutTaskContainer;
+class SkoutTask;
 
-typedef TQMap<TQString, AppletData> AppletDatabase;
-typedef TQPtrList<SkoutApplet> AppletList;
-
-class SkoutPanel : public TQFrame {
+class SkoutTaskMan : public SkoutApplet {
   TQ_OBJECT
 
   public:
-    SkoutPanel(PanelPosition pos);
-    ~SkoutPanel();
+    SkoutTaskMan(SkoutPanel *panel);
+    virtual ~SkoutTaskMan();
 
-    bool initialized() { return m_initialized; }
+    static TQString className(WId w);
+    static TQString classClass(WId w);
 
-    PanelPosition position() { return m_pos; }
+    bool valid() { return true; }
+    KWinModule *twin();
 
   public slots:
-    void applyPosition();
+    void addWindow(WId w);
+    void removeWindow(WId w);
+    void updateWindow(WId w, unsigned int changes);
+    void savePinnedApplications();
+    void relayout();
 
-  protected:
-    void resizeEvent(TQResizeEvent *);
-    void moveEvent(TQMoveEvent *);
+  signals:
+    void windowActivated(WId w);
 
   private:
-    SkoutMenuBtn *w_menubtn;
-    AppletDatabase m_appletdb;
-    AppletList m_applets;
-
-    int m_width;
-    bool m_initialized;
-    PanelPosition m_pos;
-
+    TQDict<SkoutTaskContainer> m_containers;
+    TQIntDict<SkoutTask> m_tasks;
     KWinModule *m_twin;
 
-    void loadAppletDatabase();
-    void initApplets();
-    void setWindowType();
-    void reserveStrut();
+    void addContainer(SkoutTaskContainer *c);
+
+  private slots:
+    void slotContainerDeleted();
+    void slotPinChanged(bool pinned);
 };
 
-#endif // _SKOUT_PANEL_H
+#endif // _SKOUT_TASKMANAGER_H

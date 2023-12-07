@@ -18,6 +18,20 @@ link_directories(
     ${TQT_LIBRARY_DIRS}
 )
 
+### libskout (library) #########################################################
+tde_add_library(
+  skout SHARED AUTOMOC
+
+  SOURCES
+    skout_applet.cpp
+    skoutsettings.kcfgc
+
+  LINK
+    tdecore-shared
+
+  DESTINATION ${LIB_INSTALL_DIR}
+)
+
 ### skout (executable) #########################################################
 tde_add_executable(
   skout AUTOMOC
@@ -26,21 +40,14 @@ tde_add_executable(
     main.cpp
     skout.cpp
     skout_panel.cpp
-    skout_widget.cpp
     skout_menu_button.cpp
     skout_menu.cpp
-    skout_system_tray.cpp
-    skout_task_manager.cpp
-    skout_task_container.cpp
-    skout_task_button.cpp
-    skout_task_grouper.cpp
-    skout_task.cpp
-    skoutsettings.kcfgc
 
   LINK
     tdecore-shared
     tdeui-shared
     tdeio-shared
+    skout-shared
 
   DESTINATION ${BIN_INSTALL_DIR}
 )
@@ -59,6 +66,17 @@ tde_add_kpart(
     tdeui-shared
 
   DESTINATION ${PLUGIN_INSTALL_DIR}
+)
+
+### applets ####################################################################
+add_subdirectory(applets)
+
+### headers ####################################################################
+install(
+  FILES
+    skout_applet.h
+
+  DESTINATION ${INCLUDE_INSTALL_DIR}
 )
 
 ### translated desktop files ###################################################

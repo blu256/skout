@@ -61,6 +61,7 @@ class SkoutTaskContainer : public TQVBox {
 
     SkoutTaskMan *manager() const { return static_cast<SkoutTaskMan *>(parent()); }
     SkoutTaskGrouper *grouper() const { return m_grouper; }
+    KWinModule *twin() { return manager()->twin(); }
 
   public slots:
     void update();

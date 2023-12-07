@@ -29,7 +29,6 @@
 #include "skout_task_manager.h"
 #include "skout_task_container.h"
 #include "skout_task.h"
-#include "skout_widget.h"
 #include "skoutsettings.h"
 
 // X11
@@ -38,11 +37,19 @@
 // NetWM
 #include <netwm.h>
 
+extern "C" {
+    KDE_EXPORT SkoutApplet *init(SkoutPanel *parent) {
+        return new SkoutTaskMan(parent);
+    }
+}
+
 SkoutTaskMan::SkoutTaskMan(SkoutPanel *panel)
-  : SkoutWidget(panel, "SkoutTaskMan")
+  : SkoutApplet(panel, "SkoutTaskMan")
 {
     setSizePolicy(TQSizePolicy::Fixed, TQSizePolicy::Preferred);
-    setMaximumWidth(panel->width());
+    setMaximumWidth(SkoutApplet::panel()->width());
+
+    m_twin = new KWinModule(this);
 
     new TQVBoxLayout(this);
 
@@ -68,22 +75,22 @@ SkoutTaskMan::SkoutTaskMan(SkoutPanel *panel)
     }
 
     // Add windows
-    WIdList windows(panel->twin()->windows());
+    WIdList windows(m_twin->windows());
     for (WIdList::ConstIterator it = windows.begin(); it != windows.end(); ++it) {
         addWindow((*it));
     }
 
-    connect(panel->twin(), SIGNAL(windowAdded(WId)),
-                           SLOT(addWindow(WId)));
+    connect(m_twin, SIGNAL(windowAdded(WId)),
+                    SLOT(addWindow(WId)));
 
-    connect(panel->twin(), SIGNAL(windowRemoved(WId)),
-                           SLOT(removeWindow(WId)));
+    connect(m_twin, SIGNAL(windowRemoved(WId)),
+                    SLOT(removeWindow(WId)));
 
-    connect(panel->twin(), SIGNAL(windowChanged(WId, unsigned int)),
-                           SLOT(updateWindow(WId, unsigned int)));
+    connect(m_twin, SIGNAL(windowChanged(WId, unsigned int)),
+                    SLOT(updateWindow(WId, unsigned int)));
 
-    connect(panel->twin(), SIGNAL(activeWindowChanged(WId)),
-                           SIGNAL(windowActivated(WId)));
+    connect(m_twin, SIGNAL(activeWindowChanged(WId)),
+                    SIGNAL(windowActivated(WId)));
 }
 
 SkoutTaskMan::~SkoutTaskMan() {
@@ -115,7 +122,7 @@ void SkoutTaskMan::addWindow(WId w) {
     t = new SkoutTask(c, w);
     m_tasks.insert(w, t);
 
-    if (w == panel()->twin()->activeWindow()) {
+    if (w == m_twin->activeWindow()) {
         emit windowActivated(w);
     }
 }
@@ -220,6 +227,10 @@ TQString SkoutTaskMan::classClass(WId w) {
     XFree(hint.res_name);
     XFree(hint.res_class);
     return nh;
+}
+
+KWinModule *SkoutTaskMan::twin() {
+    return m_twin;
 }
 
 #include "skout_task_manager.moc"

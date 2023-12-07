@@ -20,6 +20,10 @@
       <label>Panel position</label>
       <whatsthis>This option defines where on the screen the panel will appear.</whatsthis>
     </entry>
+    <entry key="Applets" type="StringList">
+      <default>systray,taskman</default>
+      <whatsthis>Applets in the panel, top to bottom.</whatsthis>
+    </entry>
   </group>
   <group name="TaskMan">
     <entry key="PinnedApplications" type="StringList">

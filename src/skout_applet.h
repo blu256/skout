@@ -16,49 +16,26 @@
   Improvements and feedback are welcome!
 *******************************************************************************/
 
-#ifndef _SKOUT_TASKMANAGER_H
-#define _SKOUT_TASKMANAGER_H
+#ifndef _SKOUT_APPLET_H
+#define _SKOUT_APPLET_H
 
 // TQt
-#include <tqdict.h>
-#include <tqintdict.h>
-
-// Skout
-#include "skout_widget.h"
+#include <tqframe.h>
 
 class SkoutPanel;
-class SkoutTaskContainer;
-class SkoutTask;
 
-class SkoutTaskMan : public SkoutWidget {
-  TQ_OBJECT
-
+class SkoutApplet : public TQFrame {
   public:
-    SkoutTaskMan(SkoutPanel *panel);
-    virtual ~SkoutTaskMan();
+    SkoutApplet(SkoutPanel *panel, const char *name = 0);
+    virtual ~SkoutApplet();
 
-    static TQString className(WId w);
-    static TQString classClass(WId w);
+    TQWidget *panel();
 
-  public slots:
-    void addWindow(WId w);
-    void removeWindow(WId w);
-    void updateWindow(WId w, unsigned int changes);
-    void savePinnedApplications();
-    void relayout();
-
-  signals:
-    void windowActivated(WId w);
+    virtual bool valid();
+    virtual TQString lastErrorMessage();
 
   private:
-    TQDict<SkoutTaskContainer> m_containers;
-    TQIntDict<SkoutTask> m_tasks;
-
-    void addContainer(SkoutTaskContainer *c);
-
-  private slots:
-    void slotContainerDeleted();
-    void slotPinChanged(bool pinned);
+    SkoutPanel *m_panel;
 };
 
-#endif // _SKOUT_TASKMANAGER_H
+#endif // _SKOUT_APPLET_H

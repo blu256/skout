@@ -17,12 +17,25 @@
 *******************************************************************************/
 
 // Skout
-#include "skout_widget.h"
+#include "skout_applet.h"
+#include "skout_panel.h"
 
-SkoutWidget::SkoutWidget(SkoutPanel *parent, const char *name)
+SkoutApplet::SkoutApplet(SkoutPanel *parent, const char *name)
   : TQFrame(parent, name),
     m_panel(parent)
 {
 }
 
-SkoutWidget::~SkoutWidget() {}
+SkoutApplet::~SkoutApplet() {}
+
+bool SkoutApplet::valid() {
+    return false;
+}
+
+TQWidget *SkoutApplet::panel() {
+    return static_cast<TQWidget *>(m_panel);
+}
+
+TQString SkoutApplet::lastErrorMessage() {
+    return TQString::null;
+}

@@ -245,8 +245,7 @@ void SkoutTask::activate() {
 }
 
 bool SkoutTask::active() {
-    return container()->manager()->panel()->twin()->activeWindow()
-           == windowID();
+    return container()->twin()->activeWindow() == windowID();
 }
 
 bool SkoutTask::staysAbove() {

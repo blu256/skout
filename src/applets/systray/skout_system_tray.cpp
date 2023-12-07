@@ -26,52 +26,63 @@
 
 // TDE
 #include <tdeapplication.h>
-#include <twinmodule.h>
+#include <tdelocale.h>
 #include <kdebug.h>
 
 // Skout
 #include "skout_system_tray.h"
 #include "skout_utils.h"
 
+extern "C" {
+    KDE_EXPORT SkoutApplet *init(SkoutPanel *parent) {
+        return new SkoutSysTray(parent);
+    }
+}
+
 SkoutSysTray::SkoutSysTray(SkoutPanel *parent)
-  : SkoutWidget(parent, "SkoutSystray"),
+  : SkoutApplet(parent, "SkoutSystray"),
     m_layout(nullptr),
     m_cols(0),
     m_doingRelayout(false),
     m_icon_size(22),
     m_icon_padding(1),
-    m_margin(5)
+    m_margin(5),
+    m_valid(false)
 {
     setSizePolicy(TQSizePolicy::Preferred, TQSizePolicy::Preferred);
     setFrameStyle(TQFrame::StyledPanel | TQFrame::Sunken);
     setBackgroundOrigin(AncestorOrigin);
 
-    KWinModule *twin = parent->twin();
+    m_twin = new KWinModule(this);
 
-    const WIdList systrayWindows = twin->systemTrayWindows();
+    const WIdList systrayWindows = m_twin->systemTrayWindows();
     for (WIdList::ConstIterator it = systrayWindows.begin();
          it  != systrayWindows.end(); ++it)
     {
         embedWindow(*it, true);
     }
 
-    connect(twin, SIGNAL(systemTrayWindowAdded(WId)),
-            this, SLOT(trayWindowAdded(WId)));
+    connect(m_twin, SIGNAL(systemTrayWindowAdded(WId)),
+            this,   SLOT(trayWindowAdded(WId)));
 
-    connect(twin, SIGNAL(systemTrayWindowRemoved(WId)),
-            this, SLOT(updateTrayWindows()));
+    connect(m_twin, SIGNAL(systemTrayWindowRemoved(WId)),
+            this,   SLOT(updateTrayWindows()));
 
-    connect(kapp, SIGNAL(tdedisplayPaletteChanged()),
-            this, SLOT(paletteChanged()));
+    connect(kapp,   SIGNAL(tdedisplayPaletteChanged()),
+            this,   SLOT(paletteChanged()));
 
-    acquireSystemTray();
+    m_valid = acquireSystemTray();
+    if (!m_valid) {
+        m_error = i18n("Unable to acquire system tray!");
+    }
+
     relayout(true);
 }
 
 SkoutSysTray::~SkoutSysTray() {
 }
 
-void SkoutSysTray::acquireSystemTray() {
+bool SkoutSysTray::acquireSystemTray() {
     TQCString screenstr;
     screenstr.setNum(tqt_xscreen());
     TQCString trayatom = "_NET_SYSTEM_TRAY_S" + screenstr;
@@ -100,7 +111,9 @@ void SkoutSysTray::acquireSystemTray() {
         xe.data.l[4] = 0;
 
         XSendEvent(d, root, False, StructureNotifyMask, (XEvent *)&xe);
+        return true;
     }
+    return false;
 }
 
 void SkoutSysTray::embedWindow(WId w, bool tde_tray) {
@@ -154,7 +167,7 @@ void SkoutSysTray::updateTrayWindows() {
     while (it != m_tray.end()) {
         WId w = (*it)->embeddedWinId();
         if ((w == 0) ||
-            ((*it)->tdeTray() && !panel()->twin()->systemTrayWindows().contains(w)))
+            ((*it)->tdeTray() && !m_twin->systemTrayWindows().contains(w)))
         {
             (*it)->hide();
             (*it)->deleteLater();

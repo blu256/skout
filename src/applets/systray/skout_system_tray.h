@@ -25,13 +25,18 @@
 #include <tqvaluevector.h>
 #include <tqlayout.h>
 
+// TDE
+#include <twinmodule.h>
+
 // Skout
-#include "skout_widget.h"
+#include "skout_applet.h"
 
 // X11
 #include <X11/Xlib.h>
 
 #define SYSTRAY_REQUEST_DOCK 0
+
+typedef TQValueList<WId> WIdList;
 
 class TrayEmbed : public QXEmbed {
   TQ_OBJECT
@@ -50,12 +55,15 @@ typedef TQValueVector<TrayEmbed*> TrayEmbedList;
 
 class SkoutPanel;
 
-class SkoutSysTray : public SkoutWidget {
+class SkoutSysTray : public SkoutApplet {
   TQ_OBJECT
 
   public:
     SkoutSysTray(SkoutPanel *panel);
     ~SkoutSysTray();
+
+    bool valid() { return m_valid; }
+    TQString lastErrorMessage() { return m_error; }
 
     TQSize iconSize() const { return TQSize(m_icon_size, m_icon_size); }
     int iconPadding() const { return m_icon_padding; }
@@ -66,7 +74,6 @@ class SkoutSysTray : public SkoutWidget {
     void setMargin(int px) { m_margin = px; }
 
   public slots:
-    void acquireSystemTray();
     void relayout(bool force = false);
 
   protected:
@@ -79,6 +86,7 @@ class SkoutSysTray : public SkoutWidget {
     void updateTrayWindows();
 
   private:
+    KWinModule *m_twin;
     TrayEmbedList m_tray;
     Atom net_system_tray_selection;
     Atom net_system_tray_opcode;
@@ -87,6 +95,10 @@ class SkoutSysTray : public SkoutWidget {
     int m_cols;
     int m_icon_size, m_icon_padding, m_margin;
 
+    TQString m_error;
+    bool m_valid;
+
+    bool acquireSystemTray();
     void embedWindow(WId w, bool tde_tray);
     bool isWinManaged(WId w);
 };

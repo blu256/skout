@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=System Tray
+Comment=Area for resident application icons
+Type=SkoutApplet
+Icon=view_icon
+
+X-TDE-Library=skoutapplet_systray
+X-TDE-UniqueApplet=true
