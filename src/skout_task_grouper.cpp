@@ -149,9 +149,11 @@ void SkoutTaskGrouper::contextMenuEvent(TQContextMenuEvent *cme) {
     TDEPopupMenu ctx;
     int item;
 
-    item = ctx.insertItem(SmallIcon("taskbar"), i18n("Minimize all"),
-                          container(), SLOT(toggleIconifiedAll()));
-    ctx.setItemChecked(item, container()->allIconified());
+    if (container()->tasks().count()) {
+        item = ctx.insertItem(SmallIcon("taskbar"), i18n("Minimize all"),
+                              container(), SLOT(toggleIconifiedAll()));
+        ctx.setItemChecked(item, container()->allIconified());
+    }
 
     if (pinnable()) {
       if (pinned()) {
@@ -164,8 +166,11 @@ void SkoutTaskGrouper::contextMenuEvent(TQContextMenuEvent *cme) {
       }
     }
 
-    ctx.exec(cme->globalPos());
-    cme->accept();
+
+    if (ctx.count()) {
+        ctx.exec(cme->globalPos());
+        cme->accept();
+    }
 }
 
 void SkoutTaskGrouper::mousePressEvent(TQMouseEvent *me) {
