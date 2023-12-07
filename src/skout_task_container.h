@@ -66,6 +66,7 @@ class SkoutTaskContainer : public TQVBox {
     void update();
     void updateActive(WId w);
     void toggleIconifiedAll();
+    void slotPinChanged(bool pinned);
 
   signals:
     void pinChanged(bool pinned);

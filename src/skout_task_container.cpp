@@ -57,7 +57,7 @@ void SkoutTaskContainer::init() {
     m_grouper = new SkoutTaskGrouper(this, m_appname);
 
     connect(manager(), SIGNAL(windowActivated(WId)), SLOT(updateActive(WId)));
-    connect(m_grouper, SIGNAL(pinChanged(bool)), SIGNAL(pinChanged(bool)));
+    connect(m_grouper, SIGNAL(pinChanged(bool)), SLOT(slotPinChanged(bool)));
 
     show();
 }
@@ -127,6 +127,11 @@ void SkoutTaskContainer::findService() {
         ++it;
     }
     kdWarning() << "Unable to find desktop file for window class " << windowClass() << endl;
+}
+
+void SkoutTaskContainer::slotPinChanged(bool pinned) {
+    emit pinChanged(pinned);
+    update();
 }
 
 void SkoutTaskContainer::update() {
