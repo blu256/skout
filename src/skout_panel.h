@@ -29,7 +29,7 @@ class SkoutMenuBtn;
 class SkoutApplet;
 
 enum PanelPosition {
-  TopLeft, TopRight
+    TopLeft, TopRight
 };
 
 struct AppletData {
@@ -49,17 +49,11 @@ class SkoutPanel : public TQFrame {
     SkoutPanel(PanelPosition pos, bool force = false);
     ~SkoutPanel();
 
-    bool initialized() { return m_initialized; }
-
     PanelPosition position() { return m_pos; }
     void setPosition(PanelPosition pos);
 
   public slots:
     void applyPosition();
-
-  protected:
-    void resizeEvent(TQResizeEvent *);
-    void moveEvent(TQMoveEvent *);
 
   private:
     SkoutMenuBtn *w_menubtn;
@@ -67,7 +61,6 @@ class SkoutPanel : public TQFrame {
     AppletList m_applets;
 
     int m_width;
-    bool m_initialized;
     PanelPosition m_pos;
     bool m_forcePos;
 

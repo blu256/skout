@@ -51,8 +51,7 @@ SkoutPanel::SkoutPanel(PanelPosition pos, bool force)
     m_pos(pos),
     m_forcePos(force),
     m_width(200),
-    w_menubtn(nullptr),
-    m_initialized(false)
+    w_menubtn(nullptr)
 {
     new TQVBoxLayout(this);
     layout()->setAutoAdd(true);
@@ -75,7 +74,6 @@ SkoutPanel::SkoutPanel(PanelPosition pos, bool force)
 
     reserveStrut();
     applyPosition();
-    m_initialized = true;
 }
 
 SkoutPanel::~SkoutPanel() {
@@ -219,17 +217,6 @@ void SkoutPanel::initApplets() {
         }
         m_applets.append(applet);
     }
-}
-
-void SkoutPanel::resizeEvent(TQResizeEvent *) {
-    setFixedWidth(200);
-    if (!m_initialized) return;
-    reserveStrut();
-    applyPosition();
-}
-
-void SkoutPanel::moveEvent(TQMoveEvent *) {
-    applyPosition();
 }
 
 #include "skout_panel.moc"
