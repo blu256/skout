@@ -38,32 +38,29 @@ SkoutTaskContainer::SkoutTaskContainer(SkoutTaskMan *parent,
     m_appname(appname),
     m_active(false)
 {
-    init();
-}
-
-SkoutTaskContainer::SkoutTaskContainer(SkoutTaskMan *parent,
-                                       KService::Ptr service, TQString wclass)
-  : TQVBox(parent),
-    m_service(service),
-    m_wclass(wclass),
-    m_active(false)
-{
-    init();
-    m_appname = m_service->name();
-    m_grouper->pin();
-}
-
-void SkoutTaskContainer::init() {
     m_grouper = new SkoutTaskGrouper(this, m_appname);
 
     connect(manager(), SIGNAL(windowActivated(WId)), SLOT(updateActive(WId)));
     connect(m_grouper, SIGNAL(pinChanged(bool)), SLOT(slotPinChanged(bool)));
 
+    setSizePolicy(TQSizePolicy::Maximum, TQSizePolicy::Fixed);
     show();
+}
+
+SkoutTaskContainer::SkoutTaskContainer(SkoutTaskMan *parent,
+                                       KService::Ptr service, TQString wclass)
+  : SkoutTaskContainer(parent, wclass, service->name())
+{
+    m_service = service;
+    m_grouper->pin();
 }
 
 SkoutTaskContainer::~SkoutTaskContainer() {
     ZAP(m_grouper)
+}
+
+TQSize SkoutTaskContainer::sizeHint() const {
+    return TQSize(manager()->width(), minimumSizeHint().height());
 }
 
 TQObjectList SkoutTaskContainer::tasks() {

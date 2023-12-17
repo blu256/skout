@@ -49,7 +49,7 @@ SkoutSysTray::SkoutSysTray(SkoutPanel *parent)
     m_margin(5),
     m_valid(false)
 {
-    setSizePolicy(TQSizePolicy::Preferred, TQSizePolicy::Preferred);
+    setSizePolicy(TQSizePolicy::Maximum, TQSizePolicy::Maximum);
     setFrameStyle(TQFrame::StyledPanel | TQFrame::Sunken);
     setBackgroundOrigin(AncestorOrigin);
 

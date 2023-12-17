@@ -60,7 +60,6 @@ class SkoutPanel : public TQFrame {
     AppletDatabase m_appletdb;
     AppletList m_applets;
 
-    int m_width;
     PanelPosition m_pos;
     bool m_forcePos;
 

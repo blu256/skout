@@ -46,8 +46,7 @@ extern "C" {
 SkoutTaskMan::SkoutTaskMan(SkoutPanel *panel)
   : SkoutApplet(panel, "SkoutTaskMan")
 {
-    setSizePolicy(TQSizePolicy::Fixed, TQSizePolicy::Preferred);
-    setMaximumWidth(SkoutApplet::panel()->width());
+    setSizePolicy(TQSizePolicy::MinimumExpanding, TQSizePolicy::Minimum);
 
     m_twin = new KWinModule(this);
 

@@ -43,8 +43,6 @@ class SkoutTaskContainer : public TQVBox {
     // Constructor for pinned applications
     SkoutTaskContainer(SkoutTaskMan *parent, KService::Ptr service, TQString wclass);
 
-    void init();
-
     TQString windowClass() const { return m_wclass; }
     TQString applicationName() const { return m_appname; }
     TQPixmap groupIcon();
@@ -71,6 +69,9 @@ class SkoutTaskContainer : public TQVBox {
 
   signals:
     void pinChanged(bool pinned);
+
+  protected:
+    TQSize sizeHint() const;
 
   private:
     KService::Ptr m_service;

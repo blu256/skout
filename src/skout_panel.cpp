@@ -50,24 +50,20 @@ SkoutPanel::SkoutPanel(PanelPosition pos, bool force)
                         TQt::WStyle_StaysOnTop | TQt::WDestructiveClose),
     m_pos(pos),
     m_forcePos(force),
-    m_width(200),
     w_menubtn(nullptr)
 {
     new TQVBoxLayout(this);
-    layout()->setAutoAdd(true);
-    layout()->setResizeMode(TQLayout::Fixed);
     layout()->setMargin(0);
     layout()->setSpacing(0);
+    layout()->setResizeMode(TQLayout::Fixed);
 
     w_menubtn = new SkoutMenuBtn(this);
+    layout()->add(w_menubtn);
 
     TDEGlobal::dirs()->addResourceType("applets",
         TDEGlobal::dirs()->kde_default("data") + "skout/applets");
     loadAppletDatabase();
     initApplets();
-
-    setSizePolicy(TQSizePolicy::Ignored, TQSizePolicy::MinimumExpanding);
-    setFrameStyle(TQFrame::Panel | TQFrame::Raised);
 
     setWindowType();
     show();
@@ -216,6 +212,7 @@ void SkoutPanel::initApplets() {
             continue;
         }
         m_applets.append(applet);
+        layout()->add(applet);
     }
 }
 

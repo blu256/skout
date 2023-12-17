@@ -47,6 +47,7 @@ SkoutTaskGrouper::SkoutTaskGrouper(SkoutTaskContainer *parent, TQString name)
     {
         updateStaticPixmaps();
     }
+
     setOn(true);
     connect(this, SIGNAL(toggled(bool)), SLOT(setExpanded(bool)));
 }
