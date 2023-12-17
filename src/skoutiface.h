@@ -16,28 +16,18 @@
   Improvements and feedback are welcome!
 *******************************************************************************/
 
-#ifndef _SKOUT_H
-#define _SKOUT_H
+#ifndef _SKOUTIFACE_H
+#define _SKOUTIFACE_H
 
 // TDE
-#include <kuniqueapplication.h>
+#include <dcopobject.h>
 
-// Skout
-#include "skoutiface.h"
-#include "skout_panel.h"
+class SkoutIface: virtual public DCOPObject {
+  K_DCOP
 
-class Skout : public KUniqueApplication, SkoutIface {
-  TQ_OBJECT
-
-  public:
-    Skout(int pos = -1);
-    ~Skout();
-
-    void reconfigure();
-    void quit();
-
-  private:
-    SkoutPanel *m_panel;
+  k_dcop:
+    virtual void reconfigure() = 0;
+    virtual void quit() = 0;
 };
 
-#endif // _SKOUT_H
+#endif // _SKOUTIFACE_H

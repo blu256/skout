@@ -41,10 +41,15 @@
 // NetWM
 #include <netwm_def.h>
 
-SkoutPanel::SkoutPanel(PanelPosition pos)
+SkoutPanel::SkoutPanel() : SkoutPanel((PanelPosition)SkoutSettings::position())
+{
+}
+
+SkoutPanel::SkoutPanel(PanelPosition pos, bool force)
   : TQFrame(0, "Skout", TQt::WStyle_Customize | TQt::WStyle_NoBorder |
                         TQt::WStyle_StaysOnTop | TQt::WDestructiveClose),
     m_pos(pos),
+    m_forcePos(force),
     m_width(200),
     w_menubtn(nullptr),
     m_initialized(false)
@@ -56,7 +61,6 @@ SkoutPanel::SkoutPanel(PanelPosition pos)
     layout()->setSpacing(0);
 
     w_menubtn = new SkoutMenuBtn(this);
-
 
     TDEGlobal::dirs()->addResourceType("applets",
         TDEGlobal::dirs()->kde_default("data") + "skout/applets");
@@ -79,6 +83,10 @@ SkoutPanel::~SkoutPanel() {
 }
 
 void SkoutPanel::applyPosition() {
+    if (!m_forcePos) {
+        m_pos = (PanelPosition)SkoutSettings::position();
+    }
+
     TQRect desktop = TQApplication::desktop()->geometry();
 
     TQPoint origin;
@@ -94,6 +102,7 @@ void SkoutPanel::applyPosition() {
     }
 
     move(origin);
+    reserveStrut();
 }
 
 void SkoutPanel::setWindowType() {

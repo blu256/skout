@@ -45,12 +45,14 @@ class SkoutPanel : public TQFrame {
   TQ_OBJECT
 
   public:
-    SkoutPanel(PanelPosition pos);
+    SkoutPanel();
+    SkoutPanel(PanelPosition pos, bool force = false);
     ~SkoutPanel();
 
     bool initialized() { return m_initialized; }
 
     PanelPosition position() { return m_pos; }
+    void setPosition(PanelPosition pos);
 
   public slots:
     void applyPosition();
@@ -67,6 +69,7 @@ class SkoutPanel : public TQFrame {
     int m_width;
     bool m_initialized;
     PanelPosition m_pos;
+    bool m_forcePos;
 
     KWinModule *m_twin;
 

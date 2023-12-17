@@ -44,6 +44,20 @@ K_EXPORT_COMPONENT_FACTORY(kcm_skout, SkoutConfigFactory("kcm_skout"))
 
 static const char description[] = I18N_NOOP("Skout panel configuration module");
 
+extern "C" {
+    void start_skout() {
+        DCOPRef kicker("kicker", "kicker");
+        kicker.call("quit()");
+        kapp->startServiceByDesktopName("skout");
+    }
+
+    void stop_skout() {
+        DCOPRef skout("skout", "SkoutIface");
+        skout.call("quit()");
+        kapp->tdeinitExec("kicker");
+    }
+}
+
 SkoutConfig::SkoutConfig(TQWidget *parent, const char *name, const TQStringList &)
   : TDECModule(SkoutConfigFactory::instance(), parent, name)
 {
@@ -81,22 +95,37 @@ void SkoutConfig::load() {
 }
 
 void SkoutConfig::save() {
-    SkoutSettings::setEnableSkout(m_widget->grp->isChecked());
+    bool enable = m_widget->grp->isChecked();
+    if (SkoutSettings::enableSkout() != enable) {
+        startStopSkout(enable);
+    }
+
+    SkoutSettings::setEnableSkout(enable);
     SkoutSettings::setPosition(m_widget->grpPosition->selectedId());
     SkoutSettings::self()->writeConfig();
+
+    DCOPRef skout("skout", "SkoutIface");
+    skout.call("reconfigure()");
 }
 
-extern "C"
-{
-  KDE_EXPORT void init_skout() {
-    SkoutSettings::instance("skoutrc");
-    if (SkoutSettings::enableSkout()) {
-        // HACK-ish but should do for now
-        DCOPRef kicker("kicker", "kicker");
-        kicker.call("quit()");
-        kapp->startServiceByDesktopName("skout");
+void SkoutConfig::startStopSkout(bool enable) {
+    if (enable) {
+        start_skout();
     }
-  };
+    else {
+        stop_skout();
+    }
+}
+
+extern "C" {
+    KDE_EXPORT void init_skout() {
+        SkoutSettings::instance("skoutrc");
+
+        // HACK-ish but should do for now
+        if (SkoutSettings::enableSkout()) {
+            start_skout();
+        }
+    };
 }
 
 #include "tdecm_skout.moc"

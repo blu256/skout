@@ -16,6 +16,9 @@
   Improvements and feedback are welcome!
 *******************************************************************************/
 
+// TDE
+#include <dcopclient.h>
+
 // Skout
 #include "skout.h"
 #include "skoutsettings.h"
@@ -39,15 +42,20 @@
  * => more layouts/positions
  */
 
-Skout::Skout(int pos)
-{
+Skout::Skout(int pos) : DCOPObject("SkoutIface") {
     disableSessionManagement();
 
-    if (pos == -1) {
-        SkoutSettings::instance("skoutrc");
-        pos = SkoutSettings::position();
+    if (!kapp->dcopClient()->isRegistered()) {
+        kapp->dcopClient()->registerAs("skout");
     }
-    m_panel = new SkoutPanel((PanelPosition)pos);
+    kapp->dcopClient()->setDefaultObject("SkoutIface");
+
+    SkoutSettings::instance("skoutrc");
+
+    if (pos > -1) {
+        m_panel = new SkoutPanel((PanelPosition)pos, true);
+    }
+    else m_panel = new SkoutPanel();
     setTopWidget(m_panel);
     m_panel->show();
 }
@@ -55,6 +63,15 @@ Skout::Skout(int pos)
 Skout::~Skout() {
     delete m_panel;
     m_panel = nullptr;
+}
+
+void Skout::reconfigure() {
+    SkoutSettings::self()->readConfig();
+    m_panel->applyPosition();
+}
+
+void Skout::quit() {
+    kapp->quit();
 }
 
 #include "skout.moc"

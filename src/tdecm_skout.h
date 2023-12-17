@@ -16,8 +16,8 @@
   Improvements and feedback are welcome!
 *******************************************************************************/
 
-#ifndef _MAIN_H
-#define _MAIN_H
+#ifndef _TDECM_SKOUT_H
+#define _TDECM_SKOUT_H
 
 // TDE
 #include <tdecmodule.h>
@@ -33,6 +33,7 @@ class SkoutConfig : public TDECModule {
 
     void load();
     void save();
+    void startStopSkout(bool enable);
 
   protected slots:
     void changed();
@@ -42,4 +43,4 @@ class SkoutConfig : public TDECModule {
     SkoutSettings *m_settings;
 };
 
-#endif // _MAIN_H
+#endif // _TDECM_SKOUT_H

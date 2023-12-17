@@ -42,6 +42,7 @@ tde_add_executable(
     skout_panel.cpp
     skout_menu_button.cpp
     skout_menu.cpp
+    skoutiface.skel
 
   LINK
     tdecore-shared
