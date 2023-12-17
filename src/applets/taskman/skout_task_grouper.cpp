@@ -61,13 +61,16 @@ SkoutTaskGrouper::~SkoutTaskGrouper() {
 void SkoutTaskGrouper::updateStaticPixmaps() {
     TDEIconLoader *il = kapp->iconLoader();
     pxHide   = new TQPixmap(il->loadIcon("1uparrow",
-                                         TDEIcon::Small, smallIconSize().height()));
+                                         TDEIcon::Small, smallIconSize().height(),
+                                         TDEIcon::DefaultState, nullptr, true));
 
     pxExpand = new TQPixmap(il->loadIcon("1downarrow",
-                                         TDEIcon::Small, smallIconSize().height()));
+                                         TDEIcon::Small, smallIconSize().height(),
+                                         TDEIcon::DefaultState, nullptr, true));
 
     pxLink   = new TQPixmap(il->loadIcon(il->theme()->linkOverlay(),
-                                         TDEIcon::Panel, bigIconSize().height()));
+                                         TDEIcon::Panel, bigIconSize().height(),
+                                         TDEIcon::DefaultState, nullptr, true));
 }
 #undef ICON
 #undef ICON_SMALL
