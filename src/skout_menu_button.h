@@ -19,9 +19,12 @@
 #ifndef _SKOUT_MENU_BUTTON_H
 #define _SKOUT_MENU_BUTTON_H
 
+// TDE
 #include <kpushbutton.h>
 
-class SkoutPanel;
+// Skout
+#include "skout_panel.h"
+
 class SkoutMenu;
 
 class SkoutMenuBtn : public KPushButton {
@@ -31,11 +34,13 @@ class SkoutMenuBtn : public KPushButton {
     SkoutMenuBtn(SkoutPanel *panel);
     virtual ~SkoutMenuBtn();
 
+    SkoutPanel *panel() { return static_cast<SkoutPanel *>(parent()); }
+
   public slots:
     void showMenu();
-    void hideMenu();
 
   protected:
+    void mousePressEvent(TQMouseEvent *);
     TQSize sizeHint() const;
 
   private:

@@ -58,6 +58,9 @@ class SkoutPanel : public TQFrame {
     void applyPosition();
     void applySize();
 
+    void launchMenuEditor();
+    void configure();
+
   protected:
     void moveEvent(TQMoveEvent *e);
 

@@ -28,17 +28,24 @@
 #include <kstandarddirs.h>
 #include <kiconloader.h>
 #include <kimageeffect.h>
+#include <tdepopupmenu.h>
+#include <khelpmenu.h>
 #include <tdelocale.h>
-#include <kdebug.h>
 
 // Skout
 #include "skout_menu_button.h"
 #include "skout_menu.h"
 #include "skout_panel.h"
 
+static KHelpMenu *helpMenu = nullptr;
+
 SkoutMenuBtn::SkoutMenuBtn(SkoutPanel *panel)
   : KPushButton(panel, "SkoutMenuBtn")
 {
+    if (!helpMenu) {
+        helpMenu = new KHelpMenu(0, kapp->aboutData());
+    }
+
     m_menu = new SkoutMenu(panel);
 
     setSizePolicy(TQSizePolicy::Expanding, TQSizePolicy::Fixed);
@@ -48,8 +55,6 @@ SkoutMenuBtn::SkoutMenuBtn(SkoutPanel *panel)
     setIconSet(kapp->iconLoader()->loadIconSet("go", TDEIcon::Panel, 22));
 
     TQToolTip::add(this, i18n("Skout Menu"));
-
-    connect(this, SIGNAL(clicked()), SLOT(showMenu()));
 }
 
 SkoutMenuBtn::~SkoutMenuBtn() {
@@ -58,6 +63,29 @@ SkoutMenuBtn::~SkoutMenuBtn() {
 TQSize SkoutMenuBtn::sizeHint() const {
     TQFontMetrics fm(TDEGlobalSettings::generalFont());
     return TQSize(width(), fm.height() * 2);
+}
+
+void SkoutMenuBtn::mousePressEvent(TQMouseEvent *e) {
+    if (e->button() == TQt::LeftButton) {
+        showMenu();
+    }
+    else if (e->button() == TQt::RightButton) {
+        TDEIconLoader *il = TDEGlobal::iconLoader();
+        TDEPopupMenu ctx;
+        ctx.insertItem(il->loadIconSet("kmenuedit", TDEIcon::Small),
+                       i18n("Edit menu"),
+                       panel(), SLOT(launchMenuEditor()));
+        ctx.insertSeparator();
+        ctx.insertItem(il->loadIconSet("configure", TDEIcon::Small),
+                       i18n("Skout Preferences"),
+                       panel(), SLOT(configure()));
+        ctx.insertSeparator();
+
+        ctx.insertItem(il->loadIconSet("help", TDEIcon::Small),
+                       i18n("Help..."), helpMenu->menu());
+
+        ctx.exec(mapToGlobal(e->pos()));
+    }
 }
 
 void SkoutMenuBtn::showMenu() {
@@ -74,10 +102,7 @@ void SkoutMenuBtn::showMenu() {
             origin = geometry().topLeft() - TQPoint(m_menu->sizeHint().width(), 0);
             break;
     }
-    m_menu->exec(mapToGlobal(origin));
-}
-
-void SkoutMenuBtn::hideMenu() {
+    m_menu->popup(mapToGlobal(origin));
 }
 
 #include "skout_menu_button.moc"

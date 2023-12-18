@@ -92,5 +92,4 @@ void SkoutMenu::launch(int item) {
                               "SkoutMenu", desktop);
     }
 }
-
 #include "skout_menu.moc"

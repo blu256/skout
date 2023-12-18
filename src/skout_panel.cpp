@@ -17,11 +17,11 @@
 *******************************************************************************/
 
 // TQt
-#include <tqapplication.h>
 #include <tqlayout.h>
 #include <tqfile.h>
 
 // TDE
+#include <tdeapplication.h>
 #include <kstandarddirs.h>
 #include <kdesktopfile.h>
 #include <kpassivepopup.h>
@@ -224,6 +224,29 @@ void SkoutPanel::initApplets() {
         }
         m_applets.append(applet);
         layout()->add(applet);
+    }
+}
+void SkoutPanel::launchMenuEditor() {
+    TQString error;
+    if (0 != kapp->startServiceByDesktopName("kmenuedit", TQString::null,
+                                             &error))
+    {
+        KPassivePopup::message(
+            i18n("Unable to launch menu editor!"),
+            i18n("%1. Please check your installation.").arg(error),
+            SmallIcon("error"),
+            this);
+    }
+}
+
+void SkoutPanel::configure() {
+    TQString error;
+    if (0 != kapp->tdeinitExec("tdecmshell", "skout_config", &error)) {
+        KPassivePopup::message(
+            i18n("Unable to launch preferences module!"),
+            i18n("%1. Please check your installation.").arg(error),
+            SmallIcon("error"),
+            this);
     }
 }
 
