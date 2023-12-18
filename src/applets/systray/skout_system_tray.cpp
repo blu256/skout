@@ -52,7 +52,7 @@ SkoutSysTray::SkoutSysTray(SkoutPanel *parent)
     m_margin(5),
     m_valid(false)
 {
-    setSizePolicy(TQSizePolicy::Maximum, TQSizePolicy::Maximum);
+    setSizePolicy(TQSizePolicy::MinimumExpanding, TQSizePolicy::Maximum);
     setFrameStyle(TQFrame::StyledPanel | TQFrame::Sunken);
     setBackgroundOrigin(AncestorOrigin);
 
@@ -149,7 +149,7 @@ void SkoutSysTray::embedWindow(WId w, bool tde_tray) {
     m_tray.append(ew);
 
     connect(ew, SIGNAL(embeddedWindowDestroyed()), SLOT(updateTrayWindows()));
-    ew->setFixedSize(iconSize()); // FIXME: should be configurable
+    ew->setFixedSize(iconSize());
     ew->show();
 }
 
@@ -213,8 +213,8 @@ void SkoutSysTray::relayout(bool force) {
     if (m_doingRelayout) return;
 
     TQSize icon = iconSize();
-    int width = static_cast<TQWidget *>(parent())->width();
-    int cols = width / icon.width();
+    int width = static_cast<TQWidget *>(parent())->width() - margin();
+    int cols = width / (icon.width() + iconPadding());
     int rows = m_tray.size() / cols;
     if (m_cols == cols && !force) return;
 
@@ -228,7 +228,7 @@ void SkoutSysTray::relayout(bool force) {
     for (it = m_tray.begin(); it != m_tray.end(); ++it) {
         m_layout->addWidget((*it), row, col, TQt::AlignCenter);
         ++col;
-        if (col == m_cols) {
+        if (col >= m_cols) {
             ++row;
             col = 0;
         }
@@ -252,6 +252,7 @@ void SkoutSysTray::paletteChanged() {
 TrayEmbed::TrayEmbed(bool _tde_tray, TQWidget *parent)
   : QXEmbed(parent), tde_tray(_tde_tray)
 {
+    setSizePolicy(TQSizePolicy::Fixed, TQSizePolicy::Fixed);
 }
 
 TrayEmbed::~TrayEmbed() {}
