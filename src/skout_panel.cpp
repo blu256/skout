@@ -41,6 +41,8 @@
 // NetWM
 #include <netwm_def.h>
 
+#define ERR_CHK_INSTALLATION I18N_NOOP("%1<br>Please check your installation.")
+
 SkoutPanel::SkoutPanel() : SkoutPanel((PanelPosition)SkoutSettings::position())
 {
 }
@@ -141,6 +143,10 @@ void SkoutPanel::moveEvent(TQMoveEvent *me) {
   }
 }
 
+void SkoutPanel::popup(TQString icon, TQString caption, TQString message) {
+    KPassivePopup::message(caption, message, SmallIcon(icon), this);
+}
+
 void SkoutPanel::loadAppletDatabase() {
     TQStringList applets = TDEGlobal::dirs()->findAllResources("applets",
                                                                "*.desktop",
@@ -178,12 +184,9 @@ void SkoutPanel::initApplets() {
     for (it = applets.constBegin(); it != applets.constEnd(); ++it) {
         TQString id((*it));
         if (!m_appletdb.contains(id)) {
-            KPassivePopup::message(
-                i18n("Unable to load \"%1\" applet!").arg(id),
-                i18n("Applet not found. Please check if the applet is properly "
-                     "installed."),
-                SmallIcon("error"),
-                this);
+            popup("error", i18n("Unable to load \"%1\" applet!").arg(id),
+                           i18n("Applet not found. Please ensure that it has "
+                                "been properly installed."));
             continue;
         }
 
@@ -191,20 +194,15 @@ void SkoutPanel::initApplets() {
         const char *libPath = TQFile::encodeName(data.library);
         KLibrary *lib = KLibLoader::self()->library(libPath);
         if (!lib) {
-            KPassivePopup::message(
-                i18n("Unable to load \"%1\" applet!").arg(id),
-                KLibLoader::self()->lastErrorMessage(),
-                SmallIcon("error"),
-                this);
+            TQString error(KLibLoader::self()->lastErrorMessage());
+            popup("error", i18n("Unable to load \"%1\" applet!").arg(id),
+                           TQString(ERR_CHK_INSTALLATION).arg(error));
             continue;
         }
 
         if (!lib->hasSymbol("init")) {
-            KPassivePopup::message(
-                i18n("Unable to load \"%1\" applet!").arg(id),
-                i18n("This is not a valid applet."),
-                SmallIcon("error"),
-                this);
+            popup("error", i18n("Unable to load \"%1\" applet!").arg(id),
+                           i18n("This is not a valid applet."));
             KLibLoader::self()->unloadLibrary(libPath);
             continue;
         }
@@ -213,15 +211,17 @@ void SkoutPanel::initApplets() {
         SkoutApplet *(*c)(SkoutPanel *) = (SkoutApplet *(*)(SkoutPanel *))init;
         SkoutApplet *applet = c(this);
         if (!applet->valid()) {
-            KPassivePopup::message(
-                i18n("Unable to load \"%1\" applet!").arg(id),
-                applet->lastErrorMessage(),
-                SmallIcon("error"),
-                this);
+            TQString error(applet->lastErrorMessage());
+            popup("error", i18n("Unable to load \"%1\" applet!").arg(id),
+                  TQString(ERR_CHK_INSTALLATION).arg(error));
             delete applet;
             KLibLoader::self()->unloadLibrary(libPath);
             continue;
         }
+
+        connect(applet, SIGNAL(showPopup(TQString, TQString, TQString)),
+                        SLOT(popup(TQString, TQString, TQString)));
+
         m_applets.append(applet);
         layout()->add(applet);
     }
@@ -231,22 +231,16 @@ void SkoutPanel::launchMenuEditor() {
     if (0 != kapp->startServiceByDesktopName("kmenuedit", TQString::null,
                                              &error))
     {
-        KPassivePopup::message(
-            i18n("Unable to launch menu editor!"),
-            i18n("%1. Please check your installation.").arg(error),
-            SmallIcon("error"),
-            this);
+        popup("error", i18n("Unable to launch menu editor!"),
+                       TQString(ERR_CHK_INSTALLATION).arg(error));
     }
 }
 
 void SkoutPanel::configure() {
     TQString error;
     if (0 != kapp->tdeinitExec("tdecmshell", "skout_config", &error)) {
-        KPassivePopup::message(
-            i18n("Unable to launch preferences module!"),
-            i18n("%1. Please check your installation.").arg(error),
-            SmallIcon("error"),
-            this);
+        popup("error", i18n("Unable to launch preferences module!"),
+                       TQString(ERR_CHK_INSTALLATION).arg(error));
     }
 }
 

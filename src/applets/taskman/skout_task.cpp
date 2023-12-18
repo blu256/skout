@@ -162,11 +162,9 @@ void SkoutTask::sendToTray() {
              << "--wid" << TQString::number(windowID());
     bool ok = ksystray.start(TDEProcess::DontCare);
     if (!ok) {
-        KPassivePopup::message(
+        container()->manager()->popup("error",
             i18n("Unable to send \"%1\" to tray").arg(name()),
-            i18n(strerror(errno)),
-            SmallIcon("error"),
-            this);
+            i18n(strerror(errno)));
     }
 }
 

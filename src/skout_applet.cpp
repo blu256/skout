@@ -39,3 +39,9 @@ TQWidget *SkoutApplet::panel() {
 TQString SkoutApplet::lastErrorMessage() {
     return TQString::null;
 }
+
+void SkoutApplet::popup(TQString icon, TQString caption, TQString message) {
+    emit showPopup(icon, caption, message);
+}
+
+#include "skout_applet.moc"

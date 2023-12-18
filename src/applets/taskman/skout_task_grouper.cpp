@@ -199,9 +199,9 @@ void SkoutTaskGrouper::mouseDoubleClickEvent(TQMouseEvent *me) {
 
         TQString error;
         if (kapp->startServiceByDesktopPath(path, TQString::null, &error) != 0) {
-            KPassivePopup::message(i18n("Unable to launch %1").arg(svc->name()),
-                                   i18n(error.local8Bit()), SmallIcon("error"),
-                                   this);
+            container()->manager()->popup("error",
+                i18n("Unable to launch %1").arg(svc->name()),
+                i18n(error.local8Bit()));
         }
 
         // HACK the second click gets consumed

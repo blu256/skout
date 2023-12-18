@@ -25,6 +25,8 @@
 class SkoutPanel;
 
 class SkoutApplet : public TQFrame {
+  TQ_OBJECT
+
   public:
     SkoutApplet(SkoutPanel *panel, const char *name = 0);
     virtual ~SkoutApplet();
@@ -33,6 +35,11 @@ class SkoutApplet : public TQFrame {
 
     virtual bool valid();
     virtual TQString lastErrorMessage();
+
+    void popup(TQString icon, TQString caption, TQString message);
+
+  signals:
+    void showPopup(TQString icon, TQString caption, TQString message);
 
   private:
     SkoutPanel *m_panel;
