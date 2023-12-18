@@ -70,8 +70,6 @@ SkoutPanel::SkoutPanel(PanelPosition pos, bool force)
     setWindowType();
     show();
 
-    kdDebug() << size() << endl;
-
     applyPosition();
 }
 

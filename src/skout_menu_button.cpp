@@ -63,8 +63,6 @@ TQSize SkoutMenuBtn::sizeHint() const {
 void SkoutMenuBtn::showMenu() {
     SkoutPanel *panel = static_cast<SkoutPanel *>(parent());
 
-    kdDebug() << m_menu->sizeHint().width() << endl;
-
     TQPoint origin;
     switch (panel->position()) {
         case PanelPosition::TopLeft:
