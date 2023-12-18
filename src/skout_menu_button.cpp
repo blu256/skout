@@ -21,6 +21,7 @@
 #include <tqfontmetrics.h>
 #include <tqimage.h>
 #include <tqtooltip.h>
+#include <tqwhatsthis.h>
 
 // TDE
 #include <tdeglobalsettings.h>
@@ -55,6 +56,8 @@ SkoutMenuBtn::SkoutMenuBtn(SkoutPanel *panel)
     setIconSet(kapp->iconLoader()->loadIconSet("go", TDEIcon::Panel, 22));
 
     TQToolTip::add(this, i18n("Skout Menu"));
+    TQWhatsThis::add(this, i18n("The Skout Menu provides access to installed "
+                                "applications, locations and common actions."));
 }
 
 SkoutMenuBtn::~SkoutMenuBtn() {

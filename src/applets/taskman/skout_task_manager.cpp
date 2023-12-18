@@ -18,11 +18,13 @@
 
 // TQt
 #include <tqlayout.h>
+#include <tqwhatsthis.h>
 
 // TDE
 #include <tdeapplication.h>
 #include <twinmodule.h>
 #include <twin.h>
+#include <tdelocale.h>
 #include <kdebug.h>
 
 // Skout
@@ -52,6 +54,10 @@ SkoutTaskMan::SkoutTaskMan(SkoutPanel *panel)
 
     setSizePolicy(TQSizePolicy::MinimumExpanding, TQSizePolicy::Minimum);
     new TQVBoxLayout(this);
+
+    TQWhatsThis::add(this, i18n("The task list provides access to application "
+                                "windows, common window operations and pinned "
+                                "applications."));
 
     // Create containers for pinned applications
     TQStringList pinned = SkoutSettings::pinnedApplications();

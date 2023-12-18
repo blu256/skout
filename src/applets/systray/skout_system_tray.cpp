@@ -24,6 +24,9 @@
   Improvements and feedback are welcome!
 *******************************************************************************/
 
+// TQt
+#include <tqwhatsthis.h>
+
 // TDE
 #include <tdeapplication.h>
 #include <tdelocale.h>
@@ -75,6 +78,11 @@ SkoutSysTray::SkoutSysTray(SkoutPanel *parent)
     if (!m_valid) {
         m_error = i18n("Unable to acquire system tray!");
     }
+
+    TQWhatsThis::add(this, i18n("The system tray provides status information, "
+                                "quick access to some functions and a place "
+                                "to conveniently store application windows "
+                                "from the task list."));
 
     relayout(true);
 }
