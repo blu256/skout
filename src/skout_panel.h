@@ -49,11 +49,17 @@ class SkoutPanel : public TQFrame {
     SkoutPanel(PanelPosition pos, bool force = false);
     ~SkoutPanel();
 
-    PanelPosition position() { return m_pos; }
+    PanelPosition position() const { return m_pos; }
     void setPosition(PanelPosition pos);
+
+    TQPoint originPos() const;
 
   public slots:
     void applyPosition();
+    void applySize();
+
+  protected:
+    void moveEvent(TQMoveEvent *e);
 
   private:
     SkoutMenuBtn *w_menubtn;

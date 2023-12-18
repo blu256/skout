@@ -22,16 +22,20 @@
 #include <tqbuttongroup.h>
 #include <tqcheckbox.h>
 #include <tqradiobutton.h>
+#include <tqspinbox.h>
+#include <tqgroupbox.h>
 #include <tqlabel.h>
-#include <tqhbox.h>
+#include <tqvbox.h>
 
 // TDE
-#include <dcopref.h>
 #include <tdeaboutdata.h>
 #include <tdeapplication.h>
 #include <kgenericfactory.h>
 #include <kdialog.h>
+#include <kiconloader.h>
+#include <kjanuswidget.h>
 #include <tdelocale.h>
+#include <dcopref.h>
 
 // Skout
 #include "tdecm_skout.h"
@@ -74,14 +78,56 @@ SkoutConfig::SkoutConfig(TQWidget *parent, const char *name, const TQStringList 
 
     new TQVBoxLayout(this);
 
-    m_widget = new SkoutConfigWidget(this);
-    layout()->add(m_widget);
 
-    connect(m_widget->grp,         SIGNAL(toggled(bool)), SLOT(changed()));
-    connect(m_widget->grpPosition, SIGNAL(clicked(int)),  SLOT(changed()));
+    m_groupBox = new TQGroupBox(this);
+    m_groupBox->setCheckable(true);
+    m_groupBox->setTitle(i18n("Enable Skout"));
+    m_groupBox->setFlat(false);
+    layout()->setAutoAdd(true);
+
+    new TQVBoxLayout(m_groupBox);
+    m_groupBox->layout()->setAutoAdd(true);
+
+#define ICON(x) TDEGlobal::iconLoader()->loadIcon(x, TDEIcon::Panel)
+    m_tabWidget = new KJanusWidget(m_groupBox, 0, KJanusWidget::IconList);
+    TQVBox *tabGeneral = m_tabWidget->addVBoxPage((const TQString)"General",
+                                                  "General settings",
+                                                  ICON("configure"));
+
+    TQVBox *tabLook = m_tabWidget->addVBoxPage((const TQString)"Appearance",
+                                               "Appearance", ICON("icons"));
+#undef ICON
+
+    // General tab
+    tabGeneral->layout()->setAutoAdd(false);
+
+    TQHBox *posBox = new TQHBox(tabGeneral);
+    TQLabel *posLabel = new TQLabel(i18n("Panel position: "), posBox);
+
+    m_grpPos = new TQButtonGroup(posBox);
+    m_grpPos->setSizePolicy(TQSizePolicy::Maximum, TQSizePolicy::Fixed);
+
+    new TQHBoxLayout(m_grpPos);
+    m_grpPos->layout()->setAutoAdd(true);
+
+    TQRadioButton *posTopLeft  = new TQRadioButton(i18n("Top left"), m_grpPos);
+    TQRadioButton *posTopRight = new TQRadioButton(i18n("Top right"), m_grpPos);
+
+    TQHBox *widthBox = new TQHBox(tabGeneral);
+    TQLabel *widthLabel = new TQLabel(i18n("Panel width: "), widthBox);
+    m_width = new TQSpinBox(100, 500, 1, widthBox);
+
+    tabGeneral->layout()->add(posBox);
+    tabGeneral->layout()->add(widthBox);
+    ((TQVBoxLayout *)tabGeneral->layout())->addStretch();
+
+    connect(m_groupBox, SIGNAL(toggled(bool)),     SLOT(changed()));
+    connect(m_grpPos,   SIGNAL(clicked(int)),      SLOT(changed()));
+    connect(m_width,    SIGNAL(valueChanged(int)), SLOT(changed()));
 
     setButtons(Help|Apply);
     load();
+    show();
 }
 
 void SkoutConfig::changed() {
@@ -90,18 +136,20 @@ void SkoutConfig::changed() {
 
 void SkoutConfig::load() {
     SkoutSettings::self()->readConfig();
-    m_widget->grp->setChecked(SkoutSettings::enableSkout());
-    m_widget->grpPosition->setButton(SkoutSettings::position());
+    m_groupBox->setChecked(SkoutSettings::enableSkout());
+    m_grpPos->setButton(SkoutSettings::position());
+    m_width->setValue(SkoutSettings::panelWidth());
 }
 
 void SkoutConfig::save() {
-    bool enable = m_widget->grp->isChecked();
+    bool enable = m_groupBox->isChecked();
     if (SkoutSettings::enableSkout() != enable) {
         startStopSkout(enable);
     }
 
     SkoutSettings::setEnableSkout(enable);
-    SkoutSettings::setPosition(m_widget->grpPosition->selectedId());
+    SkoutSettings::setPosition(m_grpPos->selectedId());
+    SkoutSettings::setPanelWidth(m_width->value());
     SkoutSettings::self()->writeConfig();
 
     DCOPRef skout("skout", "SkoutIface");

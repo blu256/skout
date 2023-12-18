@@ -22,7 +22,11 @@
 // TDE
 #include <tdecmodule.h>
 
-class SkoutConfigWidget;
+class TQGroupBox;
+class TQButtonGroup;
+class TQSpinBox;
+class KJanusWidget;
+
 class SkoutSettings;
 
 class SkoutConfig : public TDECModule {
@@ -39,8 +43,12 @@ class SkoutConfig : public TDECModule {
     void changed();
 
   private:
-    SkoutConfigWidget *m_widget;
     SkoutSettings *m_settings;
+
+    TQGroupBox *m_groupBox;
+    KJanusWidget *m_tabWidget;
+    TQButtonGroup *m_grpPos;
+    TQSpinBox *m_width;
 };
 
 #endif // _TDECM_SKOUT_H

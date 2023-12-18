@@ -55,7 +55,9 @@ SkoutPanel::SkoutPanel(PanelPosition pos, bool force)
     new TQVBoxLayout(this);
     layout()->setMargin(0);
     layout()->setSpacing(0);
-    layout()->setResizeMode(TQLayout::Fixed);
+
+    setSizePolicy(TQSizePolicy::Fixed, TQSizePolicy::Maximum);
+    applySize();
 
     w_menubtn = new SkoutMenuBtn(this);
     layout()->add(w_menubtn);
@@ -68,7 +70,8 @@ SkoutPanel::SkoutPanel(PanelPosition pos, bool force)
     setWindowType();
     show();
 
-    reserveStrut();
+    kdDebug() << size() << endl;
+
     applyPosition();
 }
 
@@ -76,27 +79,31 @@ SkoutPanel::~SkoutPanel() {
     ZAP(w_menubtn)
 }
 
-void SkoutPanel::applyPosition() {
-    if (!m_forcePos) {
-        m_pos = (PanelPosition)SkoutSettings::position();
-    }
-
+TQPoint SkoutPanel::originPos() const {
     TQRect desktop = TQApplication::desktop()->geometry();
-
-    TQPoint origin;
     switch (position()) {
         case PanelPosition::TopLeft:
-            origin = desktop.topLeft();
+            return desktop.topLeft();
             break;
 
         case PanelPosition::TopRight:
         default:
-            origin = desktop.topRight() - TQPoint(width(), 0);
+            return desktop.topRight() - TQPoint(SkoutSettings::panelWidth(), 0);
             break;
     }
+}
 
-    move(origin);
+void SkoutPanel::applyPosition() {
+    if (!m_forcePos) {
+        m_pos = (PanelPosition)SkoutSettings::position();
+    }
+    move(originPos());
     reserveStrut();
+}
+
+void SkoutPanel::applySize() {
+    setFixedSize(SkoutSettings::panelWidth(), sizeHint().height());
+    applyPosition();
 }
 
 void SkoutPanel::setWindowType() {
@@ -112,14 +119,14 @@ void SkoutPanel::reserveStrut() {
         case PanelPosition::TopLeft:
             strut.left_start = y();
             strut.left_end = y() + height();
-            strut.left_width = width();
+            strut.left_width = SkoutSettings::panelWidth();
             break;
 
         case PanelPosition::TopRight:
         default:
             strut.right_start = y();
             strut.right_end = y() + height();
-            strut.right_width = width();
+            strut.right_width = SkoutSettings::panelWidth();
             break;
     }
 
@@ -128,6 +135,12 @@ void SkoutPanel::reserveStrut() {
       strut.right_width,  strut.right_start,  strut.right_end,
       strut.top_width,    strut.top_start,    strut.top_end,
       strut.bottom_width, strut.bottom_start, strut.bottom_end);
+}
+
+void SkoutPanel::moveEvent(TQMoveEvent *me) {
+  if (me->pos() != originPos()) {
+      move(originPos());
+  }
 }
 
 void SkoutPanel::loadAppletDatabase() {

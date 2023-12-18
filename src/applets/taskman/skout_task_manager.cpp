@@ -46,10 +46,11 @@ extern "C" {
 SkoutTaskMan::SkoutTaskMan(SkoutPanel *panel)
   : SkoutApplet(panel, "SkoutTaskMan")
 {
-    setSizePolicy(TQSizePolicy::MinimumExpanding, TQSizePolicy::Minimum);
+    m_tasks.setAutoDelete(true);
 
     m_twin = new KWinModule(this);
 
+    setSizePolicy(TQSizePolicy::MinimumExpanding, TQSizePolicy::Minimum);
     new TQVBoxLayout(this);
 
     // Create containers for pinned applications
@@ -130,7 +131,7 @@ void SkoutTaskMan::removeWindow(WId w) {
     SkoutTask *t = m_tasks[w];
     if (!t) return;
     m_tasks.remove(w);
-    t->deleteLater();
+    panel()->layout()->invalidate();
 }
 
 void SkoutTaskMan::addContainer(SkoutTaskContainer *c) {

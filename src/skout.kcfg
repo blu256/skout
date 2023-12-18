@@ -25,6 +25,12 @@
       <whatsthis>Applets in the panel, top to bottom.</whatsthis>
     </entry>
   </group>
+  <group name="Appearance">
+    <entry key="PanelWidth" type="Int">
+      <default>200</default>
+      <whatsthis>Panel width, in pixels</whatsthis>
+    </entry>
+  </group>
   <group name="TaskMan">
     <entry key="PinnedApplications" type="StringList">
       <label>Pinned windows</label>

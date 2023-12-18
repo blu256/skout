@@ -67,6 +67,7 @@ Skout::~Skout() {
 
 void Skout::reconfigure() {
     SkoutSettings::self()->readConfig();
+    m_panel->applySize();
     m_panel->applyPosition();
 }
 
