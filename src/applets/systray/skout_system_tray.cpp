@@ -30,10 +30,11 @@
 // TDE
 #include <tdeapplication.h>
 #include <tdelocale.h>
-#include <kdebug.h>
 
 // Skout
+#include "skoutsettings.h"
 #include "skout_system_tray.h"
+#include "skout_status_widget.h"
 #include "skout_utils.h"
 
 extern "C" {
@@ -50,7 +51,8 @@ SkoutSysTray::SkoutSysTray(SkoutPanel *parent)
     m_icon_size(22),
     m_icon_padding(1),
     m_margin(5),
-    m_valid(false)
+    m_valid(false),
+    m_status(nullptr)
 {
     setSizePolicy(TQSizePolicy::MinimumExpanding, TQSizePolicy::Maximum);
     setFrameStyle(TQFrame::StyledPanel | TQFrame::Sunken);
@@ -88,6 +90,7 @@ SkoutSysTray::SkoutSysTray(SkoutPanel *parent)
 }
 
 SkoutSysTray::~SkoutSysTray() {
+    ZAP(m_status);
 }
 
 bool SkoutSysTray::acquireSystemTray() {
@@ -221,9 +224,18 @@ void SkoutSysTray::relayout(bool force) {
     m_doingRelayout = true;
     delete m_layout;
     m_layout = new TQGridLayout(this, rows, cols, margin(), iconPadding());
-    m_cols = cols;
 
     int col = 0, row = 0;
+    m_cols = cols;
+
+    if (SkoutSettings::enableStatusWidget()) {
+        if (!m_status) {
+            m_status = new SkoutStatusWidget(this);
+        }
+        m_layout->addMultiCellWidget(m_status, 0, 0, 0, m_cols);
+        row += 1;
+    }
+
     TrayEmbedList::const_iterator it;
     for (it = m_tray.begin(); it != m_tray.end(); ++it) {
         m_layout->addWidget((*it), row, col, TQt::AlignCenter);

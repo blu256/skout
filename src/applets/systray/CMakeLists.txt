@@ -21,7 +21,10 @@ link_directories(
 
 ### skoutapplet_systray (module) ###############################################
 tde_add_kpart( skoutapplet_systray AUTOMOC
-  SOURCES skout_system_tray.cpp
+  SOURCES
+    skout_system_tray.cpp
+    skout_status_widget.cpp
+    skout_system_graph.cpp
 
   LINK
     tdecore-shared

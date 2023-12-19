@@ -36,4 +36,11 @@
       <label>Pinned windows</label>
     </entry>
   </group>
+  <group name="SysTray">
+    <entry key="EnableStatusWidget" type="Bool">
+      <label>Enable status widget</label>
+      <default>true</default>
+      <whatsthis>Enables the status widget. The status widget is placed in the top of your system tray and includes a clock and some system sensors (CPU, Memory usage).</whatsthis>
+    </entry>
+  </group>
 </kcfg>

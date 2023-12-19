@@ -54,6 +54,7 @@ class TrayEmbed : public QXEmbed {
 typedef TQValueVector<TrayEmbed*> TrayEmbedList;
 
 class SkoutPanel;
+class SkoutStatusWidget;
 
 class SkoutSysTray : public SkoutApplet {
   TQ_OBJECT
@@ -86,6 +87,7 @@ class SkoutSysTray : public SkoutApplet {
     void updateTrayWindows();
 
   private:
+    SkoutStatusWidget *m_status;
     KWinModule *m_twin;
     TrayEmbedList m_tray;
     Atom net_system_tray_selection;
