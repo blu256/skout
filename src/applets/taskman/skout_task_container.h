@@ -74,9 +74,6 @@ class SkoutTaskContainer : public TQVBox {
   signals:
     void pinChanged(bool pinned);
 
-  protected:
-    TQSize sizeHint() const;
-
   private:
     KService::Ptr m_service;
     TQString m_wclass;

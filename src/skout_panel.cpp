@@ -52,7 +52,7 @@ SkoutPanel::SkoutPanel(PanelPosition pos, bool force)
     m_forcePos(force),
     w_menubtn(nullptr)
 {
-    setSizePolicy(TQSizePolicy::Fixed, TQSizePolicy::Maximum);
+    setSizePolicy(TQSizePolicy::Fixed, TQSizePolicy::Fixed);
 
     m_appletdb = SkoutAppletDB::instance();
 
@@ -100,7 +100,7 @@ void SkoutPanel::applyPosition() {
 }
 
 void SkoutPanel::applySize() {
-    setFixedSize(SkoutSettings::panelWidth(), sizeHint().height());
+    setFixedSize(SkoutSettings::panelWidth(), layout()->minimumSize().height());
     applyPosition();
 }
 
@@ -180,6 +180,8 @@ bool SkoutPanel::loadApplet(AppletData &applet) {
         unloadApplet(applet);
         return false;
     }
+
+    connect(applet.ptr, SIGNAL(updateGeometry()), SLOT(applySize()));
 
     connect(applet.ptr, SIGNAL(showPopup(TQString, TQString, TQString)),
                         SLOT(popup(TQString, TQString, TQString)));

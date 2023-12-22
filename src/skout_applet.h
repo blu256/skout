@@ -44,6 +44,10 @@ class SkoutApplet : public TQFrame {
     void showPopup(TQString icon, TQString caption, TQString message);
     void doLaunch(TQString application, TQStringList args,
                   TQString description, bool isService);
+    void updateGeometry();
+
+  protected:
+    void resizeEvent(TQResizeEvent *);
 
   private:
     SkoutPanel *m_panel;

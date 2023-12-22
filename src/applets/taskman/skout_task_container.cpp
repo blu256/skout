@@ -45,7 +45,7 @@ SkoutTaskContainer::SkoutTaskContainer(SkoutTaskMan *parent,
     connect(manager(), SIGNAL(windowActivated(WId)), SLOT(updateActive(WId)));
     connect(m_grouper, SIGNAL(pinChanged(bool)), SLOT(slotPinChanged(bool)));
 
-    setSizePolicy(TQSizePolicy::Maximum, TQSizePolicy::Fixed);
+    setSizePolicy(TQSizePolicy::MinimumExpanding, TQSizePolicy::Fixed);
     show();
 }
 
@@ -59,10 +59,6 @@ SkoutTaskContainer::SkoutTaskContainer(SkoutTaskMan *parent,
 
 SkoutTaskContainer::~SkoutTaskContainer() {
     ZAP(m_grouper)
-}
-
-TQSize SkoutTaskContainer::sizeHint() const {
-    return TQSize(manager()->width(), minimumSizeHint().height());
 }
 
 TQObjectList SkoutTaskContainer::tasks() {

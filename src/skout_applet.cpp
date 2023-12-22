@@ -40,6 +40,10 @@ TQString SkoutApplet::lastErrorMessage() {
     return TQString::null;
 }
 
+void SkoutApplet::resizeEvent(TQResizeEvent *e) {
+    emit updateGeometry();
+}
+
 void SkoutApplet::popup(TQString icon, TQString caption, TQString message) {
     emit showPopup(icon, caption, message);
 }

@@ -52,7 +52,7 @@ SkoutTaskMan::SkoutTaskMan(SkoutPanel *panel)
 
     m_twin = new KWinModule(this);
 
-    setSizePolicy(TQSizePolicy::MinimumExpanding, TQSizePolicy::Minimum);
+    setSizePolicy(TQSizePolicy::MinimumExpanding, TQSizePolicy::Fixed);
     new TQVBoxLayout(this);
 
     TQWhatsThis::add(this, i18n("The task list provides access to application "
