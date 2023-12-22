@@ -8,3 +8,4 @@
 
 add_subdirectory(systray)
 add_subdirectory(taskman)
+add_subdirectory(calendar)

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Calendar
+Comment=A simple calendar
+Type=SkoutApplet
+Icon=date
+
+X-TDE-Library=skoutapplet_calendar

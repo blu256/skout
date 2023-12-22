@@ -1,0 +1,10 @@
+This is a very basic Skout applet which can serve as an example for creating
+more advanced applets.
+
+It is thoroughly commented and kept as much barebones as possible without
+sacrificing usability.
+
+Here is a basic file structure of a Skout applet:
+    - CMakeLists.txt, contains instructions for building the applet with CMake
+    - applet_name.desktop, contains information about the applet
+    - various implementation files, in this case skout_calendar.{cpp,h}
