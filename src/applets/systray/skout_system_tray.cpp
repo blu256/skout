@@ -150,6 +150,7 @@ void SkoutSysTray::embedWindow(WId w, bool tde_tray) {
     }
 
     m_tray.append(ew);
+    relayout(true);
 
     connect(ew, SIGNAL(embeddedWindowDestroyed()), SLOT(updateTrayWindows()));
     ew->setFixedSize(iconSize());
