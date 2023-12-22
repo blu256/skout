@@ -108,11 +108,11 @@ const TQString SkoutStatusWidget::formatDateTime(TQDateTime dt, DateTimeFormat f
 }
 
 void SkoutStatusWidget::configureDateTime() {
-    sysTray()->launch("tdecmshell", "clock", "the clock settings module");
+    sysTray()->launch("tdecmshell", "clock", "the clock settings module", false);
 }
 
 void SkoutStatusWidget::configureDateTimeFormat() {
-    sysTray()->launch("tdecmshell", "language", "the locale settings module");
+    sysTray()->launch("tdecmshell", "language", "the locale settings module", false);
 }
 
 static KDatePicker *calendar;

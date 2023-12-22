@@ -37,11 +37,13 @@ class SkoutApplet : public TQFrame {
     virtual TQString lastErrorMessage();
 
     void popup(TQString icon, TQString caption, TQString message);
-    void launch(TQString service, TQStringList args, TQString what);
+    void launch(TQString application, TQStringList args,
+                TQString description, bool isService = true);
 
   signals:
     void showPopup(TQString icon, TQString caption, TQString message);
-    void doLaunch(TQString service, TQStringList args, TQString what);
+    void doLaunch(TQString application, TQStringList args,
+                  TQString description, bool isService);
 
   private:
     SkoutPanel *m_panel;

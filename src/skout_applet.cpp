@@ -44,8 +44,10 @@ void SkoutApplet::popup(TQString icon, TQString caption, TQString message) {
     emit showPopup(icon, caption, message);
 }
 
-void SkoutApplet::launch(TQString service, TQStringList args, TQString what) {
-    emit doLaunch(service, args, what);
+void SkoutApplet::launch(TQString application, TQStringList args,
+                         TQString description, bool isService)
+{
+    emit doLaunch(application, args, description, isService);
 }
 
 #include "skout_applet.moc"

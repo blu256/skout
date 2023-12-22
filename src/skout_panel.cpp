@@ -222,19 +222,29 @@ void SkoutPanel::initApplets() {
         connect(applet, SIGNAL(showPopup(TQString, TQString, TQString)),
                         SLOT(popup(TQString, TQString, TQString)));
 
-        connect(applet, SIGNAL(doLaunch(TQString, TQStringList, TQString)),
-                        SLOT(launch(TQString, TQStringList, TQString)));
+        connect(applet, SIGNAL(doLaunch(TQString, TQStringList, TQString, bool)),
+                        SLOT(launch(TQString, TQStringList, TQString, bool)));
 
         m_applets.append(applet);
         layout()->add(applet);
     }
 }
 
-bool SkoutPanel::launch(TQString service, TQStringList args, TQString what) {
+bool SkoutPanel::launch(TQString application, TQStringList args,
+                        TQString description, bool isService)
+{
     TQString error;
-    if (0 != kapp->startServiceByDesktopName(service, args, &error)) {
-        popup("error", i18n("Unable to launch %1!").arg(what),
-                       TQString(ERR_CHK_INSTALLATION).arg(error));
+    int ret;
+    if (isService) {
+        ret = kapp->startServiceByDesktopName(application, args, &error);
+    }
+    else {
+        ret = kapp->tdeinitExec(application, args, &error);
+    }
+
+    if (0 != ret) {
+        popup("error", i18n("Unable to launch %1!").arg(description),
+                        TQString(ERR_CHK_INSTALLATION).arg(error));
         return false;
     }
     return true;
@@ -245,7 +255,7 @@ void SkoutPanel::launchMenuEditor() {
 }
 
 void SkoutPanel::configure() {
-    launch("tdecmshell", "skout_config", "the menu editor");
+    launch("tdecmshell", "skout_config", "the menu editor", false);
 }
 
 #include "skout_panel.moc"

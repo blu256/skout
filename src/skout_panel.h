@@ -59,7 +59,8 @@ class SkoutPanel : public TQFrame {
     void applySize();
 
     void popup(TQString icon, TQString caption, TQString message);
-    bool launch(TQString service, TQStringList args, TQString what);
+    bool launch(TQString application, TQStringList args,
+                TQString description, bool isService = true);
 
     void launchMenuEditor();
     void configure();
