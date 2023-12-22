@@ -138,11 +138,29 @@ void SkoutSystemGraph::update() {
         m_isUpdating = false;
 
         // update readings list
-        m_readings.push_back(m_value * 100 / m_maxValue);
+        int perc = m_value * 100 / m_maxValue;
+        m_readings.push_back(perc);
         while (m_readings.count() > graphRect().width()) {
             m_readings.pop_front();
         }
 
+        // update tooltip
+        TDELocale *l = TDEGlobal::locale();
+        TQToolTip::remove(this);
+        if (m_maxValue != 100) {
+            TQToolTip::add(this, TQString("%1: %2%3/%4%5 (%6%)")
+                                 .arg(name())
+                                 .arg(l->formatNumber(m_value, 0))
+                                 .arg(" " + i18n(m_unit.local8Bit()))
+                                 .arg(l->formatNumber(m_maxValue, 0))
+                                 .arg(" " + i18n(m_unit.local8Bit()))
+                                 .arg(perc));
+        }
+        else {
+            TQToolTip::add(this, TQString("%1: %2%")
+                                 .arg(name())
+                                 .arg(perc));
+        }
         repaint();
 
         reset();
@@ -189,7 +207,7 @@ void SkoutSystemGraph::slotDaemonExited(TDEProcess *) {
     }
 
 void SkoutSystemGraph::slotDaemonStdout(TDEProcess *, char *buffer, int buflen) {
-    if (!m_isReceiving) return;
+    if (m_isOnline && !m_isReceiving) return;
     m_isReceiving = false;
 
     CHECK_EMPTY_RESPONSE
@@ -198,6 +216,7 @@ void SkoutSystemGraph::slotDaemonStdout(TDEProcess *, char *buffer, int buflen) 
     TQString msg = TQString::fromLocal8Bit(buffer, buflen);
 
     if (msg.contains("ksysguardd>") && !m_isOnline) {
+        kdDebug() << "Monitor " << name() << " goes online!" << endl;
         m_isOnline = true;
         update();
         return;
@@ -206,6 +225,7 @@ void SkoutSystemGraph::slotDaemonStdout(TDEProcess *, char *buffer, int buflen) 
     if (!m_isOnline) return;
 
     msg.remove("ksysguardd>");
+    msg.remove("\n");
 
     bool ok;
     if (m_isPolling) {
@@ -218,6 +238,7 @@ void SkoutSystemGraph::slotDaemonStdout(TDEProcess *, char *buffer, int buflen) 
     }
     else {
         TQStringList tok = TQStringList::split("\t", msg);
+        m_unit = tok[3];
         TQString max(tok[2]);
         int maxValue = max.toInt(&ok);
         if (!ok) {
@@ -268,7 +289,15 @@ void SkoutSystemGraph::paintEvent(TQPaintEvent *e) {
     p.setPen(TDEGlobalSettings::textColor());
 
     TQRect lr = labelRect();
-    p.drawText(lr, AlignCenter, TQString("%1%").arg(m_readings.last()));
+    if (m_isOnline) {
+        p.drawText(lr, AlignCenter, TQString("%1%").arg(m_readings.last()));
+    }
+    else {
+        p.setPen(TQt::red);
+        p.drawText(lr, AlignCenter, "X");
+        TQToolTip::remove(this);
+        TQToolTip::add(this, i18n("%1: monitor is offline").arg(name()));
+    }
 
     TQRect gr = graphRect();
     p.drawLine(gr.left(), gr.bottom(), gr.right(), gr.bottom());

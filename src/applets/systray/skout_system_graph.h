@@ -89,6 +89,7 @@ class SkoutSystemGraph : public TQWidget {
     int m_retryCount;
 
     TQValueList<int> m_readings;
+    TQString m_unit;
     int m_maxValue;
     int m_value;
 
