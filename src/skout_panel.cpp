@@ -18,12 +18,9 @@
 
 // TQt
 #include <tqlayout.h>
-#include <tqfile.h>
 
 // TDE
 #include <tdeapplication.h>
-#include <kstandarddirs.h>
-#include <kdesktopfile.h>
 #include <kpassivepopup.h>
 #include <kiconloader.h>
 #include <klibloader.h>
@@ -34,6 +31,7 @@
 // Skout
 #include "skout_panel.h"
 #include "skout_applet.h"
+#include "skout_appletdb.h"
 #include "skout_menu_button.h"
 #include "skout_utils.h"
 #include "skoutsettings.h"
@@ -54,29 +52,29 @@ SkoutPanel::SkoutPanel(PanelPosition pos, bool force)
     m_forcePos(force),
     w_menubtn(nullptr)
 {
-    new TQVBoxLayout(this);
-    layout()->setMargin(0);
-    layout()->setSpacing(0);
-
     setSizePolicy(TQSizePolicy::Fixed, TQSizePolicy::Maximum);
-    applySize();
+
+    m_appletdb = SkoutAppletDB::instance();
+
+    setWindowType();
+
+    new TQVBoxLayout(this);
+    layout()->setAutoAdd(false);
 
     w_menubtn = new SkoutMenuBtn(this);
     layout()->add(w_menubtn);
 
-    TDEGlobal::dirs()->addResourceType("applets",
-        TDEGlobal::dirs()->kde_default("data") + "skout/applets");
-    loadAppletDatabase();
-    initApplets();
-
-    setWindowType();
+    reconfigure();
     show();
-
-    applyPosition();
 }
 
 SkoutPanel::~SkoutPanel() {
     ZAP(w_menubtn)
+}
+
+void SkoutPanel::reconfigure() {
+    SkoutSettings::self()->readConfig();
+    relayout();
 }
 
 TQPoint SkoutPanel::originPos() const {
@@ -147,87 +145,90 @@ void SkoutPanel::popup(TQString icon, TQString caption, TQString message) {
     KPassivePopup::message(caption, message, SmallIcon(icon), this);
 }
 
-void SkoutPanel::loadAppletDatabase() {
-    TQStringList applets = TDEGlobal::dirs()->findAllResources("applets",
-                                                               "*.desktop",
-                                                               true, true);
-    for (TQStringList::ConstIterator it = applets.constBegin();
-         it != applets.constEnd(); ++it)
-    {
-        KDesktopFile df((*it), true);
-        if (df.readType() != "SkoutApplet" ||
-            df.readEntry("X-TDE-Library").left(12) != "skoutapplet_")
-        {
-            kdWarning() << "SkoutPanel: " << df.fileName()
-                        << " is not a valid applet" << endl;
-            continue;
-        }
-
-        AppletData data;
-        data.name = df.readName();
-        data.icon = df.readIcon();
-        data.library = df.readEntry("X-TDE-Library");
-
-        TQString id = data.library.mid(12);
-        if (m_appletdb.contains(id)) {
-            kdWarning() << "SkoutPanel: applet data with id '" << id << "' "
-                        << "already exists, skipping." << endl;
-            continue;
-        }
-        m_appletdb[id] = data;
+bool SkoutPanel::loadApplet(AppletData &applet) {
+    if (!applet.valid()) {
+        popup("error", i18n("Unable to load \"%1\" applet!").arg(applet.name),
+                       i18n("This is not a valid applet."));
+        return false;
     }
-}
 
-void SkoutPanel::initApplets() {
-    TQStringList applets = SkoutSettings::applets();
-    TQStringList::ConstIterator it;
-    for (it = applets.constBegin(); it != applets.constEnd(); ++it) {
-        TQString id((*it));
-        if (!m_appletdb.contains(id)) {
-            popup("error", i18n("Unable to load \"%1\" applet!").arg(id),
-                           i18n("Applet not found. Please ensure that it has "
-                                "been properly installed."));
-            continue;
-        }
+    const char *libPath = applet.libPath();
+    KLibrary *lib = KLibLoader::self()->library(libPath);
+    if (!lib) {
+        TQString error(KLibLoader::self()->lastErrorMessage());
+        popup("error", i18n("Unable to load \"%1\" applet!").arg(applet.name),
+                        TQString(ERR_CHK_INSTALLATION).arg(error));
+        return false;
+    }
 
-        AppletData data = m_appletdb[id];
-        const char *libPath = TQFile::encodeName(data.library);
-        KLibrary *lib = KLibLoader::self()->library(libPath);
-        if (!lib) {
-            TQString error(KLibLoader::self()->lastErrorMessage());
-            popup("error", i18n("Unable to load \"%1\" applet!").arg(id),
-                           TQString(ERR_CHK_INSTALLATION).arg(error));
-            continue;
-        }
+    if (!lib->hasSymbol("init")) {
+        popup("error", i18n("Unable to load \"%1\" applet!").arg(applet.name),
+                        i18n("This is not a valid applet."));
+        KLibLoader::self()->unloadLibrary(libPath);
+        return false;
+    }
 
-        if (!lib->hasSymbol("init")) {
-            popup("error", i18n("Unable to load \"%1\" applet!").arg(id),
-                           i18n("This is not a valid applet."));
-            KLibLoader::self()->unloadLibrary(libPath);
-            continue;
-        }
+    void *init = lib->symbol("init");
+    SkoutApplet *(*c)(SkoutPanel *) = (SkoutApplet *(*)(SkoutPanel *))init;
+    applet.ptr = c(this);
+    if (!applet.ptr->valid()) {
+        TQString error(applet.ptr->lastErrorMessage());
 
-        void *init = lib->symbol("init");
-        SkoutApplet *(*c)(SkoutPanel *) = (SkoutApplet *(*)(SkoutPanel *))init;
-        SkoutApplet *applet = c(this);
-        if (!applet->valid()) {
-            TQString error(applet->lastErrorMessage());
-            popup("error", i18n("Unable to load \"%1\" applet!").arg(id),
-                  TQString(ERR_CHK_INSTALLATION).arg(error));
-            delete applet;
-            KLibLoader::self()->unloadLibrary(libPath);
-            continue;
-        }
+        popup("error", i18n("Unable to load \"%1\" applet!").arg(applet.name),
+              TQString(ERR_CHK_INSTALLATION).arg(error));
 
-        connect(applet, SIGNAL(showPopup(TQString, TQString, TQString)),
+        unloadApplet(applet);
+        return false;
+    }
+
+    connect(applet.ptr, SIGNAL(showPopup(TQString, TQString, TQString)),
                         SLOT(popup(TQString, TQString, TQString)));
 
-        connect(applet, SIGNAL(doLaunch(TQString, TQStringList, TQString, bool)),
+    connect(applet.ptr, SIGNAL(doLaunch(TQString, TQStringList, TQString, bool)),
                         SLOT(launch(TQString, TQStringList, TQString, bool)));
 
-        m_applets.append(applet);
-        layout()->add(applet);
+    applet.ptr->show();
+    return true;
+}
+
+void SkoutPanel::unloadApplet(AppletData &applet) {
+    delete applet.ptr; applet.ptr = nullptr;
+    KLibLoader::self()->unloadLibrary(applet.libPath());
+}
+
+bool SkoutPanel::addApplet(AppletData &applet) {
+    if (!applet.ptr) {
+        if (!loadApplet(applet) || !applet.ptr) {
+            return false;
+        }
     }
+    layout()->add(applet.ptr);
+    m_applets.append(&applet);
+    return true;
+}
+
+void SkoutPanel::relayout() {
+    TQStringList applets = SkoutSettings::applets();
+
+    // Unload unneeded applets
+    AppletData *old = m_applets.first();
+    for (; old; old = m_applets.next()) {
+        if (!applets.contains(old->id)) {
+            layout()->remove(old->ptr);
+            unloadApplet((*old));
+        }
+    }
+
+    m_applets.clear();
+
+    // Relayout
+    TQStringList::Iterator it;
+    for (it = applets.begin(); it != applets.end(); ++it) {
+        AppletData &applet = (*m_appletdb)[(*it)];
+        layout()->remove(applet.ptr);
+        addApplet(applet);
+    }
+    applySize();
 }
 
 bool SkoutPanel::launch(TQString application, TQStringList args,

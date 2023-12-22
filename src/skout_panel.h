@@ -23,23 +23,18 @@
 #include <tqframe.h>
 #include <tqmap.h>
 
+// Skout
+#include "skout_appletdb.h"
+
 class KWinModule;
 
 class SkoutMenuBtn;
-class SkoutApplet;
 
 enum PanelPosition {
     TopLeft, TopRight
 };
 
-struct AppletData {
-    TQString name;
-    TQString icon;
-    TQString library;
-};
-
-typedef TQMap<TQString, AppletData> AppletDatabase;
-typedef TQPtrList<SkoutApplet> AppletList;
+typedef TQPtrList<AppletData> AppletList;
 
 class SkoutPanel : public TQFrame {
   TQ_OBJECT
@@ -65,12 +60,15 @@ class SkoutPanel : public TQFrame {
     void launchMenuEditor();
     void configure();
 
+    void reconfigure();
+    void relayout();
+
   protected:
     void moveEvent(TQMoveEvent *e);
 
   private:
     SkoutMenuBtn *w_menubtn;
-    AppletDatabase m_appletdb;
+    SkoutAppletDB *m_appletdb;
     AppletList m_applets;
 
     PanelPosition m_pos;
@@ -78,8 +76,10 @@ class SkoutPanel : public TQFrame {
 
     KWinModule *m_twin;
 
-    void loadAppletDatabase();
-    void initApplets();
+    bool addApplet(AppletData &applet);
+    bool loadApplet(AppletData &applet);
+    void unloadApplet(AppletData &applet);
+
     void setWindowType();
     void reserveStrut();
 };

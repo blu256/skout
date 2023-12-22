@@ -34,12 +34,13 @@
 #include <kdialog.h>
 #include <kiconloader.h>
 #include <kjanuswidget.h>
+#include <tdeactionselector.h>
 #include <tdelocale.h>
 #include <dcopref.h>
 
 // Skout
 #include "tdecm_skout.h"
-#include "skout_config.h"
+#include "skout_appletdb.h"
 #include "skoutsettings.h"
 #include "version.h"
 
@@ -61,6 +62,18 @@ extern "C" {
         kapp->tdeinitExec("kicker");
     }
 }
+
+class SkoutAppletItem : public TQListBoxPixmap {
+    public:
+      SkoutAppletItem(AppletData applet, TQCString id)
+        : TQListBoxPixmap(SmallIcon(applet.icon), applet.name),
+          m_id(id) {}
+
+      TQCString id() { return m_id; }
+
+    private:
+        TQCString m_id;
+};
 
 SkoutConfig::SkoutConfig(TQWidget *parent, const char *name, const TQStringList &)
   : TDECModule(SkoutConfigFactory::instance(), parent, name)
@@ -94,13 +107,20 @@ SkoutConfig::SkoutConfig(TQWidget *parent, const char *name, const TQStringList 
                                                   "General settings",
                                                   ICON("configure"));
 
+    /*
     TQVBox *tabLook = m_tabWidget->addVBoxPage((const TQString)"Appearance",
                                                "Appearance", ICON("icons"));
+    */
+
+    TQVBox *tabApplets = m_tabWidget->addVBoxPage((const TQString)"Applets",
+                                                  "Applets", ICON("kicker"));
 #undef ICON
 
-    // General tab
-    tabGeneral->layout()->setAutoAdd(false);
+#define VBOX_PAGE_PREPARE(tab, stretch) \
+    tab->layout()->setAutoAdd(false); \
+    if (stretch) ((TQVBoxLayout *)tab->layout())->addStretch();
 
+    // General tab
     TQHBox *posBox = new TQHBox(tabGeneral);
     TQLabel *posLabel = new TQLabel(i18n("Panel position: "), posBox);
 
@@ -119,12 +139,27 @@ SkoutConfig::SkoutConfig(TQWidget *parent, const char *name, const TQStringList 
 
     tabGeneral->layout()->add(posBox);
     tabGeneral->layout()->add(widthBox);
-    ((TQVBoxLayout *)tabGeneral->layout())->addStretch();
 
     connect(m_groupBox, SIGNAL(toggled(bool)),     SLOT(changed()));
     connect(m_grpPos,   SIGNAL(clicked(int)),      SLOT(changed()));
     connect(m_width,    SIGNAL(valueChanged(int)), SLOT(changed()));
 
+    VBOX_PAGE_PREPARE(tabGeneral, true)
+
+    // Applets tab
+    m_appletSelector = new TDEActionSelector(tabApplets);
+    tabApplets->layout()->add(m_appletSelector);
+
+    connect(m_appletSelector, SIGNAL(added(TQListBoxItem *)), SLOT(changed()));
+    connect(m_appletSelector, SIGNAL(removed(TQListBoxItem *)), SLOT(changed()));
+    connect(m_appletSelector, SIGNAL(movedUp(TQListBoxItem *)), SLOT(changed()));
+    connect(m_appletSelector, SIGNAL(movedDown(TQListBoxItem *)), SLOT(changed()));
+
+    VBOX_PAGE_PREPARE(tabApplets, false)
+
+#undef VBOX_PAGE_PREPARE
+
+    // Final touches
     setButtons(Help|Apply);
     load();
     show();
@@ -136,9 +171,14 @@ void SkoutConfig::changed() {
 
 void SkoutConfig::load() {
     SkoutSettings::self()->readConfig();
+
+    // General tab
     m_groupBox->setChecked(SkoutSettings::enableSkout());
     m_grpPos->setButton(SkoutSettings::position());
     m_width->setValue(SkoutSettings::panelWidth());
+
+    // Applets tab
+    loadApplets();
 }
 
 void SkoutConfig::save() {
@@ -146,14 +186,47 @@ void SkoutConfig::save() {
     if (SkoutSettings::enableSkout() != enable) {
         startStopSkout(enable);
     }
-
     SkoutSettings::setEnableSkout(enable);
+
+    // General tab
     SkoutSettings::setPosition(m_grpPos->selectedId());
     SkoutSettings::setPanelWidth(m_width->value());
+
+    // Applets tab
+    TQStringList applets;
+    TQListBoxItem *item =
+        m_appletSelector->selectedListBox()->firstItem();
+
+    while (item) {
+        applets << static_cast<SkoutAppletItem *>(item)->id();
+        item = item->next();
+    }
+    SkoutSettings::setApplets(applets);
+
+    // Save and ask Skout to re-read configuration
     SkoutSettings::self()->writeConfig();
 
     DCOPRef skout("skout", "SkoutIface");
     skout.call("reconfigure()");
+}
+
+void SkoutConfig::loadApplets() {
+    TQStringList active = SkoutSettings::applets();
+    SkoutAppletDB *appletdb = SkoutAppletDB::instance();
+    TQValueList<TQCString> applets = appletdb->applets();
+    TQValueList<TQCString>::iterator it;
+    for (it = applets.begin(); it != applets.end(); ++it) {
+        TQCString id((*it));
+        AppletData applet = (*appletdb)[id];
+        TQListBox *listBox;
+        if (active.contains(id)) {
+            listBox = m_appletSelector->selectedListBox();
+        }
+        else {
+            listBox = m_appletSelector->availableListBox();
+        }
+        listBox->insertItem(new SkoutAppletItem(applet, id));
+    }
 }
 
 void SkoutConfig::startStopSkout(bool enable) {

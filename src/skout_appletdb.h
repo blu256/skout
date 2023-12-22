@@ -16,45 +16,50 @@
   Improvements and feedback are welcome!
 *******************************************************************************/
 
-#ifndef _TDECM_SKOUT_H
-#define _TDECM_SKOUT_H
+#ifndef _SKOUT_APPLETDB_H
+#define _SKOUT_APPLETDB_H
+
+// TQt
+#include <tqfile.h>
 
 // TDE
-#include <tdecmodule.h>
+#include <tqmap.h>
 
-class TQGroupBox;
-class TQButtonGroup;
-class TQSpinBox;
-class KJanusWidget;
-class TDEActionSelector;
+class SkoutApplet;
 
-class SkoutSettings;
+struct AppletData {
+    TQCString id;
+    TQString name;
+    TQString icon;
+    TQString library;
+    SkoutApplet *ptr = nullptr;
 
-class SkoutConfig : public TDECModule {
-  TQ_OBJECT
+    bool valid() {
+        return !id.isNull() && !name.isNull()
+            && !library.isNull();
+    }
 
-  public:
-    SkoutConfig(TQWidget *parent, const char *name, const TQStringList &);
-
-    void load();
-    void save();
-    void startStopSkout(bool enable);
-
-  protected slots:
-    void changed();
-
-  private:
-    SkoutSettings *m_settings;
-
-    TQGroupBox *m_groupBox;
-    KJanusWidget *m_tabWidget;
-    TQButtonGroup *m_grpPos;
-    TQSpinBox *m_width;
-
-    // Applets tab
-    TDEActionSelector *m_appletSelector;
-
-    void loadApplets();
+    const char *libPath() {
+        return TQFile::encodeName(library);
+    }
 };
 
-#endif // _TDECM_SKOUT_H
+typedef TQMap<TQCString, AppletData> AppletMap;
+
+class SkoutAppletDB : public TQObject {
+  public:
+    static SkoutAppletDB *instance();
+
+    bool contains(TQString id);
+
+    TQValueList<TQCString> applets();
+
+    AppletData &operator[](TQString id);
+
+  private:
+    AppletMap m_applets;
+    SkoutAppletDB();
+    ~SkoutAppletDB() = default;
+};
+
+#endif // _SKOUT_APPLETDB_H

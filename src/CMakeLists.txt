@@ -40,6 +40,7 @@ tde_add_executable(
     main.cpp
     skout.cpp
     skout_panel.cpp
+    skout_appletdb.cpp
     skout_menu_button.cpp
     skout_menu.cpp
     skoutiface.skel
@@ -59,7 +60,7 @@ tde_add_kpart(
 
   SOURCES
     tdecm_skout.cpp
-    skout_config.ui
+    skout_appletdb.cpp
     skoutsettings.kcfgc
 
   LINK
