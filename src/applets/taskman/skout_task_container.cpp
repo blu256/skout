@@ -24,6 +24,7 @@
 #include <kstandarddirs.h>
 #include <kdesktopfile.h>
 #include <kiconloader.h>
+#include <tdelocale.h>
 #include <kdebug.h>
 
 // Skout
@@ -66,17 +67,23 @@ TQObjectList SkoutTaskContainer::tasks() {
 }
 
 TQPixmap SkoutTaskContainer::groupIcon() {
+    TDEIconLoader *il = kapp->iconLoader();
+    TQPixmap pix;
+    int size = SkoutTask::bigIconSize().height();
+
+    // First we have some common overrides for system components
+    // that do not have their own (user-visible) desktop files
+    if (windowClass() == "kdesktop") {
+        pix = il->loadIcon("desktop", TDEIcon::Panel, size);
+    }
+    if (!pix.isNull()) return pix;
+
     // If we have identified the service, check its desktop file value
     if (m_service) {
         KDesktopFile desktopFile(m_service->desktopEntryPath());
-        TQPixmap pix;
-        pix = kapp->iconLoader()->loadIcon(desktopFile.readIcon(),
-                                           TDEIcon::Panel,
-                                           SkoutTask::bigIconSize().height());
-        if (!pix.isNull()) {
-            return pix;
-        }
+        pix = il->loadIcon(desktopFile.readIcon(), TDEIcon::Panel, size);
     }
+    if (!pix.isNull()) return pix;
 
     // Otherwise get the icon of the first task
     TQObjectList tasklist = tasks();
@@ -85,7 +92,7 @@ TQPixmap SkoutTaskContainer::groupIcon() {
         return task->icon(SkoutTask::bigIconSize());
     }
 
-    // If both fail, fallback to default icon
+    // If all of the above fail, fallback to default icon
     return SkoutTask::defaultIcon(SkoutTask::bigIconSize());
 }
 
@@ -97,6 +104,13 @@ void SkoutTaskContainer::findService() {
     while (it.current()) {
         SkoutTask *task = static_cast<SkoutTask *>(it.current());
 
+        // Common special cases
+        if (task->className() == "tdecmshell") {
+            m_service = KService::serviceByDesktopName("kcontrol");
+        }
+        if (m_service) return;
+
+        // Query desktop files via KSycoca
         m_service = KService::serviceByStorageId(task->className());
         if (m_service) return;
 
@@ -109,7 +123,7 @@ void SkoutTaskContainer::findService() {
         m_service = KService::serviceByStorageId(task->executable());
         if (m_service) return;
 
-        // last resort: find by executable
+        // Last resort: find KSycoca entry by executable name/path
         KService::List all = KService::allServices();
         KService::List::ConstIterator svc;
         for (svc = all.begin(); svc != all.end(); ++svc) {
@@ -138,6 +152,12 @@ void SkoutTaskContainer::update() {
         return;
     }
 
+    // No point in trying too hard for this case
+    if (windowClass() == "kdesktop") {
+        m_appname = i18n("TDE Desktop");
+        return;
+    }
+
     if (!m_service) {
         findService();
     }
@@ -150,7 +170,6 @@ void SkoutTaskContainer::update() {
             appname = windowClass();
         m_appname = appname;
     }
-    m_grouper->repaint();
 }
 
 void SkoutTaskContainer::updateActive(WId w) {
