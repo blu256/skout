@@ -45,6 +45,7 @@ class SkoutTaskGrouper : public SkoutTaskButton {
     void setExpanded(bool show);
     void pin();
     void unpin();
+    void showPropertiesDialog();
 
   protected:
     TQFont font();

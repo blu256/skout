@@ -21,6 +21,8 @@
 
 // TDE
 #include <tdeapplication.h>
+#include <kstandarddirs.h>
+#include <kdesktopfile.h>
 #include <kiconloader.h>
 #include <kdebug.h>
 
@@ -70,8 +72,11 @@ TQObjectList SkoutTaskContainer::tasks() {
 TQPixmap SkoutTaskContainer::groupIcon() {
     // If we have identified the service, check its desktop file value
     if (m_service) {
-        TQPixmap pix = m_service->pixmap(TDEIcon::Panel,
-                                         SkoutTask::bigIconSize().height());
+        KDesktopFile desktopFile(m_service->desktopEntryPath());
+        TQPixmap pix;
+        pix = kapp->iconLoader()->loadIcon(desktopFile.readIcon(),
+                                           TDEIcon::Panel,
+                                           SkoutTask::bigIconSize().height());
         if (!pix.isNull()) {
             return pix;
         }
@@ -141,9 +146,15 @@ void SkoutTaskContainer::update() {
         findService();
     }
     if (m_service) {
-        m_appname = m_service->name();
+        KDesktopFile desktopFile(desktopPath().path());
+        TQString appname = desktopFile.readName();
+        if (appname.isNull())
+            appname = m_service->name();
+        if (appname.isNull())
+            appname = windowClass();
+        m_appname = appname;
     }
-    m_grouper->update();
+    m_grouper->repaint();
 }
 
 void SkoutTaskContainer::updateActive(WId w) {
@@ -189,6 +200,17 @@ bool SkoutTaskContainer::allIconified() {
         ++it;
     }
     return all;
+}
+
+const KURL SkoutTaskContainer::desktopPath() {
+    if (!m_service) return KURL();
+    return KURL(locate("apps", m_service->desktopEntryPath()));
+}
+
+void SkoutTaskContainer::slotDesktopFileChanged(const KURL& oldUrl, KURL& newUrl) {
+    if (oldUrl != desktopPath().url() || oldUrl == newUrl) return;
+    m_service = new KService(newUrl.path());
+    update();
 }
 
 #include "skout_task_container.moc"

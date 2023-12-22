@@ -21,6 +21,7 @@
 
 // TDE
 #include <kservice.h>
+#include <kurl.h>
 
 // TQt
 #include <tqvbox.h>
@@ -50,6 +51,7 @@ class SkoutTaskContainer : public TQVBox {
     TQObjectList tasks();
 
     KService::Ptr service() { return m_service; }
+    const KURL desktopPath();
 
     bool active()   { return m_active; }
     bool pinned()   { return m_grouper->pinned(); }
@@ -65,7 +67,9 @@ class SkoutTaskContainer : public TQVBox {
     void update();
     void updateActive(WId w);
     void toggleIconifiedAll();
+
     void slotPinChanged(bool pinned);
+    void slotDesktopFileChanged(const KURL&, KURL&);
 
   signals:
     void pinChanged(bool pinned);

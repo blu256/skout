@@ -25,7 +25,7 @@
 #include <kstandarddirs.h>
 #include <kiconloader.h>
 #include <tdepopupmenu.h>
-#include <kpassivepopup.h>
+#include <kpropertiesdialog.h>
 #include <tdelocale.h>
 #include <kdebug.h>
 
@@ -170,6 +170,12 @@ void SkoutTaskGrouper::contextMenuEvent(TQContextMenuEvent *cme) {
       }
     }
 
+    KService::Ptr s = container()->service();
+    if (s && s->desktopEntryPath() != TQString::null) {
+        ctx.insertSeparator();
+        ctx.insertItem(SmallIcon("document-properties"), i18n("Properties"),
+                       this, SLOT(showPropertiesDialog()));
+    }
 
     if (ctx.count()) {
         ctx.exec(cme->globalPos());
@@ -210,6 +216,19 @@ void SkoutTaskGrouper::mouseDoubleClickEvent(TQMouseEvent *me) {
         }
     }
     me->ignore();
+}
+
+void SkoutTaskGrouper::showPropertiesDialog() {
+    const KURL path = container()->desktopPath();
+    if (!path.isValid()) { // should never happen actually
+        kdWarning() << container()->service()->name()
+                    << "does not have a desktop entry!" << endl;
+        return;
+    }
+    KPropertiesDialog *d = new KPropertiesDialog(KURL(path), this);
+    connect(d, SIGNAL(applied()), container(), SLOT(update()));
+    connect(d, SIGNAL(saveAs(const KURL&, KURL&)),
+            container(), SLOT(slotDesktopFileChanged(const KURL&, KURL&)));
 }
 
 #include "skout_task_grouper.moc"
