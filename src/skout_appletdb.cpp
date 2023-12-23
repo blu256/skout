@@ -55,6 +55,7 @@ SkoutAppletDB::SkoutAppletDB() : TQObject(0, "applet_db") {
         data.name = df.readName();
         data.icon = df.readIcon();
         data.library = df.readEntry("X-TDE-Library");
+        data.comment = df.readComment();
 
         TQCString id = data.library.mid(12).latin1();
         data.id = id;

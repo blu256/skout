@@ -61,6 +61,7 @@ tde_add_kpart(
   SOURCES
     tdecm_skout.cpp
     skout_appletdb.cpp
+    skout_applet_selector.cpp
     skoutsettings.kcfgc
 
   LINK

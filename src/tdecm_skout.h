@@ -26,9 +26,9 @@ class TQGroupBox;
 class TQButtonGroup;
 class TQSpinBox;
 class KJanusWidget;
-class TDEActionSelector;
 
 class SkoutSettings;
+class SkoutAppletSelector;
 
 class SkoutConfig : public TDECModule {
   TQ_OBJECT
@@ -52,7 +52,7 @@ class SkoutConfig : public TDECModule {
     TQSpinBox *m_width;
 
     // Applets tab
-    TDEActionSelector *m_appletSelector;
+    SkoutAppletSelector *m_appletSelector;
 
     void loadApplets();
 };

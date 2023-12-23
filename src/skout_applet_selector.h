@@ -16,51 +16,46 @@
   Improvements and feedback are welcome!
 *******************************************************************************/
 
-#ifndef _SKOUT_APPLETDB_H
-#define _SKOUT_APPLETDB_H
+#ifndef _SKOUT_APPLET_SELECTOR_H
+#define _SKOUT_APPLET_SELECTOR_H
 
 // TQt
-#include <tqfile.h>
+#include <tqlistbox.h>
+#include <tqpainter.h>
 
 // TDE
-#include <tqmap.h>
+#include <tdeactionselector.h>
 
-class SkoutApplet;
+// Skout
+#include "skout_appletdb.h"
 
-struct AppletData {
-    TQCString id;
-    TQString name;
-    TQString icon;
-    TQString library;
-    TQString comment;
-    SkoutApplet *ptr = nullptr;
-
-    bool valid() {
-        return !id.isNull() && !name.isNull()
-            && !library.isNull();
-    }
-
-    const char *libPath() {
-        return TQFile::encodeName(library);
-    }
-};
-
-typedef TQMap<TQCString, AppletData> AppletMap;
-
-class SkoutAppletDB : public TQObject {
+/* --- SkoutAppletItem class ------------------------------------------------ */
+class SkoutAppletItem : public TQListBoxPixmap {
   public:
-    static SkoutAppletDB *instance();
+    SkoutAppletItem(AppletData &appletData);
+    AppletData& data() { return m_data; }
+    int height(const TQListBox *) const;
+    int height(const TQFontMetrics fm) const;
 
-    bool contains(TQString id);
-
-    TQValueList<TQCString> applets();
-
-    AppletData &operator[](TQString id);
+  protected:
+    void paint(TQPainter *);
 
   private:
-    AppletMap m_applets;
-    SkoutAppletDB();
-    ~SkoutAppletDB() = default;
+    AppletData& m_data;
 };
 
-#endif // _SKOUT_APPLETDB_H
+/* --- SkoutAppletSelector class -------------------------------------------- */
+class SkoutAppletSelector : public TDEActionSelector {
+  TQ_OBJECT
+
+  public:
+    SkoutAppletSelector(TQWidget *parent, const char *name = 0);
+
+    void insertApplet(AppletData &applet);
+    void insertActiveApplet(AppletData &applet, int index = -1);
+
+  signals:
+    void changed();
+};
+
+#endif // _SKOUT_APPLET_SELECTOR_H
