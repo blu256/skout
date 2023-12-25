@@ -187,7 +187,7 @@ void SkoutTaskButton::drawButton(TQPainter *p) {
     p->drawRect(rect());
 
     if (drawFrame()) {
-        style().drawPrimitive(TQStyle::PE_Panel, p, rect(), colors());
+        style().drawPrimitive(TQStyle::PE_ButtonDefault, p, rect(), colors());
     }
 
     drawButtonLabel(p);
