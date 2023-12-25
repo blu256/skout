@@ -13,14 +13,6 @@
   You should have received a copy of the GNU General Public License along with
   this program. If not, see <http://www.gnu.org/licenses/>.
 
-  Based on the Kicker system tray applet.
-  Copyright (c) 2000-2001 Matthias Ettrich <ettrich@kde.org>
-                2000-2001 Matthias Elter   <elter@kde.org>
-                2001      Carsten Pfeiffer <pfeiffer@kde.org>
-                2001      Martijn Klingens <mklingens@yahoo.com>
-                2004      Aaron J. Seigo   <aseigo@kde.org>
-                2010      Timothy Pearson  <kb9vqf@pearsoncomputing.net>
-
   Improvements and feedback are welcome!
 
 *******************************************************************************/
