@@ -25,6 +25,7 @@
 
 #define ESCAPE_AMPERSAND(x) x.replace("&", "&&")
 
+class KLineEdit;
 class KBookmarkMenu;
 
 class SkoutPanel;
@@ -42,9 +43,18 @@ class SkoutMenu : public TDEPopupMenu {
     void populate();
     void launch(int item);
 
+  private slots:
+    void showSearch();
+    void hideSearch();
+    void search(const TQString &str = TQString::null);
+
+  protected:
+    void keyPressEvent(TQKeyEvent *e);
+
   private:
     KServiceGroup::Ptr m_group;
     KServiceGroup::List m_list;
+    KLineEdit *m_search;
 };
 
 

@@ -37,19 +37,13 @@
   Improvements and feedback are welcome!
 *******************************************************************************/
 
-/* TODO:
- * =====
- *  - if has focus, on typing a LineEdit widget is appended to index -1
- *    which displays search string and menu items are filtered like in KMenu
- */
-
-
 // TDE
 #include <tdeapplication.h>
 #include <kiconloader.h>
 #include <kbookmarkmenu.h>
 #include <tderecentdocument.h>
 #include <tdemessagebox.h>
+#include <klineedit.h>
 #include <dcopref.h>
 #include <krun.h>
 #include <kdebug.h>
@@ -63,10 +57,13 @@
 #include "dmctl.h"
 
 SkoutMenu::SkoutMenu(SkoutPanel *panel, KServiceGroup::Ptr group)
-  : TDEPopupMenu(panel, "SkoutMenu")
+  : TDEPopupMenu(panel, "SkoutMenu"),
+    m_search(nullptr)
 {
     m_group = group ? group : KServiceGroup::root();
     populate();
+
+    connect(this, SIGNAL(aboutToHide()), SLOT(hideSearch()));
 }
 
 SkoutMenu::~SkoutMenu() {
@@ -120,6 +117,55 @@ void SkoutMenu::launch(int item) {
         DCOPRef kickerKMenuIface("kicker", "KMenu");
         kickerKMenuIface.call("slotServiceStartedByStorageId(TQString,TQString)",
                               "SkoutMenu", desktop);
+    }
+}
+
+void SkoutMenu::keyPressEvent(TQKeyEvent *e) {
+    if (e->key() == TQt::Key_Escape) {
+        if (m_search) {
+            hideSearch();
+        }
+        else {
+            hide();
+        }
+        e->accept();
+        return;
+    }
+
+    if (m_search || e->text().isEmpty()) {
+        e->ignore();
+        return;
+    }
+
+    showSearch();
+    m_search->setText(e->text());
+    e->accept();
+}
+
+void SkoutMenu::showSearch() {
+    if (m_search) return;
+    m_search = new KLineEdit(this);
+    insertItem(m_search, 1000);
+    m_search->show();
+    m_search->setFocus();
+    connect(m_search, SIGNAL(textChanged(const TQString &)),
+                      SLOT(search(const TQString &)));
+}
+
+void SkoutMenu::hideSearch() {
+    if (m_search) {
+        removeItem(1000);
+        search();
+        m_search = nullptr;
+    }
+}
+
+void SkoutMenu::search(const TQString &str) {
+    for (int i = 0; i < count(); ++i) {
+        int id = idAt(i);
+        if (id != 1000) {
+            setItemEnabled(id, text(id).lower().contains(str.lower()));
+        }
     }
 }
 
