@@ -23,6 +23,8 @@
 #include <tdepopupmenu.h>
 #include <kservicegroup.h>
 
+class KBookmarkMenu;
+
 class SkoutPanel;
 
 class SkoutMenu : public TDEPopupMenu {
@@ -41,6 +43,36 @@ class SkoutMenu : public TDEPopupMenu {
   private:
     KServiceGroup::Ptr m_group;
     KServiceGroup::List m_list;
+};
+
+
+class SkoutRootMenu : public SkoutMenu {
+  TQ_OBJECT
+
+  public:
+    SkoutRootMenu(SkoutPanel *panel);
+    virtual ~SkoutRootMenu();
+
+    enum SessionMenuItem {
+        LockAndNewSession = 100,
+        NewSession
+    };
+
+  private slots:
+    void runCommand();
+    void lockScreen();
+    void logOut();
+
+    void populateSessions();
+    void activateSession(int item);
+
+    void startNewSession(bool lockCurrent = true);
+
+  private:
+    KBookmarkMenu *m_bookmarks;
+
+    TDEPopupMenu *m_bookmarkMenu;
+    TDEPopupMenu *m_sessionMenu;
 };
 
 #endif // _SKOUT_MENU_H

@@ -10,6 +10,7 @@ include_directories(
     ${CMAKE_BINARY_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/dmctl
     ${TDE_INCLUDE_DIR}
     ${TQT_INCLUDE_DIRS}
 )
@@ -50,6 +51,7 @@ tde_add_executable(
     tdeui-shared
     tdeio-shared
     skout-shared
+    dmctl-static
 
   DESTINATION ${BIN_INSTALL_DIR}
 )
@@ -73,6 +75,7 @@ tde_add_kpart(
 
 ### applets ####################################################################
 add_subdirectory(applets)
+add_subdirectory(external/dmctl)
 
 ### headers ####################################################################
 install(

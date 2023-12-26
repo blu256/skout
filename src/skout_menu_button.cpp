@@ -47,7 +47,7 @@ SkoutMenuBtn::SkoutMenuBtn(SkoutPanel *panel)
         helpMenu = new KHelpMenu(0, kapp->aboutData());
     }
 
-    m_menu = new SkoutMenu(panel);
+    m_menu = new SkoutRootMenu(panel);
 
     setSizePolicy(TQSizePolicy::Expanding, TQSizePolicy::Fixed);
     setBackgroundOrigin(AncestorOrigin);
@@ -75,10 +75,14 @@ void SkoutMenuBtn::mousePressEvent(TQMouseEvent *e) {
     else if (e->button() == TQt::RightButton) {
         TDEIconLoader *il = TDEGlobal::iconLoader();
         TDEPopupMenu ctx;
-        ctx.insertItem(il->loadIconSet("kmenuedit", TDEIcon::Small),
-                       i18n("Edit menu"),
-                       panel(), SLOT(launchMenuEditor()));
-        ctx.insertSeparator();
+
+        if (kapp->authorizeTDEAction("menuedit")) {
+            ctx.insertItem(il->loadIconSet("kmenuedit", TDEIcon::Small),
+                           i18n("Edit menu"),
+                           panel(), SLOT(launchMenuEditor()));
+            ctx.insertSeparator();
+        }
+
         ctx.insertItem(il->loadIconSet("configure", TDEIcon::Small),
                        i18n("Skout Preferences"),
                        panel(), SLOT(configure()));

@@ -13,6 +13,27 @@
   You should have received a copy of the GNU General Public License along with
   this program. If not, see <http://www.gnu.org/licenses/>.
 
+  Portions based on Kicker's TDEMenu:
+
+    Copyright (c) 1996-2000 the kicker authors. See file AUTHORS.
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+    AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
+    AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+    CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
   Improvements and feedback are welcome!
 *******************************************************************************/
 
@@ -22,15 +43,22 @@
  *    which displays search string and menu items are filtered like in KMenu
  */
 
+
 // TDE
 #include <tdeapplication.h>
 #include <kiconloader.h>
+#include <kbookmarkmenu.h>
+#include <tdemessagebox.h>
 #include <dcopref.h>
 #include <kdebug.h>
 
 // Skout
 #include "skout_menu.h"
 #include "skout_panel.h"
+#include "skout_utils.h"
+
+// dmctl
+#include "dmctl.h"
 
 SkoutMenu::SkoutMenu(SkoutPanel *panel, KServiceGroup::Ptr group)
   : TDEPopupMenu(panel, "SkoutMenu")
@@ -92,4 +120,138 @@ void SkoutMenu::launch(int item) {
                               "SkoutMenu", desktop);
     }
 }
+
+SkoutRootMenu::SkoutRootMenu(SkoutPanel *panel)
+  : SkoutMenu(panel, nullptr)
+{
+    insertSeparator();
+    m_bookmarkMenu = new TDEPopupMenu(panel);
+    m_bookmarks = new KBookmarkMenu(
+        KBookmarkManager::userBookmarksManager(),
+        new KBookmarkOwner(),
+        m_bookmarkMenu,
+        nullptr, true);
+    insertItem(SmallIcon("user-bookmarks"), i18n("Bookmarks"), m_bookmarkMenu);
+
+    insertSeparator();
+
+    if (kapp->authorize("run_command")) {
+        insertItem(SmallIcon("system-run"), i18n("Run command..."),
+                   this, SLOT(runCommand()));
+    }
+
+    m_sessionMenu = new TDEPopupMenu(panel);
+
+    insertItem(SmallIcon("switchuser"), i18n("Switch User"), m_sessionMenu);
+
+    if (kapp->authorize("lock_screen")) {
+        insertItem(SmallIcon("system-lock-screen"), i18n("Lock Session"),
+                   this, TQT_SLOT(lockScreen()));
+    }
+
+    if (kapp->authorize("logout"))
+    {
+        insertItem(SmallIcon("system-log-out"), i18n("Log Out..."),
+                   this, TQT_SLOT(logOut()));
+    }
+
+
+    connect(m_sessionMenu, SIGNAL(aboutToShow()), SLOT(populateSessions()));
+    connect(m_sessionMenu, SIGNAL(activated(int)), SLOT(activateSession(int)));
+}
+
+SkoutRootMenu::~SkoutRootMenu() {
+    ZAP(m_bookmarks)
+    ZAP(m_bookmarkMenu)
+    ZAP(m_sessionMenu)
+}
+
+void SkoutRootMenu::runCommand() {
+    DCOPRef kdesktop("kdesktop", "KDesktopIface");
+    kdesktop.send("popupExecuteCommand()");
+}
+
+void SkoutRootMenu::lockScreen() {
+    DCOPRef kdesktop("kdesktop", "KScreensaverIface");
+    kdesktop.send("lock()");
+}
+
+void SkoutRootMenu::logOut() {
+    hide();
+    kapp->requestShutDown();
+}
+
+void SkoutRootMenu::populateSessions() {
+    DM dm;
+    m_sessionMenu->clear();
+    int p = dm.numReserve();
+    if (kapp->authorize("start_new_session") && p >= 0) {
+        if (kapp->authorize("lock_screen")) {
+            m_sessionMenu->insertItem(SmallIcon("system-lock-screen"),
+                                      i18n("Lock Current && Start New Session"),
+                                      SessionMenuItem::LockAndNewSession);
+
+            m_sessionMenu->insertItem(SmallIcon("switchuser"),
+                                      i18n("Start New Session"),
+                                      SessionMenuItem::NewSession);
+
+            if (!p) {
+                m_sessionMenu->setItemEnabled(SessionMenuItem::LockAndNewSession,
+                                              false);
+
+                m_sessionMenu->setItemEnabled(SessionMenuItem::NewSession,
+                                              false);
+            }
+        }
+        m_sessionMenu->insertSeparator();
+    }
+
+    SessList sessions;
+    if (dm.localSessions(sessions)) {
+        SessList::ConstIterator it = sessions.begin();
+        for (; it != sessions.end(); ++it) {
+            SessEnt s(*it);
+            int id = m_sessionMenu->insertItem(DM::sess2Str(s), s.vt);
+            m_sessionMenu->setItemEnabled(id, s.vt);
+            m_sessionMenu->setItemChecked(id, s.self);
+        }
+    }
+}
+
+void SkoutRootMenu::activateSession(int item) {
+    if (item == SessionMenuItem::LockAndNewSession) {
+        startNewSession();
+    }
+    else if (item == SessionMenuItem::NewSession) {
+        startNewSession(false);
+    }
+    else if (!m_sessionMenu->isItemChecked(item)) {
+        DM().lockSwitchVT(item);
+    }
+}
+
+void SkoutRootMenu::startNewSession(bool lockCurrent) {
+    int result = KMessageBox::warningContinueCancel(0,
+        i18n("<p>You have chosen to open another desktop session.<br>"
+               "The current session will be hidden "
+               "and a new login screen will be displayed.<br>"
+               "An F-key is assigned to each session; "
+               "F%1 is usually assigned to the first session, "
+               "F%2 to the second session and so on. "
+               "You can switch between sessions by pressing "
+               "Ctrl, Alt and the appropriate F-key at the same time. "
+               "Additionally, the TDE Panel and Desktop menus have "
+               "actions for switching between sessions.</p>")
+                           .arg(7).arg(8),
+        i18n("Warning - New Session"),
+        KGuiItem(i18n("&Start New Session"), "fork"),
+        ":confirmNewSession",
+        KMessageBox::PlainCaption | KMessageBox::Notify);
+
+    if (result == KMessageBox::Cancel) return;
+
+    if (lockCurrent) lockScreen();
+    DM().startReserve();
+}
+
 #include "skout_menu.moc"
