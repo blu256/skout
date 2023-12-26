@@ -90,8 +90,8 @@ void SkoutMenu::populate() {
             KService *s = static_cast<KService *>(p);
             if (s->noDisplay()) continue;
 
-            item = insertItem(s->pixmap(TDEIcon::Small), s->name());
-            connectItem(item, this, SLOT(launch(int)));
+            insertItem(s->pixmap(TDEIcon::Small), ESCAPE_AMPERSAND(s->name()),
+                       this, SLOT(launch(int)));
         }
         else if (p->isType(KST_KServiceGroup)){
             KServiceGroup *g = static_cast<KServiceGroup *>(p);
@@ -101,7 +101,7 @@ void SkoutMenu::populate() {
                 g->icon(), TDEIcon::Small);
 
             SkoutMenu *sub = new SkoutMenu(panel(), g);
-            item = insertItem(icon, g->caption(), sub);
+            item = insertItem(icon, ESCAPE_AMPERSAND(g->caption()), sub);
         }
         else continue;
         setItemParameter(item, index);

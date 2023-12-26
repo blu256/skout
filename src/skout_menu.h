@@ -23,6 +23,8 @@
 #include <tdepopupmenu.h>
 #include <kservicegroup.h>
 
+#define ESCAPE_AMPERSAND(x) x.replace("&", "&&")
+
 class KBookmarkMenu;
 
 class SkoutPanel;
