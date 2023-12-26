@@ -35,7 +35,7 @@
 
 // Skout
 #include "skout_menu_button.h"
-#include "skout_menu.h"
+#include "skout_root_menu.h"
 #include "skout_panel.h"
 
 static KHelpMenu *helpMenu = nullptr;

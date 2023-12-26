@@ -57,38 +57,4 @@ class SkoutMenu : public TDEPopupMenu {
     KLineEdit *m_search;
 };
 
-
-class SkoutRootMenu : public SkoutMenu {
-  TQ_OBJECT
-
-  public:
-    SkoutRootMenu(SkoutPanel *panel);
-    virtual ~SkoutRootMenu();
-
-    enum SessionMenuItem {
-        LockAndNewSession = 100,
-        NewSession
-    };
-
-  private slots:
-    void runCommand();
-    void lockScreen();
-    void logOut();
-
-    void populateSessions();
-    void activateSession(int item);
-    void startNewSession(bool lockCurrent = true);
-
-    void populateRecentDocs();
-    void openRecentDoc(int item);
-
-  private:
-    KBookmarkMenu *m_bookmarks;
-    TQStringList m_recentDocs;
-
-    TDEPopupMenu *m_bookmarkMenu;
-    TDEPopupMenu *m_sessionMenu;
-    TDEPopupMenu *m_recentsMenu;
-};
-
 #endif // _SKOUT_MENU_H
