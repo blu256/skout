@@ -55,8 +55,6 @@ SkoutSysTray::SkoutSysTray(SkoutPanel *parent)
     m_status(nullptr)
 {
     setSizePolicy(TQSizePolicy::MinimumExpanding, TQSizePolicy::Maximum);
-    setFrameStyle(TQFrame::StyledPanel | TQFrame::Sunken);
-    setBackgroundOrigin(AncestorOrigin);
 
     m_twin = new KWinModule(this);
 
