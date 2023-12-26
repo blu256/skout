@@ -48,8 +48,10 @@
 #include <tdeapplication.h>
 #include <kiconloader.h>
 #include <kbookmarkmenu.h>
+#include <tderecentdocument.h>
 #include <tdemessagebox.h>
 #include <dcopref.h>
+#include <krun.h>
 #include <kdebug.h>
 
 // Skout
@@ -133,6 +135,9 @@ SkoutRootMenu::SkoutRootMenu(SkoutPanel *panel)
         nullptr, true);
     insertItem(SmallIcon("user-bookmarks"), i18n("Bookmarks"), m_bookmarkMenu);
 
+    m_recentsMenu = new TDEPopupMenu(panel);
+    insertItem(SmallIcon("clock"), i18n("Recent documents"), m_recentsMenu);
+
     insertSeparator();
 
     if (kapp->authorize("run_command")) {
@@ -141,7 +146,6 @@ SkoutRootMenu::SkoutRootMenu(SkoutPanel *panel)
     }
 
     m_sessionMenu = new TDEPopupMenu(panel);
-
     insertItem(SmallIcon("switchuser"), i18n("Switch User"), m_sessionMenu);
 
     if (kapp->authorize("lock_screen")) {
@@ -155,9 +159,11 @@ SkoutRootMenu::SkoutRootMenu(SkoutPanel *panel)
                    this, TQT_SLOT(logOut()));
     }
 
-
     connect(m_sessionMenu, SIGNAL(aboutToShow()), SLOT(populateSessions()));
     connect(m_sessionMenu, SIGNAL(activated(int)), SLOT(activateSession(int)));
+
+    connect(m_recentsMenu, SIGNAL(aboutToShow()), SLOT(populateRecentDocs()));
+    connect(m_recentsMenu, SIGNAL(activated(int)), SLOT(openRecentDoc(int)));
 }
 
 SkoutRootMenu::~SkoutRootMenu() {
@@ -252,6 +258,24 @@ void SkoutRootMenu::startNewSession(bool lockCurrent) {
 
     if (lockCurrent) lockScreen();
     DM().startReserve();
+}
+
+void SkoutRootMenu::populateRecentDocs() {
+    m_recentsMenu->clear();
+    m_recentDocs = TDERecentDocument::recentDocuments();
+    TQStringList::ConstIterator it;
+    int index = 100;
+    for (it = m_recentDocs.begin(); it != m_recentDocs.end(); ++it) {
+        KDesktopFile df((*it));
+        m_recentsMenu->insertItem(SmallIcon(df.readIcon()), df.readName(), index);
+        ++index;
+    }
+}
+
+void SkoutRootMenu::openRecentDoc(int item) {
+    TQString path = m_recentDocs[item - 100];
+    if (!KDesktopFile::isDesktopFile(path)) return;
+    (void) new KRun(path);
 }
 
 #include "skout_menu.moc"
