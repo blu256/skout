@@ -1,0 +1,16 @@
+################################################################################
+# Skout - a Be-style panel for TDE                                             #
+# Copyright (C) 2023 Mavridis Philippe <mavridisf@gmail.com>                   #
+#                                                                              #
+# Improvements and feedback are welcome!                                       #
+# This software is licensed under the terms of the GNU GPL v3 license.         #
+################################################################################
+
+tde_l10n_auto_add_subdirectories( )
+
+tde_l10n_create_template( "messages/skout" )
+
+tde_l10n_create_template(
+    CATALOG "desktop_files/skout-desktops"
+    SOURCES skout.desktop skout_config.desktop
+)

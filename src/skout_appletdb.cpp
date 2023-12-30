@@ -20,6 +20,7 @@
 #include <tdeglobal.h>
 #include <kstandarddirs.h>
 #include <kdesktopfile.h>
+#include <tdelocale.h>
 #include <kdebug.h>
 
 // Skout
@@ -33,6 +34,8 @@ SkoutAppletDB* SkoutAppletDB::instance() {
 }
 
 SkoutAppletDB::SkoutAppletDB() : TQObject(0, "applet_db") {
+    TDEGlobal::locale()->insertCatalogue("skout-applets");
+
     TDEGlobal::dirs()->addResourceType("applets",
         TDEGlobal::dirs()->kde_default("data") + "skout/applets");
 

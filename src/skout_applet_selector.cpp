@@ -22,7 +22,6 @@
 // TDE
 #include <tdeapplication.h>
 #include <kiconloader.h>
-#include <kdebug.h>
 
 // Skout
 #include "skout_applet_selector.h"

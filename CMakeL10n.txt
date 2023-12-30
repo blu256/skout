@@ -1,0 +1,12 @@
+################################################################################
+# Skout - a Be-style panel for TDE                                             #
+# Copyright (C) 2023 Mavridis Philippe <mavridisf@gmail.com>                   #
+#                                                                              #
+# Improvements and feedback are welcome!                                       #
+# This software is licensed under the terms of the GNU GPL v3 license.         #
+################################################################################
+
+cmake_minimum_required( VERSION 3.1 )
+
+include( TDEL10n )
+tde_l10n_auto_add_subdirectories( )

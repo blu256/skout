@@ -52,7 +52,7 @@ SkoutMenuBtn::SkoutMenuBtn(SkoutPanel *panel)
     setSizePolicy(TQSizePolicy::Expanding, TQSizePolicy::Fixed);
     setBackgroundOrigin(AncestorOrigin);
 
-    setText("Menu");
+    setText(i18n("Menu"));
     setIconSet(kapp->iconLoader()->loadIconSet("go", TDEIcon::Panel, 22));
 
     TQToolTip::add(this, i18n("Skout Menu"));

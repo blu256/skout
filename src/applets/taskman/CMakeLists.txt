@@ -42,4 +42,5 @@ tde_add_kpart(
 tde_create_translated_desktop(
   SOURCE skout_task_manager.desktop
   DESTINATION ${DATA_INSTALL_DIR}/skout/applets
+  PO_DIR skout-applets-desktops
 )

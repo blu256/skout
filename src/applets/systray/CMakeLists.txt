@@ -38,4 +38,5 @@ tde_add_kpart( skoutapplet_systray AUTOMOC
 tde_create_translated_desktop(
   SOURCE skout_system_tray.desktop
   DESTINATION ${DATA_INSTALL_DIR}/skout/applets
+  PO_DIR skout-applets-desktops
 )

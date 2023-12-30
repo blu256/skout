@@ -73,6 +73,8 @@ SkoutConfig::SkoutConfig(TQWidget *parent, const char *name, const TQStringList 
                           TDEAboutData::License_GPL_V3, copyright);
     setAboutData(about);
 
+    TDEGlobal::locale()->insertCatalogue("skout");
+
     setQuickHelp( i18n("<h1>Skout</h1> This control module can be used to enable and configure"
         " Skout. Skout is a Be-style panel for TDE. If you choose to use Skout, Kicker will be"
         " automatically disabled."));
@@ -90,7 +92,7 @@ SkoutConfig::SkoutConfig(TQWidget *parent, const char *name, const TQStringList 
 
 #define ICON(x) TDEGlobal::iconLoader()->loadIcon(x, TDEIcon::Panel)
     m_tabWidget = new KJanusWidget(m_groupBox, 0, KJanusWidget::IconList);
-    TQVBox *tabGeneral = m_tabWidget->addVBoxPage((const TQString)"General",
+    TQVBox *tabGeneral = m_tabWidget->addVBoxPage(i18n("General"),
                                                   "General settings",
                                                   ICON("configure"));
 
@@ -99,7 +101,7 @@ SkoutConfig::SkoutConfig(TQWidget *parent, const char *name, const TQStringList 
                                                "Appearance", ICON("icons"));
     */
 
-    TQVBox *tabApplets = m_tabWidget->addVBoxPage((const TQString)"Applets",
+    TQVBox *tabApplets = m_tabWidget->addVBoxPage(i18n("Applets"),
                                                   "Applets", ICON("kicker"));
 #undef ICON
 

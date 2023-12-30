@@ -87,5 +87,7 @@ install(
 )
 
 ### translated desktop files ###################################################
-tde_create_translated_desktop( skout.desktop )
-tde_create_translated_desktop( skout_config.desktop )
+tde_create_translated_desktop(skout.desktop
+    PO_DIR skout-desktops)
+tde_create_translated_desktop(skout_config.desktop
+    PO_DIR skout-desktops)

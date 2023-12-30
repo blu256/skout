@@ -1,0 +1,57 @@
+# SOME DESCRIPTIVE TITLE.
+# This file is put in the public domain.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-12-30 22:52+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Name
+#: calendar/skout_calendar.desktop:2
+msgid "Calendar"
+msgstr ""
+
+#. Comment
+#: calendar/skout_calendar.desktop:3
+msgid "A simple calendar"
+msgstr ""
+
+#. Name
+#: pager/skout_pager.desktop:2
+msgid "Pager"
+msgstr ""
+
+#. Comment
+#: pager/skout_pager.desktop:3
+msgid "A virtual desktops pager applet"
+msgstr ""
+
+#. Name
+#: systray/skout_system_tray.desktop:2
+msgid "System Tray"
+msgstr ""
+
+#. Comment
+#: systray/skout_system_tray.desktop:3
+msgid "Area for resident application icons"
+msgstr ""
+
+#. Name
+#: taskman/skout_task_manager.desktop:2
+msgid "Task Manager"
+msgstr ""
+
+#. Comment
+#: taskman/skout_task_manager.desktop:3
+msgid "A window list on steroids"
+msgstr ""

@@ -1,0 +1,40 @@
+# translation of skout-desktops.po to Ελληνικά
+# This file is put in the public domain.
+#
+# Mavridis Philippe <mavridisf@gmail.com>, 2023.
+msgid ""
+msgstr ""
+"Project-Id-Version: skout-desktops\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-12-30 23:02+0200\n"
+"PO-Revision-Date: 2023-12-30 23:09+0200\n"
+"Last-Translator: Mavridis Philippe <mavridisf@gmail.com>\n"
+"Language-Team: Ελληνικά\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+
+#. Name
+#. GenericName
+#. Name
+#: skout.desktop:2 skout.desktop:3 skout_config.desktop:11
+msgid "Skout"
+msgstr "Skout"
+
+#. Comment
+#: skout.desktop:4
+msgid "A Be-like panel for TDE"
+msgstr "Ένας πίνακας σε στυλ BeOS για το TDE"
+
+#. Comment
+#: skout_config.desktop:12
+msgid "Skout configuration (Be-style panel)"
+msgstr "Ρύθμιση Skout (πίνακας σε στυλ BeOS)"
+
+#. Keywords
+#: skout_config.desktop:14
+msgid "panel;kicker;skout"
+msgstr "πίνακας;kicker;skout"
+

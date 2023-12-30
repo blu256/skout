@@ -35,4 +35,5 @@ tde_add_kpart( skoutapplet_calendar AUTOMOC
 tde_create_translated_desktop(
   SOURCE skout_calendar.desktop
   DESTINATION ${DATA_INSTALL_DIR}/skout/applets
+  PO_DIR skout-applets-desktops
 )

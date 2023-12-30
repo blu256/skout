@@ -1,0 +1,101 @@
+# SOME DESCRIPTIVE TITLE.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2023-12-30 22:00+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Instead of a literal translation, add your name to the end of the list (separated by a comma).
+#, ignore-inconsistent
+msgid ""
+"_: NAME OF TRANSLATORS\n"
+"Your names"
+msgstr ""
+
+#. Instead of a literal translation, add your email to the end of the list (separated by a comma).
+#, ignore-inconsistent
+msgid ""
+"_: EMAIL OF TRANSLATORS\n"
+"Your emails"
+msgstr ""
+
+#: skout_status_widget.cpp:60
+msgid ""
+"<qt><p>The clock displays the current time.<ul><li>Click on it to see a "
+"calendar.</li><li>Press the middle mouse button to copy the time and/or date."
+"</li><li>Press the right mouse button to see a menu with more options.</li></"
+"ul></qt>"
+msgstr ""
+
+#: skout_status_widget.cpp:131
+msgid "Calendar"
+msgstr ""
+
+#: skout_status_widget.cpp:138
+msgid "Copy..."
+msgstr ""
+
+#: skout_status_widget.cpp:155
+msgid "&Adjust Date && Time..."
+msgstr ""
+
+#: skout_status_widget.cpp:157
+msgid "Date && Time &Format..."
+msgstr ""
+
+#: skout_system_graph.cpp:64
+msgid ""
+"<qt><p>This graph monitors the <b>%1</b> sensor on this system.<ul><li>Click "
+"on it to launch KSysGuard.</li><li>Press the right mouse button to see a "
+"menu with useful functions.</li></ul></qt>"
+msgstr ""
+
+#: skout_system_graph.cpp:94
+msgid "Could not initialize sensor \"%1\"!"
+msgstr ""
+
+#: skout_system_graph.cpp:95
+msgid "Cannot connect to KSysGuard service."
+msgstr ""
+
+#: skout_system_graph.cpp:196
+msgid "Sensor \"%1\" has crashed!"
+msgstr ""
+
+#: skout_system_graph.cpp:197
+msgid "The KSysGuard service has stopped abruptly and could not be restarted."
+msgstr ""
+
+#: skout_system_graph.cpp:299
+msgid "%1: monitor is offline"
+msgstr ""
+
+#: skout_system_graph.cpp:332
+msgid "Launch..."
+msgstr ""
+
+#: skout_system_graph.cpp:359
+msgid "Unable to launch %1!"
+msgstr ""
+
+#: skout_system_graph.cpp:390
+msgid "Terminal Emulator"
+msgstr ""
+
+#: skout_system_tray.cpp:79
+msgid "Unable to acquire system tray!"
+msgstr ""
+
+#: skout_system_tray.cpp:82
+msgid ""
+"The system tray provides status information, quick access to some functions "
+"and a place to conveniently store application windows from the task list."
+msgstr ""
