@@ -58,8 +58,9 @@ void SkoutMenu::populate() {
             KService *s = static_cast<KService *>(p);
             if (s->noDisplay()) continue;
 
-            insertItem(s->pixmap(TDEIcon::Small), ESCAPE_AMPERSAND(s->name()),
-                       this, SLOT(launch(int)));
+            item = insertItem(s->pixmap(TDEIcon::Small),
+                              ESCAPE_AMPERSAND(s->name()),
+                              this, SLOT(launch(int)));
         }
         else if (p->isType(KST_KServiceGroup)){
             KServiceGroup *g = static_cast<KServiceGroup *>(p);
