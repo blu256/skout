@@ -55,6 +55,8 @@ class SkoutMenu : public TDEPopupMenu {
     KServiceGroup::Ptr m_group;
     KServiceGroup::List m_list;
     KLineEdit *m_search;
+
+    int firstSearchMatch();
 };
 
 #endif // _SKOUT_MENU_H

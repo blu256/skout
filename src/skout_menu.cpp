@@ -93,24 +93,47 @@ void SkoutMenu::launch(int item) {
 }
 
 void SkoutMenu::keyPressEvent(TQKeyEvent *e) {
-    if (e->key() == TQt::Key_Escape) {
+    if (e->key() == TQt::Key_Return) {
+        if (m_search) {
+            int index = firstSearchMatch();
+            if (index != -1) {
+                activateItemAt(index);
+                hideSearch();
+            }
+        }
+        else {
+            // Pass event to the menu
+            TDEPopupMenu::keyPressEvent(e);
+            return;
+        }
+    }
+
+    else if (e->key() == TQt::Key_Escape) {
         if (m_search) {
             hideSearch();
         }
         else {
             hide();
         }
-        e->accept();
-        return;
     }
 
-    if (m_search || e->text().isEmpty()) {
+    else if (m_search && e->key() == TQt::Key_Tab) {
+        int index = firstSearchMatch();
+        if (index != -1) {
+            setActiveItem(index);
+        }
+    }
+
+    else if (m_search || e->text().isEmpty()) {
         e->ignore();
         return;
     }
 
-    showSearch();
-    m_search->setText(e->text());
+    else {
+        showSearch();
+        m_search->setText(e->text());
+    }
+
     e->accept();
 }
 
@@ -139,6 +162,17 @@ void SkoutMenu::search(const TQString &str) {
             setItemEnabled(id, text(id).lower().contains(str.lower()));
         }
     }
+}
+
+int SkoutMenu::firstSearchMatch() {
+    if (m_search) {
+        for (int i = 0; i < count(); ++i) {
+            if (isItemEnabled(idAt(i))) {
+                return i;
+            }
+        }
+    }
+    return -1;
 }
 
 #include "skout_menu.moc"
