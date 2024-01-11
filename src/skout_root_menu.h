@@ -71,10 +71,10 @@ class SkoutRootMenu : public SkoutMenu {
     KBookmarkMenu *m_bookmarks;
     TQStringList m_recentDocs;
 
-    TDEPopupMenu *m_bookmarkMenu;
-    TDEPopupMenu *m_settingsMenu;
-    TDEPopupMenu *m_sessionMenu;
-    TDEPopupMenu *m_recentsMenu;
+    SkoutMenu *m_bookmarkMenu;
+    SkoutMenu *m_settingsMenu;
+    SkoutMenu *m_sessionMenu;
+    SkoutMenu *m_recentsMenu;
 };
 
 #endif // _SKOUT_ROOT_MENU_H

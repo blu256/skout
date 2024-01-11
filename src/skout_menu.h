@@ -34,13 +34,25 @@ class SkoutMenu : public TDEPopupMenu {
   TQ_OBJECT
 
   public:
-    SkoutMenu(SkoutPanel *panel, KServiceGroup::Ptr group = nullptr);
+    SkoutMenu(SkoutPanel *panel);
+    SkoutMenu(SkoutPanel *panel, KServiceGroup::Ptr group);
     virtual ~SkoutMenu();
 
     SkoutPanel *panel();
 
+    int addSubmenu(KServiceGroup *group, int id = -1, int index = -1);
+    int addSubmenu(TDEPopupMenu *menu, TQString icon, TQString name,
+                    int id = -1, int index = -1);
+
+    int addItem(KService *service, const TQObject *receiver, const char *member,
+                 int id = -1, int index = -1);
+    int addItem(TQString icon, TQString name, int id = -1, int index = -1);
+    int addItem(TQString icon, TQString name,
+                const TQObject *receiver, const char *member,
+                int id = -1, int index = -1);
+
   public slots:
-    void populate();
+    void populate(KServiceGroup::Ptr group = nullptr);
     void launch(int item);
 
   private slots:

@@ -27,14 +27,17 @@
 #include "skout_panel.h"
 #include "skout_utils.h"
 
-SkoutMenu::SkoutMenu(SkoutPanel *panel, KServiceGroup::Ptr group)
+SkoutMenu::SkoutMenu(SkoutPanel *panel)
   : TDEPopupMenu(panel, "SkoutMenu"),
     m_search(nullptr)
 {
-    m_group = group ? group : KServiceGroup::root();
-    populate();
-
     connect(this, SIGNAL(aboutToHide()), SLOT(hideSearch()));
+}
+
+SkoutMenu::SkoutMenu(SkoutPanel *panel, KServiceGroup::Ptr group)
+ : SkoutMenu(panel)
+{
+    populate(group);
 }
 
 SkoutMenu::~SkoutMenu() {
@@ -44,42 +47,79 @@ SkoutPanel *SkoutMenu::panel() {
     return static_cast<SkoutPanel *>(parent());
 }
 
-void SkoutMenu::populate() {
+int SkoutMenu::addSubmenu(KServiceGroup *group, int id, int index) {
+    if (group->noDisplay() || !group->childCount()) return -1;
+    SkoutMenu *submenu = new SkoutMenu(panel(), group);
+    return insertItem(SmallIconSet(group->icon()),
+                      ESCAPE_AMPERSAND(group->caption()),
+                      submenu, id, index);
+}
+
+int SkoutMenu::addSubmenu(TDEPopupMenu *menu, TQString icon, TQString name,
+                           int id, int index)
+{
+    TQIconSet iconSet;
+    if (!icon.isNull()) {
+        iconSet = SmallIconSet(icon);
+    }
+    return insertItem(iconSet, name, menu, id, index);
+}
+
+int SkoutMenu::addItem(KService *service, const TQObject *receiver, const char *member,
+                       int id, int index)
+{
+    if (service->noDisplay()) return -1;
+    return insertItem(SmallIconSet(service->icon()),
+                      ESCAPE_AMPERSAND(service->name()),
+                      receiver, member, 0, id, index);
+}
+
+int SkoutMenu::addItem(TQString icon, TQString name, int id, int index) {
+    TQIconSet iconSet;
+    if (!icon.isNull()) {
+        iconSet = SmallIconSet(icon);
+    }
+    return insertItem(iconSet, ESCAPE_AMPERSAND(name), id, index);
+}
+
+int SkoutMenu::addItem(TQString icon, TQString name,
+                       const TQObject *receiver, const char *member, 
+                       int id, int index)
+{
+    TQIconSet iconSet;
+    if (!icon.isNull()) {
+        iconSet = SmallIconSet(icon);
+    }
+    return insertItem(iconSet, ESCAPE_AMPERSAND(name), receiver, member, 0,
+                      id, index);
+}
+
+void SkoutMenu::populate(KServiceGroup::Ptr group) {
+    m_group = group ? group : KServiceGroup::root();
+
     clear();
     if (!m_group || !m_group->isValid()) return;
 
     m_list = m_group->entries(true);
     KServiceGroup::List::ConstIterator it;
-    int index = -1, item;
+    int id = 100;
     for (it = m_list.begin(); it != m_list.end(); ++it) {
-        ++index;
         KSycocaEntry *p = (*it);
         if (p->isType(KST_KService)) {
             KService *s = static_cast<KService *>(p);
-            if (s->noDisplay()) continue;
-
-            item = insertItem(s->pixmap(TDEIcon::Small),
-                              ESCAPE_AMPERSAND(s->name()),
-                              this, SLOT(launch(int)));
+            addItem(s, this, SLOT(launch(int)), id);
         }
         else if (p->isType(KST_KServiceGroup)){
             KServiceGroup *g = static_cast<KServiceGroup *>(p);
-            if (g->noDisplay() || !g->childCount()) continue;
-
-            TQPixmap icon = kapp->iconLoader()->loadIcon(
-                g->icon(), TDEIcon::Small);
-
-            SkoutMenu *sub = new SkoutMenu(panel(), g);
-            item = insertItem(icon, ESCAPE_AMPERSAND(g->caption()), sub);
+            addSubmenu(g, id);
         }
-        else continue;
-        setItemParameter(item, index);
+        ++id;
     }
 }
 
-void SkoutMenu::launch(int item) {
-    int index = itemParameter(item);
-    KSycocaEntry *entry = m_list[index];
+void SkoutMenu::launch(int id) {
+    id -= 100;
+    KSycocaEntry *entry = m_list[id];
     KService *service = static_cast<KService *>(entry);
     TQString desktop = service->desktopEntryPath();
 

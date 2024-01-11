@@ -41,7 +41,6 @@
 #include <kbookmarkmenu.h>
 #include <tderecentdocument.h>
 #include <tdemessagebox.h>
-#include <kiconloader.h>
 #include <dcopref.h>
 #include <krun.h>
 
@@ -58,41 +57,38 @@ SkoutRootMenu::SkoutRootMenu(SkoutPanel *panel)
   : SkoutMenu(panel, nullptr)
 {
     insertSeparator();
-    m_bookmarkMenu = new TDEPopupMenu(panel);
+    m_bookmarkMenu = new SkoutMenu(panel);
     m_bookmarks = new KBookmarkMenu(
         KBookmarkManager::userBookmarksManager(),
         new KBookmarkOwner(),
         m_bookmarkMenu,
         nullptr, true);
-    insertItem(SmallIcon("bookmark_folder"), i18n("Bookmarks"), m_bookmarkMenu);
+    addSubmenu(m_bookmarkMenu, "bookmark_folder", i18n("Bookmarks"));
 
-    m_recentsMenu = new TDEPopupMenu(panel);
-    insertItem(SmallIcon("clock"), i18n("Recent documents"), m_recentsMenu);
+    m_recentsMenu = new SkoutMenu(panel);
+    addSubmenu(m_recentsMenu, "clock", i18n("Recent documents"));
 
     insertSeparator();
 
     m_settingsMenu = new SkoutSettingsMenu(panel);
-    insertItem(SmallIcon("kcontrol"), i18n("Settings"), m_settingsMenu);
+    addSubmenu(m_settingsMenu, "kcontrol", i18n("Settings"));
 
     insertSeparator();
 
     if (kapp->authorize("run_command")) {
-        insertItem(SmallIcon("system-run"), i18n("Run command..."),
-                   this, SLOT(runCommand()));
+        addItem("system-run", i18n("Run command..."), this, SLOT(runCommand()));
     }
 
-    m_sessionMenu = new TDEPopupMenu(panel);
-    insertItem(SmallIcon("switchuser"), i18n("Switch User"), m_sessionMenu);
+    m_sessionMenu = new SkoutMenu(panel);
+    addSubmenu(m_sessionMenu, "switchuser", i18n("Switch User"));
 
     if (kapp->authorize("lock_screen")) {
-        insertItem(SmallIcon("system-lock-screen"), i18n("Lock Session"),
-                   this, TQT_SLOT(lockScreen()));
+        addItem("system-lock-screen", i18n("Lock Session"), this, SLOT(lockScreen()));
     }
 
     if (kapp->authorize("logout"))
     {
-        insertItem(SmallIcon("system-log-out"), i18n("Log Out..."),
-                   this, TQT_SLOT(logOut()));
+        addItem("system-log-out", i18n("Log Out..."), this, SLOT(logOut()));
     }
 
     connect(m_sessionMenu, SIGNAL(aboutToShow()), SLOT(populateSessions()));
@@ -130,13 +126,13 @@ void SkoutRootMenu::populateSessions() {
     int p = dm.numReserve();
     if (kapp->authorize("start_new_session") && p >= 0) {
         if (kapp->authorize("lock_screen")) {
-            m_sessionMenu->insertItem(SmallIcon("system-lock-screen"),
-                                      i18n("Lock Current && Start New Session"),
-                                      SessionMenuItem::LockAndNewSession);
+            m_sessionMenu->addItem("system-lock-screen",
+                                   i18n("Lock Current && Start New Session"),
+                                   SessionMenuItem::LockAndNewSession);
 
-            m_sessionMenu->insertItem(SmallIcon("switchuser"),
-                                      i18n("Start New Session"),
-                                      SessionMenuItem::NewSession);
+            m_sessionMenu->addItem("switchuser",
+                                   i18n("Start New Session"),
+                                   SessionMenuItem::NewSession);
 
             if (!p) {
                 m_sessionMenu->setItemEnabled(SessionMenuItem::LockAndNewSession,
@@ -154,7 +150,7 @@ void SkoutRootMenu::populateSessions() {
         SessList::ConstIterator it = sessions.begin();
         for (; it != sessions.end(); ++it) {
             SessEnt s(*it);
-            int id = m_sessionMenu->insertItem(DM::sess2Str(s), s.vt);
+            int id = m_sessionMenu->addItem(TQString::null, DM::sess2Str(s), s.vt);
             m_sessionMenu->setItemEnabled(id, s.vt);
             m_sessionMenu->setItemChecked(id, s.self);
         }
@@ -204,7 +200,7 @@ void SkoutRootMenu::populateRecentDocs() {
     int index = 100;
     for (it = m_recentDocs.begin(); it != m_recentDocs.end(); ++it) {
         KDesktopFile df((*it));
-        m_recentsMenu->insertItem(SmallIcon(df.readIcon()), df.readName(), index);
+        m_recentsMenu->addItem(df.readIcon(), df.readName(), index);
         ++index;
     }
 }
