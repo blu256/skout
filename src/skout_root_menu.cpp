@@ -63,7 +63,7 @@ SkoutRootMenu::SkoutRootMenu(SkoutPanel *panel)
         new KBookmarkOwner(),
         m_bookmarkMenu,
         nullptr, true);
-    insertItem(SmallIcon("user-bookmarks"), i18n("Bookmarks"), m_bookmarkMenu);
+    insertItem(SmallIcon("bookmark_folder"), i18n("Bookmarks"), m_bookmarkMenu);
 
     m_recentsMenu = new TDEPopupMenu(panel);
     insertItem(SmallIcon("clock"), i18n("Recent documents"), m_recentsMenu);
