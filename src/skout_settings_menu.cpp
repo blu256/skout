@@ -37,44 +37,32 @@
   Improvements and feedback are welcome!
 *******************************************************************************/
 
-#ifndef _SKOUT_ROOT_MENU_H
-#define _SKOUT_ROOT_MENU_H
+// TDE
+#include <tdeapplication.h>
+#include <kiconloader.h>
 
 // Skout
-#include "skout_menu.h"
+#include "skout_settings_menu.h"
+#include "skout_panel.h"
 
-class SkoutRootMenu : public SkoutMenu {
-  TQ_OBJECT
+SkoutSettingsMenu::SkoutSettingsMenu(SkoutPanel *panel)
+  : SkoutMenu(panel, KServiceGroup::group("Settings/"))
+{
+    tdecontrol = KService::serviceByDesktopName("kcontrol");
+    if (tdecontrol->isValid()) {
+        insertItem(SmallIcon(tdecontrol->icon()), tdecontrol->name(),
+                   this, SLOT(launchControlCentre()), 0,
+                   CONTROL_CENTRE_ITEM, 0);
+        insertSeparator(1);
+    }
+}
 
-  public:
-    SkoutRootMenu(SkoutPanel *panel);
-    virtual ~SkoutRootMenu();
+SkoutSettingsMenu::~SkoutSettingsMenu() {
+}
 
-    enum SessionMenuItem {
-        LockAndNewSession = 100,
-        NewSession
-    };
+void SkoutSettingsMenu::launchControlCentre() {
+    // TODO: error handling
+    kapp->startServiceByDesktopPath(tdecontrol->desktopEntryPath());
+}
 
-  private slots:
-    void runCommand();
-    void lockScreen();
-    void logOut();
-
-    void populateSessions();
-    void activateSession(int item);
-    void startNewSession(bool lockCurrent = true);
-
-    void populateRecentDocs();
-    void openRecentDoc(int item);
-
-  private:
-    KBookmarkMenu *m_bookmarks;
-    TQStringList m_recentDocs;
-
-    TDEPopupMenu *m_bookmarkMenu;
-    TDEPopupMenu *m_settingsMenu;
-    TDEPopupMenu *m_sessionMenu;
-    TDEPopupMenu *m_recentsMenu;
-};
-
-#endif // _SKOUT_ROOT_MENU_H
+#include "skout_settings_menu.moc"

@@ -50,6 +50,7 @@
 
 // Skout
 #include "skout_root_menu.h"
+#include "skout_settings_menu.h"
 #include "skout_panel.h"
 #include "skout_utils.h"
 
@@ -67,6 +68,11 @@ SkoutRootMenu::SkoutRootMenu(SkoutPanel *panel)
 
     m_recentsMenu = new TDEPopupMenu(panel);
     insertItem(SmallIcon("clock"), i18n("Recent documents"), m_recentsMenu);
+
+    insertSeparator();
+
+    m_settingsMenu = new SkoutSettingsMenu(panel);
+    insertItem(SmallIcon("kcontrol"), i18n("Settings"), m_settingsMenu);
 
     insertSeparator();
 
@@ -99,6 +105,7 @@ SkoutRootMenu::SkoutRootMenu(SkoutPanel *panel)
 SkoutRootMenu::~SkoutRootMenu() {
     ZAP(m_bookmarks)
     ZAP(m_bookmarkMenu)
+    ZAP(m_settingsMenu)
     ZAP(m_sessionMenu)
 }
 

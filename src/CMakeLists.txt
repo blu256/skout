@@ -45,6 +45,7 @@ tde_add_executable(
     skout_menu_button.cpp
     skout_menu.cpp
     skout_root_menu.cpp
+    skout_settings_menu.cpp
     skoutiface.skel
 
   LINK

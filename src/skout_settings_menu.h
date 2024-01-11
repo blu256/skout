@@ -37,44 +37,29 @@
   Improvements and feedback are welcome!
 *******************************************************************************/
 
-#ifndef _SKOUT_ROOT_MENU_H
-#define _SKOUT_ROOT_MENU_H
+#ifndef _SKOUT_SETTINGS_MENU_H
+#define _SKOUT_SETTINGS_MENU_H
+
+// TDE
+#include <kservice.h>
 
 // Skout
 #include "skout_menu.h"
 
-class SkoutRootMenu : public SkoutMenu {
+#define CONTROL_CENTRE_ITEM 100
+
+class SkoutSettingsMenu : public SkoutMenu {
   TQ_OBJECT
 
   public:
-    SkoutRootMenu(SkoutPanel *panel);
-    virtual ~SkoutRootMenu();
+    SkoutSettingsMenu(SkoutPanel *panel);
+    virtual ~SkoutSettingsMenu();
 
-    enum SessionMenuItem {
-        LockAndNewSession = 100,
-        NewSession
-    };
-
-  private slots:
-    void runCommand();
-    void lockScreen();
-    void logOut();
-
-    void populateSessions();
-    void activateSession(int item);
-    void startNewSession(bool lockCurrent = true);
-
-    void populateRecentDocs();
-    void openRecentDoc(int item);
+  public slots:
+    void launchControlCentre();
 
   private:
-    KBookmarkMenu *m_bookmarks;
-    TQStringList m_recentDocs;
-
-    TDEPopupMenu *m_bookmarkMenu;
-    TDEPopupMenu *m_settingsMenu;
-    TDEPopupMenu *m_sessionMenu;
-    TDEPopupMenu *m_recentsMenu;
+    KService::Ptr tdecontrol;
 };
 
-#endif // _SKOUT_ROOT_MENU_H
+#endif // _SKOUT_SETTINGS_MENU_H
