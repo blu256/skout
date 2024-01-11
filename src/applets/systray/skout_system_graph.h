@@ -19,31 +19,18 @@
 #ifndef _SKOUT_SYSTEM_GRAPH_H
 #define _SKOUT_SYSTEM_GRAPH_H
 
+// TDE
+#include <kservice.h>
+
 // TQt
 #include <tqwidget.h>
 
 // Skout
 #include "skout_status_widget.h"
 
-struct Tool {
-    TQString service;
-    TQStringList args;
-    TQString icon;
-    TQString name;
-
-    bool isValid() {
-        return !service.isNull();
-    }
-
-    TQString getIcon() {
-        return icon.isNull() ? service : icon;
-    }
-};
-
 class TQLabel;
 class TQTimer;
 class TDEProcess;
-class TDEPopupMenu;
 
 class SkoutSystemGraph : public TQWidget {
   TQ_OBJECT
@@ -57,10 +44,10 @@ class SkoutSystemGraph : public TQWidget {
         return static_cast<SkoutStatusWidget *>(parent());
     }
 
-    void launch(Tool tool);
-    const Tool systemMonitor();
-    const Tool processManager();
-    const Tool terminalEmulator();
+    void launch(KService::Ptr tool);
+    KService::Ptr systemMonitor();
+    KService::Ptr processManager();
+    KService::Ptr terminalEmulator();
 
   protected:
     void paintEvent(TQPaintEvent *e);
@@ -100,8 +87,7 @@ class SkoutSystemGraph : public TQWidget {
     int m_pollingFrequency;
     bool m_aggregateMaxValues;
 
-    TDEPopupMenu *m_contextMenu;
-    TQValueList<Tool> m_tools;
+    KService::List m_tools;
 
     bool write(TQString msg);
 

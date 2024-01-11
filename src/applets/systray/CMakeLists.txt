@@ -29,6 +29,7 @@ tde_add_kpart( skoutapplet_systray AUTOMOC
   LINK
     tdecore-shared
     tdeui-shared
+    tdeio-shared
     skout-shared
 
   DESTINATION ${PLUGIN_INSTALL_DIR}

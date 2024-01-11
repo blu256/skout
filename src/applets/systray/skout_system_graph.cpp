@@ -37,6 +37,7 @@
 #include <kiconloader.h>
 #include <kprocess.h>
 #include <tdelocale.h>
+#include <krun.h>
 #include <kdebug.h>
 
 // Skout
@@ -324,71 +325,54 @@ void SkoutSystemGraph::mousePressEvent(TQMouseEvent *e) {
         m_tools += processManager();
         m_tools += terminalEmulator();
 
-        if (m_contextMenu) {
-            delete m_contextMenu;
-        }
+        TDEPopupMenu popup;
+        popup.insertTitle(SmallIcon("system-run"), i18n("Launch..."));
 
-        m_contextMenu = new TDEPopupMenu();
-        m_contextMenu->insertTitle(SmallIcon("run"), i18n("Launch..."));
-
-        TQValueList<Tool>::iterator it;
-        int item = 0;
+        KService::List::iterator it;
+        int index = 100;
         for (it = m_tools.begin(); it != m_tools.end(); ++it) {
-            Tool t = (*it);
-            if (!t.isValid()) continue;
-            int id = m_contextMenu->insertItem(SmallIcon(t.getIcon()),
-                                               i18n(t.name.local8Bit()));
-            m_contextMenu->setItemParameter(id, item);
-            ++item;
+            KService::Ptr t = (*it);
+            if (t && t->isValid()) {
+                TQString label = t->genericName();
+                if (label.isEmpty()) {
+                    label = i18n(t->name().local8Bit());
+                }
+                popup.insertItem(SmallIcon(t->icon()), label, index);
+            }
+            ++index;
         }
 
-        connect(m_contextMenu, SIGNAL(activated(int)), SLOT(launchMenuItem(int)));
-
-        m_contextMenu->exec(mapToGlobal(e->pos()));
-
-        delete m_contextMenu;
-        m_contextMenu = nullptr;
+        connect(&popup, SIGNAL(activated(int)), SLOT(launchMenuItem(int)));
+        popup.exec(mapToGlobal(e->pos()));
     }
 }
 
-void SkoutSystemGraph::launch(Tool tool) {
-    TQString error;
-    if (0 != kapp->startServiceByDesktopName(tool.service, tool.args, &error)) {
+void SkoutSystemGraph::launch(KService::Ptr svc) {
+    TDEProcess proc;
+    proc << KRun::processDesktopExec(*svc, KURL::List(), false, false);
+    if (!proc.start(TDEProcess::DontCare)) {
         statusWidget()->sysTray()->popup(
-            "messagebox_warning",
-            i18n("Unable to launch %1!").arg(i18n(tool.name.local8Bit())),
-            i18n(error.local8Bit()));
+            "messagebox_warning", i18n("Launch error!"),
+            i18n("Unable to launch <b>%1</b>!").arg(svc->name()));
     }
 }
 
 void SkoutSystemGraph::launchMenuItem(int id) {
-    int item = m_contextMenu->itemParameter(id);
-    if (item < 0 || item > m_tools.count()) return;
-    launch(m_tools[item]);
+    launch(m_tools[id - 100]);
 }
 
-const Tool SkoutSystemGraph::systemMonitor() {
-    Tool mon;
-    mon.service = "ksysguard";
-    mon.name = "System Monitor";
-    return mon;
+KService::Ptr SkoutSystemGraph::systemMonitor() {
+    return KService::serviceByDesktopName("ksysguard");
 }
 
-const Tool SkoutSystemGraph::processManager() {
-    Tool pm;
-    pm.service = "ksysguard";
-    pm.args << "--showprocesses";
-    pm.name = "Process Manager";
-    pm.icon = "taskbar";
-    return pm;
+KService::Ptr SkoutSystemGraph::processManager() {
+    return new KService("Process Manager", "kpm", "view_sidetree");
 }
 
-const Tool SkoutSystemGraph::terminalEmulator() {
+KService::Ptr SkoutSystemGraph::terminalEmulator() {
     TDEConfigGroup confGroup(TDEGlobal::config(), "General");
-    Tool te;
-    te.service = confGroup.readPathEntry("TerminalApplication", "konsole");
-    te.name = i18n("Terminal Emulator");
-    return te;
+    TQString term = confGroup.readPathEntry("TerminalApplication", "konsole");
+    return new KService("Terminal Emulator", term, "konsole");
 }
 
 #include "skout_system_graph.moc"
