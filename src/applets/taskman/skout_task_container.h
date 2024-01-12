@@ -45,7 +45,7 @@ class SkoutTaskContainer : public TQVBox {
     SkoutTaskContainer(SkoutTaskMan *parent, KService::Ptr service, TQString wclass);
 
     TQString windowClass() const { return m_wclass; }
-    TQString applicationName() const { return m_appname; }
+    TQString application() const { return m_appname; }
     TQPixmap groupIcon();
 
     TQObjectList tasks();

@@ -34,11 +34,11 @@
 #include "skout_utils.h"
 
 SkoutTaskContainer::SkoutTaskContainer(SkoutTaskMan *parent,
-                                       TQString wclass, TQString appname)
+                                       TQString wclass, TQString aclass)
   : TQVBox(parent),
     m_service(nullptr),
     m_wclass(wclass),
-    m_appname(appname),
+    m_appname(aclass),
     m_active(false)
 {
     m_grouper = new SkoutTaskGrouper(this, m_appname);

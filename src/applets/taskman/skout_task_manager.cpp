@@ -117,12 +117,15 @@ void SkoutTaskMan::addWindow(WId w) {
         (info.state() & NET::SkipTaskbar) != 0) return;
 
     TQString windowClass = className(w);
-    TQString appName = classClass(w);
+    TQString appClass = classClass(w);
+
+    kdDebug() << "windowClass: " << windowClass << endl
+              << "   appClass: " << appClass<< endl;
 
     SkoutTask *t;
-    SkoutTaskContainer *c = m_containers[windowClass];
+    SkoutTaskContainer *c = m_containers[appClass];
     if (!c) {
-        c = new SkoutTaskContainer(this, windowClass, appName);
+        c = new SkoutTaskContainer(this, windowClass, appClass);
         addContainer(c);
     }
     t = new SkoutTask(c, w);
@@ -142,7 +145,7 @@ void SkoutTaskMan::removeWindow(WId w) {
 
 void SkoutTaskMan::addContainer(SkoutTaskContainer *c) {
     if (!c) return;
-    m_containers.insert(c->windowClass(), c);
+    m_containers.insert(c->application(), c);
     connect(c, SIGNAL(destroyed()),      SLOT(slotContainerDeleted()));
     connect(c, SIGNAL(pinChanged(bool)), SLOT(slotPinChanged(bool)));
     layout()->add(c);

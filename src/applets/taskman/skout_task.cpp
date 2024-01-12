@@ -98,7 +98,7 @@ TQString SkoutTask::classClass() {
 }
 
 TQString SkoutTask::applicationName() {
-    return container()->applicationName();
+    return container()->application();
 }
 
 void SkoutTask::mousePressEvent(TQMouseEvent *me) {

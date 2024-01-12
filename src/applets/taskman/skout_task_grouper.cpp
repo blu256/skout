@@ -78,7 +78,7 @@ void SkoutTaskGrouper::updateStaticPixmaps() {
 #undef ICON_BIG
 
 TQString SkoutTaskGrouper::name() {
-    return container()->applicationName();
+    return container()->application();
 }
 
 TQPixmap SkoutTaskGrouper::icon() {
