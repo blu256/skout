@@ -119,6 +119,9 @@ void SkoutTaskMan::addWindow(WId w) {
     TQString windowClass = className(w);
     TQString appClass = classClass(w);
 
+    if (appClass.isNull()) appClass = windowClass;
+    if (appClass.isNull()) return;
+
     kdDebug() << "windowClass: " << windowClass << endl
               << "   appClass: " << appClass<< endl;
 
@@ -156,7 +159,7 @@ void SkoutTaskMan::slotContainerDeleted() {
     if (!obj) return;
 
     const SkoutTaskContainer *c = static_cast<const SkoutTaskContainer *>(obj);
-    Q_ASSERT(m_containers.remove(c->windowClass()));
+    m_containers.remove(c->windowClass());
 }
 
 void SkoutTaskMan::relayout() {
