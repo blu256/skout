@@ -86,7 +86,7 @@ TQPixmap SkoutTask::icon(TQSize size) {
         return ico;
     }
 
-    return defaultIcon(size);
+    return container()->groupIcon();
 }
 
 TQString SkoutTask::className() {
