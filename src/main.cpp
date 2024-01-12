@@ -65,5 +65,7 @@ int main(int argc, char **argv) {
     args->clear();
 
     Skout *app = new Skout(pos);
-    return app->exec();
+    int ret = app->exec();
+    delete app;
+    return ret;
 }
