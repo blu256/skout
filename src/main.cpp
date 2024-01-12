@@ -54,14 +54,11 @@ int main(int argc, char **argv) {
 
     TDECmdLineArgs *args = TDECmdLineArgs::parsedArgs();
 
-    int pos;
+    PanelPosition pos = PanelPosition::Saved;
     if (args->isSet("topleft"))
         pos = PanelPosition::TopLeft;
     else if (args->isSet("topright"))
         pos = PanelPosition::TopRight;
-    else
-        pos = -1;
-
     args->clear();
 
     Skout *app = new Skout(pos);

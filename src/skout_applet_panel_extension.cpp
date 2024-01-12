@@ -16,28 +16,35 @@
   Improvements and feedback are welcome!
 *******************************************************************************/
 
-#ifndef _SKOUT_H
-#define _SKOUT_H
-
 // TDE
-#include <kuniqueapplication.h>
+#include <kdebug.h>
 
 // Skout
-#include "skoutiface.h"
-#include "skout_panel.h"
+#include "skout_applet_panel_extension.h"
 
-class Skout : public KUniqueApplication, SkoutIface {
-  TQ_OBJECT
+static SkoutAppletPanelExtension *skoutAppletPanelExtension = nullptr;
+SkoutAppletPanelExtension *SkoutAppletPanelExtension::instance() {
+    if (!skoutAppletPanelExtension) {
+        skoutAppletPanelExtension = new SkoutAppletPanelExtension();
+    }
+    return skoutAppletPanelExtension;
+}
 
-  public:
-    Skout(PanelPosition pos);
-    ~Skout();
+SkoutAppletPanelExtension::SkoutAppletPanelExtension()
+: TQObject()
+{}
 
-    void reconfigure();
-    void quit();
+SkoutAppletPanelExtension::~SkoutAppletPanelExtension() {}
 
-  private:
-    SkoutPanel *m_panel;
-};
+void SkoutAppletPanelExtension::popup(TQString icon, TQString caption,
+                                      TQString message)
+{
+    emit popupRequest(icon, caption, message);
+}
 
-#endif // _SKOUT_H
+void SkoutAppletPanelExtension::launch(KService::Ptr service, KURL::List urls)
+{
+    emit launchRequest(service, urls);
+}
+
+#include "skout_applet_panel_extension.moc"

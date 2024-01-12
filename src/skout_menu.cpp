@@ -121,14 +121,12 @@ void SkoutMenu::launch(int id) {
     id -= 100;
     KSycocaEntry *entry = m_list[id];
     KService *service = static_cast<KService *>(entry);
-    TQString desktop = service->desktopEntryPath();
 
-    int started = TDEApplication::startServiceByDesktopPath(desktop);
-    if (started == 0) {
+    if (panel()->launch(service)) {
         // Inform TDE Menu about launched application
         DCOPRef kickerKMenuIface("kicker", "KMenu");
         kickerKMenuIface.call("slotServiceStartedByStorageId(TQString,TQString)",
-                              "SkoutMenu", desktop);
+                              "SkoutMenu", service->desktopEntryPath());
     }
 }
 

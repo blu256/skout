@@ -37,8 +37,7 @@ SkoutSettingsMenu::~SkoutSettingsMenu() {
 }
 
 void SkoutSettingsMenu::launchKControl() {
-    // TODO: error handling
-    kapp->startServiceByDesktopPath(tdecontrol->desktopEntryPath());
+    panel()->launch(tdecontrol);
 }
 
 #include "skout_settings_menu.moc"

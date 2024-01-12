@@ -22,35 +22,26 @@
 // TQt
 #include <tqframe.h>
 
+// Skout
+#include "skout_applet_panel_extension.h"
+
 class SkoutPanel;
 
 class SkoutApplet : public TQFrame {
   TQ_OBJECT
 
   public:
-    SkoutApplet(SkoutPanel *panel, const char *name = 0);
+    SkoutApplet(SkoutPanel *parent, const char *name = 0);
     virtual ~SkoutApplet();
-
-    TQWidget *panel();
 
     virtual bool valid();
     virtual TQString lastErrorMessage();
 
-    void popup(TQString icon, TQString caption, TQString message);
-    void launch(TQString application, TQStringList args,
-                TQString description, bool isService = true);
-
   signals:
-    void showPopup(TQString icon, TQString caption, TQString message);
-    void doLaunch(TQString application, TQStringList args,
-                  TQString description, bool isService);
     void updateGeometry();
 
   protected:
     void resizeEvent(TQResizeEvent *);
-
-  private:
-    SkoutPanel *m_panel;
 };
 
 #endif // _SKOUT_APPLET_H

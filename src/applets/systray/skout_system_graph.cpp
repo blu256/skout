@@ -91,7 +91,7 @@ void SkoutSystemGraph::init() {
                      SLOT(slotDaemonStderr(TDEProcess*, char*, int)));
 
     if (!startDaemon()) {
-        statusWidget()->sysTray()->popup("error",
+        panelExt->popup("error",
             i18n("Could not initialize sensor \"%1\"!"),
             i18n("Cannot connect to KSysGuard service."));
     }
@@ -193,7 +193,7 @@ bool SkoutSystemGraph::write(TQString msg) {
 
 void SkoutSystemGraph::slotDaemonExited(TDEProcess *) {
     if (--m_retryCount <= 0 || !startDaemon()) {
-        statusWidget()->sysTray()->popup("error",
+        panelExt->popup("error",
             i18n("Sensor \"%1\" has crashed!"),
             i18n("The KSysGuard service has stopped abruptly and could "
                  "not be restarted."));
@@ -317,7 +317,7 @@ void SkoutSystemGraph::paintEvent(TQPaintEvent *e) {
 
 void SkoutSystemGraph::mousePressEvent(TQMouseEvent *e) {
     if (e->button() == TQt::LeftButton) {
-        launch(systemMonitor());
+        panelExt->launch(systemMonitor());
     }
     else if (e->button() == TQt::RightButton) {
         m_tools.clear();
@@ -347,18 +347,8 @@ void SkoutSystemGraph::mousePressEvent(TQMouseEvent *e) {
     }
 }
 
-void SkoutSystemGraph::launch(KService::Ptr svc) {
-    TDEProcess proc;
-    proc << KRun::processDesktopExec(*svc, KURL::List(), false, false);
-    if (!proc.start(TDEProcess::DontCare)) {
-        statusWidget()->sysTray()->popup(
-            "messagebox_warning", i18n("Launch error!"),
-            i18n("Unable to launch <b>%1</b>!").arg(svc->name()));
-    }
-}
-
 void SkoutSystemGraph::launchMenuItem(int id) {
-    launch(m_tools[id - 100]);
+    panelExt->launch(m_tools[id - 100]);
 }
 
 KService::Ptr SkoutSystemGraph::systemMonitor() {

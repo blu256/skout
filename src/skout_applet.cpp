@@ -21,9 +21,9 @@
 #include "skout_panel.h"
 
 SkoutApplet::SkoutApplet(SkoutPanel *parent, const char *name)
-  : TQFrame(parent, name),
-    m_panel(parent)
+  : TQFrame(parent, name)
 {
+    SkoutAppletPanelExtension::instance();
 }
 
 SkoutApplet::~SkoutApplet() {}
@@ -32,26 +32,12 @@ bool SkoutApplet::valid() {
     return false;
 }
 
-TQWidget *SkoutApplet::panel() {
-    return static_cast<TQWidget *>(m_panel);
-}
-
 TQString SkoutApplet::lastErrorMessage() {
     return TQString::null;
 }
 
 void SkoutApplet::resizeEvent(TQResizeEvent *e) {
     emit updateGeometry();
-}
-
-void SkoutApplet::popup(TQString icon, TQString caption, TQString message) {
-    emit showPopup(icon, caption, message);
-}
-
-void SkoutApplet::launch(TQString application, TQStringList args,
-                         TQString description, bool isService)
-{
-    emit doLaunch(application, args, description, isService);
 }
 
 #include "skout_applet.moc"

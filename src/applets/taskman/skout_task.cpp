@@ -162,7 +162,7 @@ void SkoutTask::sendToTray() {
              << "--wid" << TQString::number(windowID());
     bool ok = ksystray.start(TDEProcess::DontCare);
     if (!ok) {
-        container()->manager()->popup("error",
+        panelExt->popup("error",
             i18n("Unable to send \"%1\" to tray").arg(name()),
             i18n(strerror(errno)));
     }

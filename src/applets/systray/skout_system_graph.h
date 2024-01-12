@@ -44,7 +44,6 @@ class SkoutSystemGraph : public TQWidget {
         return static_cast<SkoutStatusWidget *>(parent());
     }
 
-    void launch(KService::Ptr tool);
     KService::Ptr systemMonitor();
     KService::Ptr processManager();
     KService::Ptr terminalEmulator();

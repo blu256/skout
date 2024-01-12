@@ -23,14 +23,20 @@
 #include <tqframe.h>
 #include <tqmap.h>
 
+// TDE
+#include <kservice.h>
+
 // Skout
 #include "skout_appletdb.h"
+#include "skout_applet_panel_extension.h"
 
 class KWinModule;
 
+class Skout;
 class SkoutMenuBtn;
 
 enum PanelPosition {
+    Saved = -1,
     TopLeft, TopRight
 };
 
@@ -40,35 +46,37 @@ class SkoutPanel : public TQFrame {
   TQ_OBJECT
 
   public:
-    SkoutPanel();
-    SkoutPanel(PanelPosition pos, bool force = false);
-    ~SkoutPanel();
+    static SkoutPanel *instance();
 
     PanelPosition position() const { return m_pos; }
-    void setPosition(PanelPosition pos);
-
-    TQPoint originPos() const;
 
   public slots:
-    void applyPosition();
-    void applySize();
-
     void popup(TQString icon, TQString caption, TQString message);
-    bool launch(TQString application, TQStringList args,
-                TQString description, bool isService = true);
+    bool launch(KService::Ptr service, KURL::List urls = KURL::List());
 
     void launchMenuEditor();
     void configure();
 
+  protected:
+    SkoutPanel();
+    ~SkoutPanel();
+
+    void setPosition(PanelPosition pos, bool force = false);
+
+    void moveEvent(TQMoveEvent *e);
+    void showEvent(TQShowEvent *e);
+
+  protected slots:
+    void applyPosition();
+    void applySize();
+
     void reconfigure();
     void relayout();
 
-  protected:
-    void moveEvent(TQMoveEvent *e);
-
   private:
     SkoutMenuBtn *w_menubtn;
-    SkoutAppletDB *m_appletdb;
+    SkoutAppletDB *m_appletDB;
+    SkoutAppletPanelExtension *m_appletExt;
     AppletList m_applets;
 
     PanelPosition m_pos;
@@ -80,8 +88,12 @@ class SkoutPanel : public TQFrame {
     bool loadApplet(AppletData &applet);
     void unloadApplet(AppletData &applet);
 
+    TQPoint originPos() const;
+
     void setWindowType();
     void reserveStrut();
+
+  friend class Skout;
 };
 
 #endif // _SKOUT_PANEL_H

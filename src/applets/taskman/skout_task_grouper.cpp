@@ -199,16 +199,7 @@ void SkoutTaskGrouper::mousePressEvent(TQMouseEvent *me) {
 }
 void SkoutTaskGrouper::mouseDoubleClickEvent(TQMouseEvent *me) {
     if (me->button() == LeftButton && container()->service()) {
-        KService::Ptr svc = container()->service();
-        TQString path(svc->desktopEntryPath());
-        if (path.isNull()) return;
-
-        TQString error;
-        if (kapp->startServiceByDesktopPath(path, TQString::null, &error) != 0) {
-            container()->manager()->popup("error",
-                i18n("Unable to launch %1").arg(svc->name()),
-                i18n(error.local8Bit()));
-        }
+        panelExt->launch(container()->service());
 
         // HACK the second click gets consumed
         if (container()->tasks().count() && !(me->state() & ControlButton)) {

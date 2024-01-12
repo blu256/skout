@@ -25,6 +25,7 @@ tde_add_library(
 
   SOURCES
     skout_applet.cpp
+    skout_applet_panel_extension.cpp
     skoutsettings.kcfgc
 
   LINK

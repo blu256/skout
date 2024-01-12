@@ -22,27 +22,9 @@
 // Skout
 #include "skout.h"
 #include "skoutsettings.h"
+#include "skout_utils.h"
 
-/* TODO
- * ----
- * => some sort of pager widget, possibly integrate what Kicker has
- * => watch for settings change via ipc and adapt
- * => should not always stay on top, possibly trigger by dcop call
- *    and active corner
- * => options dlg (minimal as in Tracker?)
- *    => should integrate into KControl
- *    => checkbox "Use Skout as my desktop panel instead of Kicker"
- *       (automatically launches or closes Skout)
- * => reorg filenames
- * => commit first edition to git =)
- * => shortcuts
- * => some sort of system monitors (minimal and very integrated look)
- * => ability to pin programs in taskman
- * => help (e.g. user manual)
- * => more layouts/positions
- */
-
-Skout::Skout(int pos) : DCOPObject("SkoutIface") {
+Skout::Skout(PanelPosition pos) : DCOPObject("SkoutIface") {
     disableSessionManagement();
 
     if (!kapp->dcopClient()->isRegistered()) {
@@ -52,17 +34,16 @@ Skout::Skout(int pos) : DCOPObject("SkoutIface") {
 
     SkoutSettings::instance("skoutrc");
 
-    if (pos > -1) {
-        m_panel = new SkoutPanel((PanelPosition)pos, true);
+    m_panel = new SkoutPanel();
+    if (pos != PanelPosition::Saved) {
+        m_panel->setPosition(pos, true);
     }
-    else m_panel = new SkoutPanel();
     setTopWidget(m_panel);
     m_panel->show();
 }
 
 Skout::~Skout() {
-    delete m_panel;
-    m_panel = nullptr;
+    ZAP(m_panel)
 }
 
 void Skout::reconfigure() {

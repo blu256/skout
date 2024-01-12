@@ -137,7 +137,7 @@ void SkoutTaskMan::removeWindow(WId w) {
     SkoutTask *t = m_tasks[w];
     if (!t) return;
     m_tasks.remove(w);
-    panel()->layout()->invalidate();
+    parentWidget()->layout()->invalidate();
 }
 
 void SkoutTaskMan::addContainer(SkoutTaskContainer *c) {
