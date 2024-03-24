@@ -42,12 +42,7 @@ SkoutTaskGrouper::SkoutTaskGrouper(SkoutTaskContainer *parent, TQString name)
     m_expanded(true),
     m_pinned(false)
 {
-    if (!pxHide || !pxExpand || !pxLink ||
-        pxHide->isNull() || pxExpand->isNull() || pxLink->isNull())
-    {
-        updateStaticPixmaps();
-    }
-
+    updateStaticPixmaps();
     setOn(true);
     connect(this, TQ_SIGNAL(toggled(bool)), TQ_SLOT(setExpanded(bool)));
 }
@@ -55,23 +50,21 @@ SkoutTaskGrouper::SkoutTaskGrouper(SkoutTaskContainer *parent, TQString name)
 SkoutTaskGrouper::~SkoutTaskGrouper() {
 }
 
-#define ICON(icon, group, size) \
-    new TQPixmap(kapp->iconLoader()->loadIcon(icon, group, size));
-#define ICON_SMALL(icon) ICON(icon, TDEIcon::Small, smallIconSize().height())
-#define ICON_BIG(icon)   ICON(icon, TDEIcon::Panel, bigIconSize().height())
+#define ICON(iconVar, icon, group, size) \
+    if (!iconVar || iconVar->isNull()) iconVar = new TQPixmap( \
+        kapp->iconLoader()->loadIcon( \
+            icon, group, size.height(), TDEIcon::DefaultState, nullptr, true \
+        ) \
+    );
+#define ICON_SMALL(iconVar, icon) \
+    ICON(iconVar, icon, TDEIcon::Small, smallIconSize())
+#define ICON_BIG(iconVar, icon) \
+    ICON(iconVar, icon, TDEIcon::Panel, bigIconSize())
+
 void SkoutTaskGrouper::updateStaticPixmaps() {
-    TDEIconLoader *il = kapp->iconLoader();
-    pxHide   = new TQPixmap(il->loadIcon("1uparrow",
-                                         TDEIcon::Small, smallIconSize().height(),
-                                         TDEIcon::DefaultState, nullptr, true));
-
-    pxExpand = new TQPixmap(il->loadIcon("1downarrow",
-                                         TDEIcon::Small, smallIconSize().height(),
-                                         TDEIcon::DefaultState, nullptr, true));
-
-    pxLink   = new TQPixmap(il->loadIcon(il->theme()->linkOverlay(),
-                                         TDEIcon::Panel, bigIconSize().height(),
-                                         TDEIcon::DefaultState, nullptr, true));
+    ICON_SMALL(pxHide, "1uparrow")
+    ICON_SMALL(pxExpand, "1downarrow")
+    ICON_BIG(pxLink, kapp->iconLoader()->theme()->linkOverlay())
 }
 #undef ICON
 #undef ICON_SMALL
