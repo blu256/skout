@@ -26,6 +26,7 @@
 #include <kiconloader.h>
 #include <tdepopupmenu.h>
 #include <kpropertiesdialog.h>
+#include <tdeglobal.h>
 #include <tdelocale.h>
 #include <kdebug.h>
 
@@ -43,7 +44,11 @@ SkoutTaskGrouper::SkoutTaskGrouper(SkoutTaskContainer *parent, TQString name)
     m_pinned(false)
 {
     updateStaticPixmaps();
-    setOn(true);
+
+    auto config = TDEGlobal::config();
+    config->setGroup("GroupersState");
+    setExpanded(config->readBoolEntry(container()->applicationClass()));
+
     connect(this, TQ_SIGNAL(toggled(bool)), TQ_SLOT(setExpanded(bool)));
 }
 
@@ -81,6 +86,15 @@ TQPixmap SkoutTaskGrouper::icon() {
 
 void SkoutTaskGrouper::setExpanded(bool expanded) {
     m_expanded = expanded;
+
+    // persist grouper state
+    TQString aclass = container()->applicationClass();
+    TDEConfig *config = TDEGlobal::config();
+    config->setGroup("GroupersState");
+    config->writeEntry(aclass, expanded);
+    config->sync();
+
+    // hide/show tasks
     TQObjectList widgets = container()->tasks();
     TQObjectListIt it(widgets);
     TQWidget *w;
