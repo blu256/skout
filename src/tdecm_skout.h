@@ -40,6 +40,8 @@ class SkoutConfig : public TDECModule {
     void save();
     void startStopSkout(bool enable);
 
+    static bool skoutAlive();
+
   protected slots:
     void changed();
 
@@ -48,6 +50,8 @@ class SkoutConfig : public TDECModule {
 
     TQGroupBox *m_groupBox;
     KJanusWidget *m_tabWidget;
+    TQCheckBox *m_autostart;
+    TQCheckBox *m_replaceKicker;
     TQButtonGroup *m_grpPos;
     TQSpinBox *m_width;
 

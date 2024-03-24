@@ -33,6 +33,7 @@ class Skout : public KUniqueApplication, SkoutIface {
     Skout(PanelPosition pos);
     ~Skout();
 
+    bool ping();
     void reconfigure();
     void quit();
 

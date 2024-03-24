@@ -26,12 +26,13 @@
 #include <tqgroupbox.h>
 #include <tqlabel.h>
 #include <tqvbox.h>
+#include <tqwhatsthis.h>
 
 // TDE
 #include <tdeaboutdata.h>
 #include <tdeapplication.h>
 #include <kgenericfactory.h>
-#include <kdialog.h>
+#include <tdemessagebox.h>
 #include <kiconloader.h>
 #include <kjanuswidget.h>
 #include <tdelocale.h>
@@ -51,15 +52,22 @@ static const char description[] = I18N_NOOP("Skout panel configuration module");
 
 extern "C" {
     void start_skout() {
-        DCOPRef kicker("kicker", "kicker");
-        kicker.call("quit()");
-        kapp->startServiceByDesktopName("skout");
+        if (!SkoutConfig::skoutAlive())
+            kapp->startServiceByDesktopName("skout");
     }
 
     void stop_skout() {
         DCOPRef skout("skout", "SkoutIface");
         skout.call("quit()");
+    }
+
+    void start_kicker() {
         kapp->tdeinitExec("kicker");
+    }
+
+    void stop_kicker() {
+        DCOPRef kicker("kicker", "kicker");
+        kicker.call("quit()");
     }
 }
 
@@ -82,9 +90,6 @@ SkoutConfig::SkoutConfig(TQWidget *parent, const char *name, const TQStringList 
     new TQVBoxLayout(this);
 
     m_groupBox = new TQGroupBox(this);
-    m_groupBox->setCheckable(true);
-    m_groupBox->setTitle(i18n("Enable Skout"));
-    m_groupBox->setFlat(false);
     layout()->setAutoAdd(true);
 
     new TQVBoxLayout(m_groupBox);
@@ -96,10 +101,8 @@ SkoutConfig::SkoutConfig(TQWidget *parent, const char *name, const TQStringList 
                                                   "General settings",
                                                   ICON("configure"));
 
-    /*
     TQVBox *tabLook = m_tabWidget->addVBoxPage((const TQString)"Appearance",
                                                "Appearance", ICON("icons"));
-    */
 
     TQVBox *tabApplets = m_tabWidget->addVBoxPage(i18n("Applets"),
                                                   "Applets", ICON("kicker"));
@@ -110,7 +113,24 @@ SkoutConfig::SkoutConfig(TQWidget *parent, const char *name, const TQStringList 
     if (stretch) ((TQVBoxLayout *)tab->layout())->addStretch();
 
     // General tab
-    TQHBox *posBox = new TQHBox(tabGeneral);
+    m_autostart = new TQCheckBox("Start Skout automatically on startup", tabGeneral);
+    TQWhatsThis::add(m_autostart, "Start the Skout panel automatically when the user session starts.");
+
+    m_replaceKicker = new TQCheckBox("Replace Kicker panel", tabGeneral);
+    m_replaceKicker->setEnabled(m_autostart->isOn());
+    TQWhatsThis::add(m_replaceKicker, "Prevent the Kicker panel from starting when Skout is selected to start together with the user session.");
+
+    tabGeneral->layout()->add(m_autostart);
+    tabGeneral->layout()->add(m_replaceKicker);
+
+    connect(m_autostart, TQ_SIGNAL(toggled(bool)), m_replaceKicker, TQ_SLOT(setEnabled(bool)));
+    connect(m_autostart, TQ_SIGNAL(toggled(bool)), TQ_SLOT(changed()));
+    connect(m_replaceKicker, TQ_SIGNAL(toggled(bool)), TQ_SLOT(changed()));
+
+    VBOX_PAGE_PREPARE(tabGeneral, true)
+
+    // Appearance tab
+    TQHBox *posBox = new TQHBox(tabLook);
     TQLabel *posLabel = new TQLabel(i18n("Panel position: "), posBox);
 
     m_grpPos = new TQButtonGroup(posBox);
@@ -122,22 +142,22 @@ SkoutConfig::SkoutConfig(TQWidget *parent, const char *name, const TQStringList 
     TQRadioButton *posTopLeft  = new TQRadioButton(i18n("Top left"), m_grpPos);
     TQRadioButton *posTopRight = new TQRadioButton(i18n("Top right"), m_grpPos);
 
-    TQHBox *widthBox = new TQHBox(tabGeneral);
+    TQHBox *widthBox = new TQHBox(tabLook);
     TQLabel *widthLabel = new TQLabel(i18n("Panel width: "), widthBox);
     m_width = new TQSpinBox(100, 500, 1, widthBox);
 
-    tabGeneral->layout()->add(posBox);
-    tabGeneral->layout()->add(widthBox);
+    tabLook->layout()->add(posBox);
+    tabLook->layout()->add(widthBox);
 
-    connect(m_groupBox, TQ_SIGNAL(toggled(bool)),     TQ_SLOT(changed()));
-    connect(m_grpPos,   TQ_SIGNAL(clicked(int)),      TQ_SLOT(changed()));
-    connect(m_width,    TQ_SIGNAL(valueChanged(int)), TQ_SLOT(changed()));
+    connect(m_grpPos,    TQ_SIGNAL(clicked(int)),      TQ_SLOT(changed()));
+    connect(m_width,     TQ_SIGNAL(valueChanged(int)), TQ_SLOT(changed()));
 
-    VBOX_PAGE_PREPARE(tabGeneral, true)
+    VBOX_PAGE_PREPARE(tabLook, true)
 
     // Applets tab
     m_appletSelector = new SkoutAppletSelector(tabApplets);
     tabApplets->layout()->add(m_appletSelector);
+
     connect(m_appletSelector, TQ_SIGNAL(changed()), TQ_SLOT(changed()));
 
     VBOX_PAGE_PREPARE(tabApplets, false)
@@ -158,7 +178,10 @@ void SkoutConfig::load() {
     SkoutSettings::self()->readConfig();
 
     // General tab
-    m_groupBox->setChecked(SkoutSettings::enableSkout());
+    m_autostart->setChecked(SkoutSettings::autostart());
+    m_replaceKicker->setChecked(SkoutSettings::replaceKicker());
+
+    // Appearance tab
     m_grpPos->setButton(SkoutSettings::position());
     m_width->setValue(SkoutSettings::panelWidth());
 
@@ -167,11 +190,9 @@ void SkoutConfig::load() {
 }
 
 void SkoutConfig::save() {
-    bool enable = m_groupBox->isChecked();
-    if (SkoutSettings::enableSkout() != enable) {
-        startStopSkout(enable);
-    }
-    SkoutSettings::setEnableSkout(enable);
+    // General tab
+    SkoutSettings::setAutostart(m_autostart->isChecked());
+    SkoutSettings::setReplaceKicker(m_replaceKicker->isChecked());
 
     // General tab
     SkoutSettings::setPosition(m_grpPos->selectedId());
@@ -179,9 +200,28 @@ void SkoutConfig::save() {
 
     // Applets tab
     TQStringList applets;
-    TQListBoxItem *item =
-        m_appletSelector->selectedListBox()->firstItem();
+    TQListBoxItem *item = m_appletSelector->selectedListBox()->firstItem();
 
+    // Prompt if the user wants to start/kill Skout right away
+    if (m_autostart->isChecked() && !skoutAlive()) {
+        int result = KMessageBox::questionYesNo(this,
+            i18n("<qt>You have choosed to enable the Skout panel. Would you like to start it immediately?"
+                 "<br><br>Note: even if you select 'No', Skout will be normally started the next time you log in.</qt>"));
+
+        if (result == KMessageBox::Yes) {
+            startStopSkout(true);
+        }
+    }
+    else if (!m_autostart->isChecked() && skoutAlive()) {
+        int result = KMessageBox::questionYesNo(this,
+            i18n("<qt>You have choosed to disable the Skout panel. Would you like to stop it immediately?</qt>"));
+
+        if (result == KMessageBox::Yes) {
+            startStopSkout(false);
+        }
+    }
+
+    // Update applets
     while (item) {
         applets << static_cast<SkoutAppletItem *>(item)->data().id;
         item = item->next();
@@ -215,19 +255,34 @@ void SkoutConfig::loadApplets() {
 
 void SkoutConfig::startStopSkout(bool enable) {
     if (enable) {
+        if (SkoutSettings::replaceKicker()) {
+            stop_kicker();
+        }
         start_skout();
     }
     else {
         stop_skout();
+        if (SkoutSettings::replaceKicker()) {
+            start_kicker();
+        }
     }
+}
+
+bool SkoutConfig::skoutAlive()
+{
+    DCOPRef skout("skout", "SkoutIface");
+    DCOPReply reply = skout.call("ping()");
+    return reply.isValid() && (bool)reply == true;
 }
 
 extern "C" {
     KDE_EXPORT void init_skout() {
         SkoutSettings::instance("skoutrc");
 
-        // HACK-ish but should do for now
-        if (SkoutSettings::enableSkout()) {
+        if (SkoutSettings::autostart()) {
+            if (SkoutSettings::replaceKicker()) {
+                stop_kicker();
+            }
             start_skout();
         }
     };

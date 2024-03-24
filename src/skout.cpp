@@ -46,6 +46,10 @@ Skout::~Skout() {
     ZAP(m_panel)
 }
 
+bool Skout::ping() {
+    return true;
+}
+
 void Skout::reconfigure() {
     m_panel->reconfigure();
 }

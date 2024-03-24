@@ -26,6 +26,7 @@ class SkoutIface: virtual public DCOPObject {
   K_DCOP
 
   k_dcop:
+    virtual bool ping() = 0;
     virtual void reconfigure() = 0;
     virtual void quit() = 0;
 };

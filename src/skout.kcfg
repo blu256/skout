@@ -5,20 +5,16 @@
                            http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
   <kcfgfile arg="true" />
 
-  <group name="General"> 
-    <entry key="EnableSkout" type="Bool">
+  <group name="General">
+    <entry key="Autostart" type="Bool">
       <default>false</default>
-      <label>Enable Skout panel</label>
-      <whatsthis>Enable this option to use the Skout panel instead of Kicker.</whatsthis>
+      <label>Start Skout automatically on startup</label>
+      <whatsthis>Start the Skout panel automatically when the user session starts.</whatsthis>
     </entry>
-    <entry key="Position" type="Enum">
-      <choices>
-        <choice name="TopLeft"/>
-        <choice name="TopRight"/>
-      </choices>
-      <default>TopRight</default>
-      <label>Panel position</label>
-      <whatsthis>This option defines where on the screen the panel will appear.</whatsthis>
+    <entry key="ReplaceKicker" type="Bool">
+      <default>false</default>
+      <label>Replace Kicker panel</label>
+      <whatsthis>Prevent the Kicker panel from starting when Skout is selected to start together with the user session.</whatsthis>
     </entry>
     <entry key="Applets" type="StringList">
       <default>systray,taskman</default>
@@ -29,6 +25,15 @@
     <entry key="PanelWidth" type="Int">
       <default>200</default>
       <whatsthis>Panel width, in pixels</whatsthis>
+    </entry>
+    <entry key="Position" type="Enum">
+      <choices>
+        <choice name="TopLeft"/>
+        <choice name="TopRight"/>
+      </choices>
+      <default>TopRight</default>
+      <label>Panel position</label>
+      <whatsthis>This option defines where on the screen the panel will appear.</whatsthis>
     </entry>
   </group>
   <group name="TaskMan">
