@@ -64,10 +64,12 @@ class SkoutTaskMan : public SkoutApplet {
     KWinModule *m_twin;
 
     void addContainer(SkoutTaskContainer *c);
+    void removeContainer(SkoutTaskContainer *c);
 
   private slots:
-    void slotContainerDeleted();
     void slotPinChanged(bool pinned);
+
+  friend class SkoutTaskContainer;
 };
 
 #endif // _SKOUT_TASKMANAGER_H

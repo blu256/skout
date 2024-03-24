@@ -49,6 +49,7 @@ SkoutTaskMan::SkoutTaskMan(SkoutPanel *panel)
   : SkoutApplet(panel, "SkoutTaskMan")
 {
     m_tasks.setAutoDelete(true);
+    m_containers.setAutoDelete(true);
 
     m_twin = new KWinModule(this);
 
@@ -125,13 +126,12 @@ void SkoutTaskMan::addWindow(WId w) {
     kdDebug() << "windowClass: " << windowClass << endl
               << "   appClass: " << appClass<< endl;
 
-    SkoutTask *t;
     SkoutTaskContainer *c = m_containers[appClass];
     if (!c) {
         c = new SkoutTaskContainer(this, windowClass, appClass);
         addContainer(c);
     }
-    t = new SkoutTask(c, w);
+    SkoutTask *t = new SkoutTask(c, w);
     m_tasks.insert(w, t);
 
     if (w == m_twin->activeWindow()) {
@@ -149,17 +149,13 @@ void SkoutTaskMan::removeWindow(WId w) {
 void SkoutTaskMan::addContainer(SkoutTaskContainer *c) {
     if (!c) return;
     m_containers.insert(c->application(), c);
-    connect(c, TQ_SIGNAL(destroyed()),      TQ_SLOT(slotContainerDeleted()));
     connect(c, TQ_SIGNAL(pinChanged(bool)), TQ_SLOT(slotPinChanged(bool)));
     layout()->add(c);
 }
 
-void SkoutTaskMan::slotContainerDeleted() {
-    const TQObject *obj = TQObject::sender();
-    if (!obj) return;
-
-    const SkoutTaskContainer *c = static_cast<const SkoutTaskContainer *>(obj);
-    m_containers.remove(c->windowClass());
+void SkoutTaskMan::removeContainer(SkoutTaskContainer *c) {
+    if (!c) return;
+    m_containers.remove(c->application());
 }
 
 void SkoutTaskMan::relayout() {

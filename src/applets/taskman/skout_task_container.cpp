@@ -148,7 +148,7 @@ void SkoutTaskContainer::slotPinChanged(bool pinned) {
 
 void SkoutTaskContainer::update() {
     if (!tasks().count() && !pinned()) {
-        deleteLater();
+        manager()->removeContainer(this);
         return;
     }
 
