@@ -38,6 +38,7 @@ SkoutTaskContainer::SkoutTaskContainer(SkoutTaskMan *parent,
   : TQVBox(parent),
     m_service(nullptr),
     m_wclass(wclass),
+    m_aclass(aclass),
     m_appname(aclass),
     m_active(false)
 {

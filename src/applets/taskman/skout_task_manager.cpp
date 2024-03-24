@@ -148,15 +148,14 @@ void SkoutTaskMan::removeWindow(WId w) {
 
 void SkoutTaskMan::addContainer(SkoutTaskContainer *c) {
     if (!c) return;
-    m_containers.insert(c->application(), c);
+    m_containers.insert(c->applicationClass(), c);
     connect(c, TQ_SIGNAL(pinChanged(bool)), TQ_SLOT(slotPinChanged(bool)));
     layout()->add(c);
 }
 
 void SkoutTaskMan::removeContainer(SkoutTaskContainer *c) {
     if (!c) return;
-
-    m_containers.remove(c->application());
+    m_containers.remove(c->applicationClass());
 }
 
 void SkoutTaskMan::relayout() {

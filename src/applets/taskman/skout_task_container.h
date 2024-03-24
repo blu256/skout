@@ -44,8 +44,9 @@ class SkoutTaskContainer : public TQVBox {
     // Constructor for pinned applications
     SkoutTaskContainer(SkoutTaskMan *parent, KService::Ptr service, TQString wclass);
 
-    TQString windowClass() const { return m_wclass; }
-    TQString application() const { return m_appname; }
+    TQString windowClass()      const { return m_wclass; }
+    TQString applicationClass() const { return m_aclass; }
+    TQString application()      const { return m_appname; }
     TQPixmap groupIcon();
 
     TQObjectList tasks();
@@ -76,8 +77,7 @@ class SkoutTaskContainer : public TQVBox {
 
   private:
     KService::Ptr m_service;
-    TQString m_wclass;
-    TQString m_appname;
+    TQString m_wclass, m_aclass, m_appname;
     SkoutTaskGrouper *m_grouper;
     bool m_active;
 
