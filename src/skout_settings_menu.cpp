@@ -28,7 +28,7 @@ SkoutSettingsMenu::SkoutSettingsMenu(SkoutPanel *panel)
 {
     tdecontrol = KService::serviceByDesktopName("kcontrol");
     if (tdecontrol->isValid()) {
-        addItem(tdecontrol, this, SLOT(launchKControl()), KCONTROL_ITEM, 0);
+        addItem(tdecontrol, this, TQ_SLOT(launchKControl()), KCONTROL_ITEM, 0);
         insertSeparator(1);
     }
 }

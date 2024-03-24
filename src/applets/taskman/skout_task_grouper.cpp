@@ -49,7 +49,7 @@ SkoutTaskGrouper::SkoutTaskGrouper(SkoutTaskContainer *parent, TQString name)
     }
 
     setOn(true);
-    connect(this, SIGNAL(toggled(bool)), SLOT(setExpanded(bool)));
+    connect(this, TQ_SIGNAL(toggled(bool)), TQ_SLOT(setExpanded(bool)));
 }
 
 SkoutTaskGrouper::~SkoutTaskGrouper() {
@@ -155,18 +155,18 @@ void SkoutTaskGrouper::contextMenuEvent(TQContextMenuEvent *cme) {
 
     if (container()->tasks().count()) {
         item = ctx.insertItem(SmallIcon("taskbar"), i18n("Minimize all"),
-                              container(), SLOT(toggleIconifiedAll()));
+                              container(), TQ_SLOT(toggleIconifiedAll()));
         ctx.setItemChecked(item, container()->allIconified());
     }
 
     if (pinnable()) {
       if (pinned()) {
           ctx.insertItem(TQPixmap(locate("data", "skout/pics/pindown.png")),
-                        i18n("Unpin application"), this, SLOT(unpin()));
+                        i18n("Unpin application"), this, TQ_SLOT(unpin()));
       }
       else {
           ctx.insertItem(TQPixmap(locate("data", "skout/pics/pinup.png")),
-                        i18n("Pin application"), this, SLOT(pin()));
+                        i18n("Pin application"), this, TQ_SLOT(pin()));
       }
     }
 
@@ -174,7 +174,7 @@ void SkoutTaskGrouper::contextMenuEvent(TQContextMenuEvent *cme) {
     if (s && s->desktopEntryPath() != TQString::null) {
         ctx.insertSeparator();
         ctx.insertItem(SmallIcon("document-properties"), i18n("Properties"),
-                       this, SLOT(showPropertiesDialog()));
+                       this, TQ_SLOT(showPropertiesDialog()));
     }
 
     if (ctx.count()) {
@@ -217,9 +217,11 @@ void SkoutTaskGrouper::showPropertiesDialog() {
         return;
     }
     KPropertiesDialog *d = new KPropertiesDialog(KURL(path), this);
-    connect(d, SIGNAL(applied()), container(), SLOT(update()));
-    connect(d, SIGNAL(saveAs(const KURL&, KURL&)),
-            container(), SLOT(slotDesktopFileChanged(const KURL&, KURL&)));
+    auto c = container();
+    connect(d, TQ_SIGNAL(applied()),
+            c, TQ_SLOT(update()));
+    connect(d, TQ_SIGNAL(saveAs(const KURL&, KURL&)),
+            c, TQ_SLOT(slotDesktopFileChanged(const KURL&, KURL&)));
 }
 
 #include "skout_task_grouper.moc"

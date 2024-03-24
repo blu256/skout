@@ -65,14 +65,14 @@ SkoutSysTray::SkoutSysTray(SkoutPanel *parent)
         embedWindow(*it, true);
     }
 
-    connect(m_twin, SIGNAL(systemTrayWindowAdded(WId)),
-            this,   SLOT(trayWindowAdded(WId)));
+    connect(m_twin, TQ_SIGNAL(systemTrayWindowAdded(WId)),
+            this,   TQ_SLOT(trayWindowAdded(WId)));
 
-    connect(m_twin, SIGNAL(systemTrayWindowRemoved(WId)),
-            this,   SLOT(updateTrayWindows()));
+    connect(m_twin, TQ_SIGNAL(systemTrayWindowRemoved(WId)),
+            this,   TQ_SLOT(updateTrayWindows()));
 
-    connect(kapp,   SIGNAL(tdedisplayPaletteChanged()),
-            this,   SLOT(paletteChanged()));
+    connect(kapp,   TQ_SIGNAL(tdedisplayPaletteChanged()),
+            this,   TQ_SLOT(paletteChanged()));
 
     m_valid = acquireSystemTray();
     if (!m_valid) {
@@ -150,7 +150,7 @@ void SkoutSysTray::embedWindow(WId w, bool tde_tray) {
     m_tray.append(ew);
     relayout(true);
 
-    connect(ew, SIGNAL(embeddedWindowDestroyed()), SLOT(updateTrayWindows()));
+    connect(ew, TQ_SIGNAL(embeddedWindowDestroyed()), TQ_SLOT(updateTrayWindows()));
     ew->setFixedSize(iconSize());
     ew->show();
 }

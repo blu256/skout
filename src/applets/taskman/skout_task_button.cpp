@@ -48,7 +48,7 @@ SkoutTaskButton::SkoutTaskButton(SkoutTaskContainer *parent, bool bigIcon, bool 
     }
 
     show();
-    TQTimer::singleShot(0, this, SLOT(update()));
+    TQTimer::singleShot(0, this, TQ_SLOT(update()));
 }
 
 SkoutTaskButton::~SkoutTaskButton() {

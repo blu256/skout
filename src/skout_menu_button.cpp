@@ -79,13 +79,13 @@ void SkoutMenuBtn::mousePressEvent(TQMouseEvent *e) {
         if (kapp->authorizeTDEAction("menuedit")) {
             ctx.insertItem(il->loadIconSet("kmenuedit", TDEIcon::Small),
                            i18n("Edit menu"),
-                           panel(), SLOT(launchMenuEditor()));
+                           panel(), TQ_SLOT(launchMenuEditor()));
             ctx.insertSeparator();
         }
 
         ctx.insertItem(il->loadIconSet("configure", TDEIcon::Small),
                        i18n("Skout Preferences"),
-                       panel(), SLOT(configure()));
+                       panel(), TQ_SLOT(configure()));
         ctx.insertSeparator();
 
         ctx.insertItem(il->loadIconSet("help", TDEIcon::Small),

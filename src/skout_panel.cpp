@@ -61,10 +61,10 @@ SkoutPanel::SkoutPanel()
 
     m_appletDB = SkoutAppletDB::instance();
     m_appletExt = SkoutAppletPanelExtension::instance();
-    connect(m_appletExt, SIGNAL(popupRequest(TQString, TQString, TQString)),
-                         SLOT(popup(TQString, TQString, TQString)));
-    connect(m_appletExt, SIGNAL(launchRequest(KService::Ptr, KURL::List)),
-                         SLOT(launch(KService::Ptr, KURL::List)));
+    connect(m_appletExt, TQ_SIGNAL(popupRequest(TQString, TQString, TQString)),
+                         TQ_SLOT(popup(TQString, TQString, TQString)));
+    connect(m_appletExt, TQ_SIGNAL(launchRequest(KService::Ptr, KURL::List)),
+                         TQ_SLOT(launch(KService::Ptr, KURL::List)));
 
     setWindowType();
 
@@ -200,7 +200,7 @@ bool SkoutPanel::loadApplet(AppletData &applet) {
         return false;
     }
 
-    connect(applet.ptr, SIGNAL(updateGeometry()), SLOT(applySize()));
+    connect(applet.ptr, TQ_SIGNAL(updateGeometry()), TQ_SLOT(applySize()));
     applet.ptr->show();
     return true;
 }

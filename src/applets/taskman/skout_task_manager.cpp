@@ -86,17 +86,17 @@ SkoutTaskMan::SkoutTaskMan(SkoutPanel *panel)
         addWindow((*it));
     }
 
-    connect(m_twin, SIGNAL(windowAdded(WId)),
-                    SLOT(addWindow(WId)));
+    connect(m_twin, TQ_SIGNAL(windowAdded(WId)),
+                    TQ_SLOT(addWindow(WId)));
 
-    connect(m_twin, SIGNAL(windowRemoved(WId)),
-                    SLOT(removeWindow(WId)));
+    connect(m_twin, TQ_SIGNAL(windowRemoved(WId)),
+                    TQ_SLOT(removeWindow(WId)));
 
-    connect(m_twin, SIGNAL(windowChanged(WId, unsigned int)),
-                    SLOT(updateWindow(WId, unsigned int)));
+    connect(m_twin, TQ_SIGNAL(windowChanged(WId, unsigned int)),
+                    TQ_SLOT(updateWindow(WId, unsigned int)));
 
-    connect(m_twin, SIGNAL(activeWindowChanged(WId)),
-                    SIGNAL(windowActivated(WId)));
+    connect(m_twin, TQ_SIGNAL(activeWindowChanged(WId)),
+                    TQ_SIGNAL(windowActivated(WId)));
 }
 
 SkoutTaskMan::~SkoutTaskMan() {
@@ -149,8 +149,8 @@ void SkoutTaskMan::removeWindow(WId w) {
 void SkoutTaskMan::addContainer(SkoutTaskContainer *c) {
     if (!c) return;
     m_containers.insert(c->application(), c);
-    connect(c, SIGNAL(destroyed()),      SLOT(slotContainerDeleted()));
-    connect(c, SIGNAL(pinChanged(bool)), SLOT(slotPinChanged(bool)));
+    connect(c, TQ_SIGNAL(destroyed()),      TQ_SLOT(slotContainerDeleted()));
+    connect(c, TQ_SIGNAL(pinChanged(bool)), TQ_SLOT(slotPinChanged(bool)));
     layout()->add(c);
 }
 

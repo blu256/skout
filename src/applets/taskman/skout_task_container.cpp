@@ -43,8 +43,8 @@ SkoutTaskContainer::SkoutTaskContainer(SkoutTaskMan *parent,
 {
     m_grouper = new SkoutTaskGrouper(this, m_appname);
 
-    connect(manager(), SIGNAL(windowActivated(WId)), SLOT(updateActive(WId)));
-    connect(m_grouper, SIGNAL(pinChanged(bool)), SLOT(slotPinChanged(bool)));
+    connect(manager(), TQ_SIGNAL(windowActivated(WId)), TQ_SLOT(updateActive(WId)));
+    connect(m_grouper, TQ_SIGNAL(pinChanged(bool)), TQ_SLOT(slotPinChanged(bool)));
 
     setSizePolicy(TQSizePolicy::MinimumExpanding, TQSizePolicy::Fixed);
     show();

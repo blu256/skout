@@ -31,7 +31,7 @@ SkoutMenu::SkoutMenu(SkoutPanel *panel)
   : TDEPopupMenu(panel, "SkoutMenu"),
     m_search(nullptr)
 {
-    connect(this, SIGNAL(aboutToHide()), SLOT(hideSearch()));
+    connect(this, TQ_SIGNAL(aboutToHide()), TQ_SLOT(hideSearch()));
 }
 
 SkoutMenu::SkoutMenu(SkoutPanel *panel, KServiceGroup::Ptr group)
@@ -107,7 +107,7 @@ void SkoutMenu::populate(KServiceGroup::Ptr group) {
         KSycocaEntry *p = (*it);
         if (p->isType(KST_KService)) {
             KService *s = static_cast<KService *>(p);
-            addItem(s, this, SLOT(launch(int)), id);
+            addItem(s, this, TQ_SLOT(launch(int)), id);
         }
         else if (p->isType(KST_KServiceGroup)){
             KServiceGroup *g = static_cast<KServiceGroup *>(p);
@@ -181,8 +181,8 @@ void SkoutMenu::showSearch() {
     insertItem(m_search, 1000);
     m_search->show();
     m_search->setFocus();
-    connect(m_search, SIGNAL(textChanged(const TQString &)),
-                      SLOT(search(const TQString &)));
+    connect(m_search, TQ_SIGNAL(textChanged(const TQString &)),
+                      TQ_SLOT(search(const TQString &)));
 }
 
 void SkoutMenu::hideSearch() {

@@ -54,7 +54,7 @@ SkoutStatusWidget::SkoutStatusWidget(SkoutSysTray *tray)
     updateClock();
 
     m_clockTimer = new TQTimer(this);
-    connect(m_clockTimer, SIGNAL(timeout()), SLOT(updateClock()));
+    connect(m_clockTimer, TQ_SIGNAL(timeout()), TQ_SLOT(updateClock()));
     m_clockTimer->start(2000);
 
     TQWhatsThis::add(m_clock, i18n("<qt><p>The clock displays the current time."
@@ -145,7 +145,7 @@ void SkoutStatusWidget::mousePressEvent(TQMouseEvent *e) {
                 f = (DateTimeFormat)(f + 1);
             }
 
-            connect(&popup, SIGNAL(activated(int)), SLOT(copyDateTime(int)));
+            connect(&popup, TQ_SIGNAL(activated(int)), TQ_SLOT(copyDateTime(int)));
             popup.exec(mapToGlobal(e->pos()));
         }
 
@@ -153,9 +153,9 @@ void SkoutStatusWidget::mousePressEvent(TQMouseEvent *e) {
             TDEPopupMenu popup;
 
             popup.insertItem(SmallIcon("date"), i18n("&Adjust Date && Time..."),
-                             this, SLOT(configureDateTime()));
+                             this, TQ_SLOT(configureDateTime()));
             popup.insertItem(SmallIcon("kcontrol"), i18n("Date && Time &Format..."),
-                             this, SLOT(configureDateTimeFormat()));
+                             this, TQ_SLOT(configureDateTimeFormat()));
 
             popup.exec(mapToGlobal(e->pos()));
         }

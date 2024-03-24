@@ -76,26 +76,26 @@ SkoutRootMenu::SkoutRootMenu(SkoutPanel *panel)
     insertSeparator();
 
     if (kapp->authorize("run_command")) {
-        addItem("system-run", i18n("Run command..."), this, SLOT(runCommand()));
+        addItem("system-run", i18n("Run command..."), this, TQ_SLOT(runCommand()));
     }
 
     m_sessionMenu = new SkoutMenu(panel);
     addSubmenu(m_sessionMenu, "switchuser", i18n("Switch User"));
 
     if (kapp->authorize("lock_screen")) {
-        addItem("system-lock-screen", i18n("Lock Session"), this, SLOT(lockScreen()));
+        addItem("system-lock-screen", i18n("Lock Session"), this, TQ_SLOT(lockScreen()));
     }
 
     if (kapp->authorize("logout"))
     {
-        addItem("system-log-out", i18n("Log Out..."), this, SLOT(logOut()));
+        addItem("system-log-out", i18n("Log Out..."), this, TQ_SLOT(logOut()));
     }
 
-    connect(m_sessionMenu, SIGNAL(aboutToShow()), SLOT(populateSessions()));
-    connect(m_sessionMenu, SIGNAL(activated(int)), SLOT(activateSession(int)));
+    connect(m_sessionMenu, TQ_SIGNAL(aboutToShow()), TQ_SLOT(populateSessions()));
+    connect(m_sessionMenu, TQ_SIGNAL(activated(int)), TQ_SLOT(activateSession(int)));
 
-    connect(m_recentsMenu, SIGNAL(aboutToShow()), SLOT(populateRecentDocs()));
-    connect(m_recentsMenu, SIGNAL(activated(int)), SLOT(openRecentDoc(int)));
+    connect(m_recentsMenu, TQ_SIGNAL(aboutToShow()), TQ_SLOT(populateRecentDocs()));
+    connect(m_recentsMenu, TQ_SIGNAL(activated(int)), TQ_SLOT(openRecentDoc(int)));
 }
 
 SkoutRootMenu::~SkoutRootMenu() {

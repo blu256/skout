@@ -81,14 +81,14 @@ void SkoutSystemGraph::init() {
     m_ksgrd = new TDEProcess;
     *m_ksgrd << "ksysguardd";
 
-    connect(m_ksgrd, SIGNAL(processExited(TDEProcess*)),
-                     SLOT(slotDaemonExited(TDEProcess*)));
+    connect(m_ksgrd, TQ_SIGNAL(processExited(TDEProcess*)),
+                     TQ_SLOT(slotDaemonExited(TDEProcess*)));
 
-    connect(m_ksgrd, SIGNAL(receivedStdout(TDEProcess*, char*, int)),
-                     SLOT(slotDaemonStdout(TDEProcess*, char*, int)));
+    connect(m_ksgrd, TQ_SIGNAL(receivedStdout(TDEProcess*, char*, int)),
+                     TQ_SLOT(slotDaemonStdout(TDEProcess*, char*, int)));
 
-    connect(m_ksgrd, SIGNAL(receivedStderr(TDEProcess*, char*, int)),
-                     SLOT(slotDaemonStderr(TDEProcess*, char*, int)));
+    connect(m_ksgrd, TQ_SIGNAL(receivedStderr(TDEProcess*, char*, int)),
+                     TQ_SLOT(slotDaemonStderr(TDEProcess*, char*, int)));
 
     if (!startDaemon()) {
         panelExt->popup("error",
@@ -171,7 +171,7 @@ void SkoutSystemGraph::update() {
             m_isPolling = true;
             pollingTimeout = 0; // update immediately
         }
-        TQTimer::singleShot(pollingTimeout, this, SLOT(update()));
+        TQTimer::singleShot(pollingTimeout, this, TQ_SLOT(update()));
         return;
     }
 
@@ -262,7 +262,7 @@ void SkoutSystemGraph::slotDaemonStdout(TDEProcess *, char *buffer, int buflen) 
         }
     }
 
-    TQTimer::singleShot(500, this, SLOT(update()));
+    TQTimer::singleShot(500, this, TQ_SLOT(update()));
 }
 
 void SkoutSystemGraph::slotDaemonStderr(TDEProcess *, char *buffer, int buflen) {
@@ -342,7 +342,7 @@ void SkoutSystemGraph::mousePressEvent(TQMouseEvent *e) {
             ++index;
         }
 
-        connect(&popup, SIGNAL(activated(int)), SLOT(launchMenuItem(int)));
+        connect(&popup, TQ_SIGNAL(activated(int)), TQ_SLOT(launchMenuItem(int)));
         popup.exec(mapToGlobal(e->pos()));
     }
 }

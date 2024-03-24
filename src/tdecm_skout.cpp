@@ -129,16 +129,16 @@ SkoutConfig::SkoutConfig(TQWidget *parent, const char *name, const TQStringList 
     tabGeneral->layout()->add(posBox);
     tabGeneral->layout()->add(widthBox);
 
-    connect(m_groupBox, SIGNAL(toggled(bool)),     SLOT(changed()));
-    connect(m_grpPos,   SIGNAL(clicked(int)),      SLOT(changed()));
-    connect(m_width,    SIGNAL(valueChanged(int)), SLOT(changed()));
+    connect(m_groupBox, TQ_SIGNAL(toggled(bool)),     TQ_SLOT(changed()));
+    connect(m_grpPos,   TQ_SIGNAL(clicked(int)),      TQ_SLOT(changed()));
+    connect(m_width,    TQ_SIGNAL(valueChanged(int)), TQ_SLOT(changed()));
 
     VBOX_PAGE_PREPARE(tabGeneral, true)
 
     // Applets tab
     m_appletSelector = new SkoutAppletSelector(tabApplets);
     tabApplets->layout()->add(m_appletSelector);
-    connect(m_appletSelector, SIGNAL(changed()), SLOT(changed()));
+    connect(m_appletSelector, TQ_SIGNAL(changed()), TQ_SLOT(changed()));
 
     VBOX_PAGE_PREPARE(tabApplets, false)
 

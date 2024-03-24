@@ -48,7 +48,7 @@ SkoutTask::SkoutTask(SkoutTaskContainer *parent, WId w)
     m_window_id(w)
 {
     setOn(info().isMinimized());
-    connect(this, SIGNAL(toggled(bool)), SLOT(setIconified(bool)));
+    connect(this, TQ_SIGNAL(toggled(bool)), TQ_SLOT(setIconified(bool)));
     parent->update();
 
     if (!parent->grouper()->expanded()) {
@@ -57,7 +57,7 @@ SkoutTask::SkoutTask(SkoutTaskContainer *parent, WId w)
 }
 
 SkoutTask::~SkoutTask() {
-    TQTimer::singleShot(0, container(), SLOT(update()));
+    TQTimer::singleShot(0, container(), TQ_SLOT(update()));
 }
 
 KWin::WindowInfo SkoutTask::info() {
@@ -120,38 +120,38 @@ void SkoutTask::contextMenuEvent(TQContextMenuEvent *cme) {
 
     int item;
     item = ctx.insertItem(SmallIcon("go-top"), i18n("Stays on top"),
-                          this, SLOT(toggleStayAbove()));
+                          this, TQ_SLOT(toggleStayAbove()));
     ctx.setItemChecked(item, staysAbove());
 
     item = ctx.insertItem(SmallIcon("go-bottom"), i18n("Stays on bottom"),
-                          this, SLOT(toggleStayBelow()));
+                          this, TQ_SLOT(toggleStayBelow()));
     ctx.setItemChecked(item, staysBelow());
 
     ctx.insertSeparator();
 
     ctx.insertItem(SmallIcon("kicker"), i18n("Hide into tray"),
-                   this, SLOT(sendToTray()));
+                   this, TQ_SLOT(sendToTray()));
 
     ctx.insertSeparator();
 
     item = ctx.insertItem(SmallIcon("view-fullscreen"), i18n("Fullscreen"),
-                          this, SLOT(toggleFullScreen()));
+                          this, TQ_SLOT(toggleFullScreen()));
     ctx.setItemChecked(item, fullScreen());
 
     ctx.insertSeparator();
 
     item = ctx.insertItem(TQPixmap(locate("data", "skout/pics/iconify.png")),
-                          i18n("Minimize"), this, SLOT(toggleIconified()));
+                          i18n("Minimize"), this, TQ_SLOT(toggleIconified()));
     ctx.setItemChecked(item, iconified());
 
     item = ctx.insertItem(TQPixmap(locate("data", "skout/pics/maximize.png")),
-                          i18n("Maximize"), this, SLOT(toggleMaximized()));
+                          i18n("Maximize"), this, TQ_SLOT(toggleMaximized()));
     ctx.setItemChecked(item, maximized());
 
     ctx.insertSeparator();
 
     ctx.insertItem(TQPixmap(locate("data", "skout/pics/close.png")),
-                   i18n("Close"), this, SLOT(close()));
+                   i18n("Close"), this, TQ_SLOT(close()));
 
     ctx.exec(cme->globalPos());
 }

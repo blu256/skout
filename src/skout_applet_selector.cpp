@@ -79,10 +79,10 @@ void SkoutAppletItem::paint(TQPainter *p) {
 SkoutAppletSelector::SkoutAppletSelector(TQWidget *parent, const char *name)
   : TDEActionSelector(parent, name)
 {
-    connect(this, SIGNAL(added(TQListBoxItem *)), SIGNAL(changed()));
-    connect(this, SIGNAL(removed(TQListBoxItem *)), SIGNAL(changed()));
-    connect(this, SIGNAL(movedUp(TQListBoxItem *)), SIGNAL(changed()));
-    connect(this, SIGNAL(movedDown(TQListBoxItem *)), SIGNAL(changed()));
+    connect(this, TQ_SIGNAL(added(TQListBoxItem *)), TQ_SIGNAL(changed()));
+    connect(this, TQ_SIGNAL(removed(TQListBoxItem *)), TQ_SIGNAL(changed()));
+    connect(this, TQ_SIGNAL(movedUp(TQListBoxItem *)), TQ_SIGNAL(changed()));
+    connect(this, TQ_SIGNAL(movedDown(TQListBoxItem *)), TQ_SIGNAL(changed()));
 }
 
 void SkoutAppletSelector::insertApplet(AppletData &applet) {
