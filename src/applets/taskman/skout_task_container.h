@@ -50,6 +50,7 @@ class SkoutTaskContainer : public TQVBox {
     TQPixmap groupIcon();
 
     TQObjectList tasks();
+    uint count();
 
     KService::Ptr service() { return m_service; }
     const KURL desktopPath();

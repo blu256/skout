@@ -67,6 +67,10 @@ TQObjectList SkoutTaskContainer::tasks() {
     return *(queryList("SkoutTask"));
 }
 
+uint SkoutTaskContainer::count() {
+    return tasks().count();
+}
+
 TQPixmap SkoutTaskContainer::groupIcon() {
     TDEIconLoader *il = kapp->iconLoader();
     TQPixmap pix;
