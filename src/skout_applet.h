@@ -45,3 +45,5 @@ class SkoutApplet : public TQFrame {
 };
 
 #endif // _SKOUT_APPLET_H
+
+/* kate: replace-tabs true; tab-width 2; */

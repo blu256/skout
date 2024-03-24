@@ -41,3 +41,5 @@ tde_create_translated_desktop(
   DESTINATION ${DATA_INSTALL_DIR}/skout/applets
   PO_DIR skout-applets-desktops
 )
+
+# kate: replace-tabs true; tab-width 2;

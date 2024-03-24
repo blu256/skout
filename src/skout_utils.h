@@ -21,3 +21,5 @@
         delete x; \
         x = nullptr; \
     }
+
+/* kate: replace-tabs true; tab-width 4; */

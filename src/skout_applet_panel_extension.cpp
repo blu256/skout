@@ -48,3 +48,5 @@ void SkoutAppletPanelExtension::launch(KService::Ptr service, KURL::List urls)
 }
 
 #include "skout_applet_panel_extension.moc"
+
+/* kate: replace-tabs true; tab-width 4; */

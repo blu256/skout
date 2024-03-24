@@ -72,3 +72,5 @@ class SkoutMenu : public TDEPopupMenu {
 };
 
 #endif // _SKOUT_MENU_H
+
+/* kate: replace-tabs true; tab-width 2; */

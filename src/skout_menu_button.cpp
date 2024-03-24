@@ -113,3 +113,5 @@ void SkoutMenuBtn::showMenu() {
 }
 
 #include "skout_menu_button.moc"
+
+/* kate: replace-tabs true; tab-width 4; */

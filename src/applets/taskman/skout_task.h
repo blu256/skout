@@ -92,3 +92,5 @@ class SkoutTask : public SkoutTaskButton {
 typedef TQPtrList<SkoutTask> TaskList;
 
 #endif // _SKOUT_TASK_H
+
+/* kate: replace-tabs true; tab-width 2; */

@@ -47,3 +47,5 @@ class SkoutAppletPanelExtension : public TQObject {
 };
 
 #endif // _SKOUT_H
+
+/* kate: replace-tabs true; tab-width 2; */

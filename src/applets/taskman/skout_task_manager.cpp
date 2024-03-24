@@ -155,6 +155,7 @@ void SkoutTaskMan::addContainer(SkoutTaskContainer *c) {
 
 void SkoutTaskMan::removeContainer(SkoutTaskContainer *c) {
     if (!c) return;
+
     m_containers.remove(c->application());
 }
 
@@ -242,3 +243,5 @@ KWinModule *SkoutTaskMan::twin() {
 }
 
 #include "skout_task_manager.moc"
+
+/* kate: replace-tabs true; tab-width 4; */

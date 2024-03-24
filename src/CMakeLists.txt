@@ -93,3 +93,5 @@ tde_create_translated_desktop(skout.desktop
     PO_DIR skout-desktops)
 tde_create_translated_desktop(skout_config.desktop
     PO_DIR skout-desktops)
+
+# kate: replace-tabs true; tab-width 2;

@@ -66,3 +66,5 @@ int main(int argc, char **argv) {
     delete app;
     return ret;
 }
+
+/* kate: replace-tabs true; tab-width 4; */

@@ -73,3 +73,5 @@ class SkoutTaskMan : public SkoutApplet {
 };
 
 #endif // _SKOUT_TASKMANAGER_H
+
+/* kate: replace-tabs true; tab-width 2; */

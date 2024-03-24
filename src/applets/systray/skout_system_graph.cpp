@@ -366,3 +366,5 @@ KService::Ptr SkoutSystemGraph::terminalEmulator() {
 }
 
 #include "skout_system_graph.moc"
+
+/* kate: replace-tabs true; tab-width 4; */

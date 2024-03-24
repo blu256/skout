@@ -48,3 +48,5 @@ class SkoutMenuBtn : public KPushButton {
 };
 
 #endif // _SKOUT_MENU_BUTTON_H
+
+/* kate: replace-tabs true; tab-width 2; */

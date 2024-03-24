@@ -28,3 +28,5 @@ tde_add_library(dmctl STATIC_PIC
   LINK
     tdecore-shared Xau
 )
+
+# kate: replace-tabs true; tab-width 2;

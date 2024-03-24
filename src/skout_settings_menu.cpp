@@ -41,3 +41,5 @@ void SkoutSettingsMenu::launchKControl() {
 }
 
 #include "skout_settings_menu.moc"
+
+/* kate: replace-tabs true; tab-width 4; */

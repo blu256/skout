@@ -42,3 +42,5 @@ class Skout : public KUniqueApplication, SkoutIface {
 };
 
 #endif // _SKOUT_H
+
+/* kate: replace-tabs true; tab-width 2; */

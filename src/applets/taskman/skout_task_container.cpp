@@ -229,3 +229,5 @@ void SkoutTaskContainer::slotDesktopFileChanged(const KURL& oldUrl, KURL& newUrl
 }
 
 #include "skout_task_container.moc"
+
+/* kate: replace-tabs true; tab-width 4; */

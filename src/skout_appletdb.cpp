@@ -84,3 +84,5 @@ AppletData &SkoutAppletDB::operator[](TQString id) {
 }
 
 #include "skout_appletdb.moc"
+
+/* kate: replace-tabs true; tab-width 4; */

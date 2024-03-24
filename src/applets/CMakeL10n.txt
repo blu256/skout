@@ -10,3 +10,5 @@ tde_l10n_create_template(
     CATALOG "desktop_files/skout-applets-desktops/"
     SOURCES *.desktop
 )
+
+# kate: replace-tabs true; tab-width 2;

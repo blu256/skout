@@ -212,3 +212,5 @@ void SkoutRootMenu::openRecentDoc(int item) {
 }
 
 #include "skout_root_menu.moc"
+
+/* kate: replace-tabs true; tab-width 4; */

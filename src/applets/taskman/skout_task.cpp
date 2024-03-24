@@ -318,3 +318,5 @@ TQString SkoutTask::executable() {
 }
 
 #include "skout_task.moc"
+
+/* kate: replace-tabs true; tab-width 4; */

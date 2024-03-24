@@ -41,3 +41,5 @@ void SkoutApplet::resizeEvent(TQResizeEvent *e) {
 }
 
 #include "skout_applet.moc"
+
+/* kate: replace-tabs true; tab-width 4; */

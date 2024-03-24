@@ -62,3 +62,5 @@ class SkoutConfig : public TDECModule {
 };
 
 #endif // _TDECM_SKOUT_H
+
+/* kate: replace-tabs true; tab-width 2; */

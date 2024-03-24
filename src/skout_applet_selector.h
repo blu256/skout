@@ -59,3 +59,5 @@ class SkoutAppletSelector : public TDEActionSelector {
 };
 
 #endif // _SKOUT_APPLET_SELECTOR_H
+
+/* kate: replace-tabs true; tab-width 2; */

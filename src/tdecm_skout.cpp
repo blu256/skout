@@ -289,3 +289,5 @@ extern "C" {
 }
 
 #include "tdecm_skout.moc"
+
+/* kate: replace-tabs true; tab-width 4; */

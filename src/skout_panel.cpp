@@ -276,3 +276,5 @@ void SkoutPanel::configure() {
 }
 
 #include "skout_panel.moc"
+
+/* kate: replace-tabs true; tab-width 4; */

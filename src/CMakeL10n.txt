@@ -14,3 +14,5 @@ tde_l10n_create_template(
     CATALOG "desktop_files/skout-desktops"
     SOURCES skout.desktop skout_config.desktop
 )
+
+# kate: replace-tabs true; tab-width 2;

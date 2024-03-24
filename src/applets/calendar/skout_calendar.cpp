@@ -90,3 +90,5 @@ SkoutCalendar::~SkoutCalendar() {
 
 // Don't forget to include this or your build will probably fail.
 #include "skout_calendar.moc"
+
+/* kate: replace-tabs true; tab-width 4; */

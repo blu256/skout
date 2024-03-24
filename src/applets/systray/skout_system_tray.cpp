@@ -269,3 +269,5 @@ TrayEmbed::TrayEmbed(bool _tde_tray, TQWidget *parent)
 TrayEmbed::~TrayEmbed() {}
 
 #include "skout_system_tray.moc"
+
+/* kate: replace-tabs true; tab-width 4; */

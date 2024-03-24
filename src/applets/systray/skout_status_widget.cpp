@@ -168,3 +168,5 @@ void SkoutStatusWidget::copyDateTime(int choice) {
 }
 
 #include "skout_status_widget.moc"
+
+/* kate: replace-tabs true; tab-width 4; */

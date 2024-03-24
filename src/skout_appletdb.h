@@ -64,3 +64,5 @@ class SkoutAppletDB : public TQObject {
 };
 
 #endif // _SKOUT_APPLETDB_H
+
+/* kate: replace-tabs true; tab-width 2; */

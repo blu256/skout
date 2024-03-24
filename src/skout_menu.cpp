@@ -214,3 +214,5 @@ int SkoutMenu::firstSearchMatch() {
 }
 
 #include "skout_menu.moc"
+
+/* kate: replace-tabs true; tab-width 4; */

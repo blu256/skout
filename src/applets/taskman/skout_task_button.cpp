@@ -194,3 +194,5 @@ void SkoutTaskButton::drawButton(TQPainter *p) {
 }
 
 #include "skout_task_button.moc"
+
+/* kate: replace-tabs true; tab-width 4; */

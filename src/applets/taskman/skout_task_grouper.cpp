@@ -218,3 +218,5 @@ void SkoutTaskGrouper::showPropertiesDialog() {
 }
 
 #include "skout_task_grouper.moc"
+
+/* kate: replace-tabs true; tab-width 4; */

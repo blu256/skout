@@ -86,3 +86,5 @@ class SkoutTaskContainer : public TQVBox {
 };
 
 #endif // _SKOUT_TASK_CONTAINER_H
+
+/* kate: replace-tabs true; tab-width 2; */

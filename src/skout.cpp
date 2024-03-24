@@ -59,3 +59,5 @@ void Skout::quit() {
 }
 
 #include "skout.moc"
+
+/* kate: replace-tabs true; tab-width 4; */

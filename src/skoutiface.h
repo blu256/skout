@@ -32,3 +32,5 @@ class SkoutIface: virtual public DCOPObject {
 };
 
 #endif // _SKOUTIFACE_H
+
+/* kate: replace-tabs true; tab-width 2; */

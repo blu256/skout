@@ -94,3 +94,5 @@ void SkoutAppletSelector::insertActiveApplet(AppletData &applet, int index) {
 }
 
 #include "skout_applet_selector.moc"
+
+/* kate: replace-tabs true; tab-width 4; */
