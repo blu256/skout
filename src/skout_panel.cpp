@@ -109,7 +109,7 @@ TQPoint SkoutPanel::originPos() const {
 
         case PanelPosition::TopRight:
         default:
-            return desktop.topRight() - TQPoint(SkoutSettings::panelWidth(), 0);
+            return desktop.topRight() - TQPoint(SkoutSettings::panelWidth() - 1, 0);
             break;
     }
 }
