@@ -19,7 +19,7 @@
 
 #include "dmctl.h"
 
-#ifdef Q_WS_X11
+#ifdef TQ_WS_X11
 
 #include <tdelocale.h>
 #include <dcopclient.h>
@@ -531,4 +531,4 @@ DM::type()
     return DMType;
 }
 
-#endif // Q_WS_X11
+#endif // TQ_WS_X11

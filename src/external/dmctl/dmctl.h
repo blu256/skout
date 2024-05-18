@@ -32,7 +32,7 @@ struct SessEnt {
 typedef TQValueList<SessEnt> SessList;
 
 class DM {
-#ifdef Q_WS_X11
+#ifdef TQ_WS_X11
 
 public:
 
@@ -77,7 +77,7 @@ private:
 
     void GDMAuthenticate();
 
-#else // Q_WS_X11
+#else // TQ_WS_X11
 
 public:
     DM() {}
@@ -100,7 +100,7 @@ public:
 
     int type() { return NoDM }
 
-#endif // Q_WS_X11
+#endif // TQ_WS_X11
 
 }; // class DM
 
