@@ -100,9 +100,6 @@ SkoutRootMenu::SkoutRootMenu(SkoutPanel *panel)
 
 SkoutRootMenu::~SkoutRootMenu() {
     ZAP(m_bookmarks)
-    ZAP(m_bookmarkMenu)
-    ZAP(m_settingsMenu)
-    ZAP(m_sessionMenu)
 }
 
 void SkoutRootMenu::runCommand() {

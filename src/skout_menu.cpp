@@ -41,6 +41,7 @@ SkoutMenu::SkoutMenu(SkoutPanel *panel, KServiceGroup::Ptr group)
 }
 
 SkoutMenu::~SkoutMenu() {
+    ZAP(m_search)
 }
 
 SkoutPanel *SkoutMenu::panel() {
@@ -83,7 +84,7 @@ int SkoutMenu::addItem(TQString icon, TQString name, int id, int index) {
 }
 
 int SkoutMenu::addItem(TQString icon, TQString name,
-                       const TQObject *receiver, const char *member, 
+                       const TQObject *receiver, const char *member,
                        int id, int index)
 {
     TQIconSet iconSet;
