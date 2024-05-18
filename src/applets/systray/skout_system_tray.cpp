@@ -38,7 +38,7 @@
 #include "skout_utils.h"
 
 extern "C" {
-    KDE_EXPORT SkoutApplet *init(SkoutPanel *parent) {
+    TDE_EXPORT SkoutApplet *init(SkoutPanel *parent) {
         return new SkoutSysTray(parent);
     }
 }

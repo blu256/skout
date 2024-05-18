@@ -40,7 +40,7 @@
 #include <netwm.h>
 
 extern "C" {
-    KDE_EXPORT SkoutApplet *init(SkoutPanel *parent) {
+    TDE_EXPORT SkoutApplet *init(SkoutPanel *parent) {
         return new SkoutTaskMan(parent);
     }
 }

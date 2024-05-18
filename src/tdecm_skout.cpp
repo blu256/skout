@@ -276,7 +276,7 @@ bool SkoutConfig::skoutAlive()
 }
 
 extern "C" {
-    KDE_EXPORT void init_skout() {
+    TDE_EXPORT void init_skout() {
         SkoutSettings::instance("skoutrc");
 
         if (SkoutSettings::autostart()) {

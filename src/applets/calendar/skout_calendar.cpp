@@ -37,7 +37,7 @@ extern "C" {
     // Here we export the applet constructor so that Skout can understand it.
     // Notice that the function accepts a SkoutPanel* argument, which it then
     // passes on to the constructor below - this argument is mandatory.
-    KDE_EXPORT SkoutApplet *init(SkoutPanel *parent) {
+    TDE_EXPORT SkoutApplet *init(SkoutPanel *parent) {
         return new SkoutCalendar(parent);
     }
 }
