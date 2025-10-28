@@ -83,6 +83,7 @@ tde_add_kpart(
   LINK
     tdecore-shared
     tdeui-shared
+    tdeio-shared
 
   DESTINATION ${PLUGIN_INSTALL_DIR}
 )

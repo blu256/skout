@@ -39,8 +39,8 @@ class SkoutConfig : public TDECModule {
 
     void load();
     void save();
-    void startStopSkout(bool enable);
 
+    static bool kickerAlive();
     static bool skoutAlive();
 
   protected slots:
@@ -48,6 +48,19 @@ class SkoutConfig : public TDECModule {
     void appletSelected();
     void appletAbout();
     void appletConfig();
+
+  protected:
+    void loadApplets();
+
+    const KURL autostartPath();
+    bool autostartInstalled();
+    bool installAutostart();
+    bool uninstallAutostart();
+
+    const KURL panelAutostartPath();
+    bool panelAutostartInstalled();
+    bool installPanelAutostart();
+    bool uninstallPanelAutostart();
 
   private:
     SkoutSettings *m_settings;
@@ -62,8 +75,6 @@ class SkoutConfig : public TDECModule {
     // Applets tab
     SkoutAppletSelector *m_appletSelector;
     TQPushButton *m_appletAbout, *m_appletConfig;
-
-    void loadApplets();
 };
 
 #endif // _TDECM_SKOUT_H

@@ -31,14 +31,18 @@
 
 // TDE
 #include <tdeaboutapplication.h>
+#include <tdeglobalsettings.h>
 #include <tdeapplication.h>
 #include <kgenericfactory.h>
+#include <tdestandarddirs.h>
+#include <tdedesktopfile.h>
 #include <tdemessagebox.h>
 #include <kiconloader.h>
 #include <kjanuswidget.h>
 #include <kdialog.h>
 #include <tdelocale.h>
 #include <dcopref.h>
+#include <tdeio/netaccess.h>
 
 // Skout
 #include "tdecm_skout.h"
@@ -49,44 +53,10 @@
 #include "skoutsettings.h"
 #include "version.h"
 
-/* > I want it to start when I start KDE. How do I do this?
- * Hacker-ish approach: You need to change the line "Exec=kicker" to
- * "Exec=slicker" in panel.desktop. This file should either be located in
- * ~/.kde/share/autostart, or in [KDE-directory]/share/autostart
- */
-
 typedef KGenericFactory<SkoutConfig, TQWidget> SkoutConfigFactory;
 K_EXPORT_COMPONENT_FACTORY(kcm_skout, SkoutConfigFactory("kcm_skout"))
 
 static const char description[] = I18N_NOOP("Skout panel configuration module");
-
-extern "C"
-{
-    void start_skout()
-    {
-        if (!SkoutConfig::skoutAlive())
-        {
-            tdeApp->startServiceByDesktopName("skout");
-        }
-    }
-
-    void stop_skout()
-    {
-        DCOPRef skout("skout", "SkoutIface");
-        skout.call("quit()");
-    }
-
-    void start_kicker()
-    {
-        tdeApp->tdeinitExec("kicker");
-    }
-
-    void stop_kicker()
-    {
-        DCOPRef kicker("kicker", "kicker");
-        kicker.call("quit()");
-    }
-}
 
 SkoutConfig::SkoutConfig(TQWidget *parent, const char *name, const TQStringList &)
   : TDECModule(SkoutConfigFactory::instance(), parent, name)
@@ -99,6 +69,7 @@ SkoutConfig::SkoutConfig(TQWidget *parent, const char *name, const TQStringList 
     setAboutData(about);
 
     TDEGlobal::locale()->insertCatalogue("skout");
+    TDEGlobal::dirs()->addResourceType("autostart", "share/autostart");
 
     setQuickHelp( i18n("<h1>Skout</h1> This control module can be used to enable and configure"
         " Skout. Skout is a BeOS-style panel for TDE. If you choose to use Skout, Kicker will"
@@ -134,7 +105,7 @@ SkoutConfig::SkoutConfig(TQWidget *parent, const char *name, const TQStringList 
 
     m_replaceKicker = new TQCheckBox("Replace Kicker panel", tabGeneral);
     m_replaceKicker->setEnabled(m_autostart->isOn());
-    TQWhatsThis::add(m_replaceKicker, "Prevent the Kicker panel from starting when Skout is selected to start together with the user session.");
+    TQWhatsThis::add(m_replaceKicker, "Don't run the Kicker panel if Skout is set to start alogn with the user session.");
 
     tabGeneral->layout()->add(m_autostart);
     tabGeneral->layout()->add(m_replaceKicker);
@@ -261,6 +232,35 @@ void SkoutConfig::load() {
 }
 
 void SkoutConfig::save() {
+    // Try to install autostart files if needed
+    if (m_autostart->isChecked())
+    {
+        if (m_replaceKicker->isChecked())
+        {
+            if (!uninstallAutostart() || !installPanelAutostart())
+            {
+                m_autostart->setChecked(false);
+            }
+        }
+        else
+        {
+            if (!uninstallPanelAutostart() || !installAutostart())
+            {
+                m_autostart->setChecked(false);
+            }
+        }
+    }
+    else if (!m_autostart->isChecked())
+    {
+        if (!uninstallAutostart() || !uninstallPanelAutostart())
+        {
+            m_autostart->setChecked(true);
+        }
+    }
+
+    bool autoStartPolicyChanged = (SkoutSettings::autostart() != m_autostart->isChecked());
+    bool kickerPolicyChanged = (SkoutSettings::replaceKicker() != m_replaceKicker->isChecked());
+
     // General tab
     SkoutSettings::setAutostart(m_autostart->isChecked());
     SkoutSettings::setReplaceKicker(m_replaceKicker->isChecked());
@@ -274,24 +274,52 @@ void SkoutConfig::save() {
     TQListBoxItem *item = m_appletSelector->selectedListBox()->firstItem();
 
     // Prompt if the user wants to start/kill Skout right away
-    if (m_autostart->isChecked() && !skoutAlive()) {
-        int result = KMessageBox::questionYesNo(this,
-            i18n("<qt>You have choosed to enable the Skout panel. Would you like to start it immediately?"
-                 "<br><br>Note: even if you select 'No', Skout will be normally started the next time you log in.</qt>"));
-
-        if (result == KMessageBox::Yes)
+    if (autoStartPolicyChanged)
+    {
+        if (m_autostart->isChecked() && !skoutAlive())
         {
-            startStopSkout(true);
+            int result = KMessageBox::questionYesNo(
+                this,
+                i18n("<qt>You have chosen to enable the Skout panel."
+                     " Would you like to start it immediately?"
+                     "<br><br>Note: even if you select 'No', Skout will "
+                     "still be started the next time you log in.</qt>")
+            );
+
+            if (result == KMessageBox::Yes)
+            {
+                tdeApp->startServiceByDesktopName("skout");
+            }
+        }
+        else if (!m_autostart->isChecked() && skoutAlive())
+        {
+            int result = KMessageBox::questionYesNo(
+                this,
+                i18n("<qt>You have choosed to disable the Skout panel."
+                     " Would you like to stop it immediately?</qt>")
+            );
+
+            if (result == KMessageBox::Yes)
+            {
+                DCOPRef skout("skout", "SkoutIface");
+                skout.call("quit()");
+            }
         }
     }
-    else if (!m_autostart->isChecked() && skoutAlive())
-    {
-        int result = KMessageBox::questionYesNo(this,
-            i18n("<qt>You have choosed to disable the Skout panel. Would you like to stop it immediately?</qt>"));
 
-        if (result == KMessageBox::Yes)
+    if (autoStartPolicyChanged || kickerPolicyChanged)
+    {
+        if (m_autostart->isChecked() && m_replaceKicker->isChecked())
         {
-            startStopSkout(false);
+            if (kickerAlive())
+            {
+                DCOPRef kicker("kicker", "kicker");
+                kicker.call("quit()");
+            }
+        }
+        else if (!kickerAlive())
+        {
+            tdeApp->tdeinitExec("kicker");
         }
     }
 
@@ -332,24 +360,11 @@ void SkoutConfig::loadApplets()
     }
 }
 
-void SkoutConfig::startStopSkout(bool enable)
+bool SkoutConfig::kickerAlive()
 {
-    if (enable)
-    {
-        if (SkoutSettings::replaceKicker())
-        {
-            stop_kicker();
-        }
-        start_skout();
-    }
-    else
-    {
-        stop_skout();
-        if (SkoutSettings::replaceKicker())
-        {
-            start_kicker();
-        }
-    }
+    DCOPRef skout("kicker", "default");
+    DCOPReply reply = skout.call("panelPosition()");
+    return reply.isValid();
 }
 
 bool SkoutConfig::skoutAlive()
@@ -359,21 +374,113 @@ bool SkoutConfig::skoutAlive()
     return reply.isValid() && (bool)reply == true;
 }
 
-extern "C"
+const KURL SkoutConfig::autostartPath()
 {
-    TDE_EXPORT void init_skout()
-    {
-        SkoutSettings::instance("skoutrc");
+    KURL autostartPath = KURL::fromPathOrURL(TDEGlobalSettings::autostartPath());
+    autostartPath.addPath("skout.desktop");
+    return autostartPath;
+}
 
-        if (SkoutSettings::autostart())
+bool SkoutConfig::autostartInstalled()
+{
+    return TQFile::exists(autostartPath().path());
+}
+
+bool SkoutConfig::installAutostart()
+{
+    if (autostartInstalled()) return true;
+
+    const KURL &src = KURL::fromPathOrURL(locate("xdgdata-apps", "tde/skout.desktop"));
+    const KURL &dst = autostartPath();
+    bool ok = TDEIO::NetAccess::file_copy(src, dst, -1, true, false, this);
+    if (!ok)
+    {
+        KMessageBox::detailedError(
+            this,
+            i18n("Unable to install autostart file '%1'.").arg(dst.path()),
+            TDEIO::NetAccess::lastErrorString()
+        );
+    }
+    return ok;
+}
+
+bool SkoutConfig::uninstallAutostart()
+{
+    if (!autostartInstalled()) return true;
+
+    const KURL &path = autostartPath();
+    bool ok = TDEIO::NetAccess::del(path, this);
+    if (!ok)
+    {
+        KMessageBox::detailedError(
+            this,
+            i18n("Unable to delete autostart file '%1'.").arg(path.path()),
+            TDEIO::NetAccess::lastErrorString()
+        );
+    }
+    return ok;
+}
+
+const KURL SkoutConfig::panelAutostartPath()
+{
+    return KURL::fromPathOrURL(locateLocal("autostart", "panel.desktop"));
+}
+
+bool SkoutConfig::panelAutostartInstalled()
+{
+    const KURL &path = panelAutostartPath();
+    if (!TQFile::exists(path.path())) return false;
+
+    TDEDesktopFile panelAutostart(path.path(), true);
+    return panelAutostart.readEntry("Exec") == "skout";
+}
+
+bool SkoutConfig::installPanelAutostart()
+{
+    if (panelAutostartInstalled()) return true;
+
+    const KURL &path = panelAutostartPath();
+    if (TQFile::exists(path.path()))
+    {
+        const KURL &bup = KURL::fromPathOrURL(path.path() + ".bup");
+        bool ok = TDEIO::NetAccess::file_move(path, bup, -1, true, false, this);
+        if (!ok)
         {
-            if (SkoutSettings::replaceKicker())
-            {
-                stop_kicker();
-            }
-            start_skout();
+            KMessageBox::detailedError(
+                this,
+                i18n("Unable to backup autostart file '%1'. It will not be overwritten.")
+                    .arg(path.path()),
+                TDEIO::NetAccess::lastErrorString()
+            );
+            return false;
         }
-    };
+    }
+
+    TDEDesktopFile panelAutostart(path.path());
+    panelAutostart.writeEntry("Type", "service");
+    panelAutostart.writeEntry("Exec", "skout");
+    panelAutostart.writeEntry("OnlyShowIn", "TDE;");
+    panelAutostart.writeEntry("X-TDE-autostart-after", "kdesktop");
+    panelAutostart.writeEntry("X-TDE-autostart-phase", "0");
+    panelAutostart.sync();
+    return true;
+}
+
+bool SkoutConfig::uninstallPanelAutostart()
+{
+    if (!panelAutostartInstalled()) return true;
+
+    const KURL &path = panelAutostartPath();
+    bool ok = TDEIO::NetAccess::del(path, this);
+    if (!ok)
+    {
+        KMessageBox::detailedError(
+            this,
+            i18n("Unable to delete autostart file '%1'.").arg(path.path()),
+            TDEIO::NetAccess::lastErrorString()
+        );
+    }
+    return ok;
 }
 
 #include "tdecm_skout.moc"
