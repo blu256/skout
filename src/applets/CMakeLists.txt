@@ -9,5 +9,6 @@
 add_subdirectory(systray)
 add_subdirectory(taskman)
 add_subdirectory(calendar)
+# add_subdirectory(pager)
 
 # kate: replace-tabs true; tab-width 2;

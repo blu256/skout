@@ -1,6 +1,6 @@
 /*******************************************************************************
-  Skout - a Be-style panel for TDE
-  Copyright (C) 2023 Mavridis Philippe <mavridisf@gmail.com>
+  Skout - a DeskBar-style panel for TDE
+  Copyright (C) 2023-2025 Mavridis Philippe <mavridisf@gmail.com>
 
   This program is free software: you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free Software
@@ -20,24 +20,33 @@
 #include "skout_applet.h"
 #include "skout_panel.h"
 
-SkoutApplet::SkoutApplet(SkoutPanel *parent, const char *name)
-  : TQFrame(parent, name)
+SkoutApplet::SkoutApplet(SkoutPanel *parent, TDEConfig *cfg, const char *name)
+  : TQFrame(parent, name),
+    m_cfg(cfg)
 {
     SkoutAppletPanelExtension::instance();
+    connect(parent, TQ_SIGNAL(appletsReconfigure()), TQ_SLOT(reconfigure()));
 }
 
 SkoutApplet::~SkoutApplet() {}
 
-bool SkoutApplet::valid() {
+bool SkoutApplet::valid()
+{
     return false;
 }
 
-TQString SkoutApplet::lastErrorMessage() {
+TQString SkoutApplet::lastErrorMessage()
+{
     return TQString::null;
 }
 
 void SkoutApplet::resizeEvent(TQResizeEvent *e) {
     emit updateGeometry();
+}
+
+/// slot
+void SkoutApplet::reconfigure()
+{
 }
 
 #include "skout_applet.moc"

@@ -1,6 +1,6 @@
 /*******************************************************************************
-  Skout - a Be-style panel for TDE
-  Copyright (C) 2023 Mavridis Philippe <mavridisf@gmail.com>
+  Skout - a DeskBar-style panel for TDE
+  Copyright (C) 2023-2025 Mavridis Philippe <mavridisf@gmail.com>
 
   This program is free software: you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free Software
@@ -22,17 +22,21 @@
 // TDE
 #include <tdeapplication.h>
 #include <kiconloader.h>
+#include <kdebug.h>
 
 // Skout
 #include "skout_applet_selector.h"
+
+// Std
+#include <cassert>
 
 #define ICON_SIZE 24
 #define ICON_MARGIN 3
 
 /* --- SkoutAppletItem class ------------------------------------------------ */
 SkoutAppletItem::SkoutAppletItem(AppletData &appletData)
-  : TQListBoxPixmap(kapp->iconLoader()->loadIcon(appletData.icon,
-                                                 TDEIcon::Panel, ICON_SIZE)),
+  : TQListBoxPixmap(tdeApp->iconLoader()->loadIcon(appletData.icon,
+                                                   TDEIcon::Panel, ICON_SIZE)),
     m_data(appletData)
 {}
 
@@ -83,6 +87,9 @@ SkoutAppletSelector::SkoutAppletSelector(TQWidget *parent, const char *name)
     connect(this, TQ_SIGNAL(removed(TQListBoxItem *)), TQ_SIGNAL(changed()));
     connect(this, TQ_SIGNAL(movedUp(TQListBoxItem *)), TQ_SIGNAL(changed()));
     connect(this, TQ_SIGNAL(movedDown(TQListBoxItem *)), TQ_SIGNAL(changed()));
+
+    connect(selectedListBox(), TQ_SIGNAL(highlighted(int)),
+                               TQ_SIGNAL(activeSelectionChanged()));
 }
 
 void SkoutAppletSelector::insertApplet(AppletData &applet) {
@@ -91,6 +98,14 @@ void SkoutAppletSelector::insertApplet(AppletData &applet) {
 
 void SkoutAppletSelector::insertActiveApplet(AppletData &applet, int index) {
     selectedListBox()->insertItem(new SkoutAppletItem(applet), index);
+}
+
+bool SkoutAppletSelector::selectedApplet(AppletData& applet)
+{
+    auto sel = static_cast<SkoutAppletItem *>(selectedListBox()->selectedItem());
+    if (!sel) return false;
+    applet = sel->data();
+    return true;
 }
 
 #include "skout_applet_selector.moc"

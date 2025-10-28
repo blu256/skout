@@ -1,6 +1,6 @@
 /*******************************************************************************
-  Skout - a Be-style panel for TDE
-  Copyright (C) 2023 Mavridis Philippe <mavridisf@gmail.com>
+  Skout - a DeskBar-style panel for TDE
+  Copyright (C) 2023-2025 Mavridis Philippe <mavridisf@gmail.com>
 
   This program is free software: you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free Software
@@ -50,6 +50,8 @@ class SkoutPanel : public TQFrame {
 
     PanelPosition position() const { return m_pos; }
 
+    TDEConfig *appletConfig() { return m_appletConfig; }
+
   public slots:
     void popup(TQString icon, TQString caption, TQString message);
     bool launch(KService::Ptr service, KURL::List urls = KURL::List());
@@ -71,13 +73,18 @@ class SkoutPanel : public TQFrame {
     void applySize();
 
     void reconfigure();
+    void reloadApplet(TQString appletId);
     void relayout();
+
+  signals:
+    void appletsReconfigure();
 
   private:
     SkoutMenuBtn *w_menubtn;
     SkoutAppletDB *m_appletDB;
     SkoutAppletPanelExtension *m_appletExt;
     AppletList m_applets;
+    TDEConfig *m_appletConfig;
 
     PanelPosition m_pos;
     bool m_forcePos;
@@ -85,6 +92,8 @@ class SkoutPanel : public TQFrame {
     KWinModule *m_twin;
 
     bool addApplet(AppletData &applet);
+    void removeApplet(AppletData &applet);
+
     bool loadApplet(AppletData &applet);
     void unloadApplet(AppletData &applet);
 

@@ -1,6 +1,6 @@
 /*******************************************************************************
-  Skout - a Be-style panel for TDE
-  Copyright (C) 2023 Mavridis Philippe <mavridisf@gmail.com>
+  Skout - a DeskBar-style panel for TDE
+  Copyright (C) 2023-2025 Mavridis Philippe <mavridisf@gmail.com>
 
   This program is free software: you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free Software
@@ -19,6 +19,7 @@
 // TQt
 #include <tqlayout.h>
 #include <tqwhatsthis.h>
+#include <tqtimer.h>
 
 // TDE
 #include <tdeapplication.h>
@@ -30,8 +31,8 @@
 // Skout
 #include "skout_task_manager.h"
 #include "skout_task_container.h"
+#include "skout_task_manager_cfg.h"
 #include "skout_task.h"
-#include "skoutsettings.h"
 
 // X11
 #include <X11/Xutil.h>
@@ -39,14 +40,21 @@
 // NetWM
 #include <netwm.h>
 
-extern "C" {
-    TDE_EXPORT SkoutApplet *init(SkoutPanel *parent) {
-        return new SkoutTaskMan(parent);
+extern "C"
+{
+    TDE_EXPORT SkoutApplet *init(SkoutPanel *parent, TDEConfig *cfg)
+    {
+        return new SkoutTaskMan(parent, cfg);
+    }
+
+    TDE_EXPORT TQWidget *config(TQWidget *parent, const TQString& cfg)
+    {
+        return new SkoutTaskManConfig(parent, cfg);
     }
 }
 
-SkoutTaskMan::SkoutTaskMan(SkoutPanel *panel)
-  : SkoutApplet(panel, "SkoutTaskMan")
+SkoutTaskMan::SkoutTaskMan(SkoutPanel *panel, TDEConfig *cfg)
+  : SkoutApplet(panel, cfg, "SkoutTaskMan")
 {
     m_tasks.setAutoDelete(true);
     m_containers.setAutoDelete(true);
@@ -61,7 +69,8 @@ SkoutTaskMan::SkoutTaskMan(SkoutPanel *panel)
                                 "applications."));
 
     // Create containers for pinned applications
-    TQStringList pinned = SkoutSettings::pinnedApplications();
+    config()->setGroup("TaskMan");
+    TQStringList pinned = config()->readListEntry("Pinned");
     for (TQStringList::Iterator it = pinned.begin(); it != pinned.end(); ++it) {
         int index = (*it).find(":");
         if (index == -1) {
@@ -70,7 +79,7 @@ SkoutTaskMan::SkoutTaskMan(SkoutPanel *panel)
         }
 
         TQString storageId((*it).mid(0, index));
-        TQString windowClass((*it).mid(++index));
+        TQString appClass((*it).mid(++index));
 
         KService::Ptr svc = KService::serviceByStorageId(storageId);
         if (!svc) {
@@ -78,8 +87,10 @@ SkoutTaskMan::SkoutTaskMan(SkoutPanel *panel)
             continue;
         }
 
-        addContainer(new SkoutTaskContainer(this, svc, windowClass));
+        addContainer(new SkoutTaskContainer(this, svc, appClass));
     }
+
+    reconfigure();
 
     // Add windows
     WIdList windows(m_twin->windows());
@@ -98,12 +109,33 @@ SkoutTaskMan::SkoutTaskMan(SkoutPanel *panel)
 
     connect(m_twin, TQ_SIGNAL(activeWindowChanged(WId)),
                     TQ_SIGNAL(windowActivated(WId)));
+
+    connect(m_twin, TQ_SIGNAL(currentDesktopChanged(int)),
+                    TQ_SLOT(updateTaskVisibility()));
+
+    connect(m_twin, TQ_SIGNAL(currentDesktopViewportChanged(int, const TQPoint&)),
+                    TQ_SLOT(updateTaskVisibility()));
 }
 
-SkoutTaskMan::~SkoutTaskMan() {
+SkoutTaskMan::~SkoutTaskMan()
+{
 }
 
-void SkoutTaskMan::addWindow(WId w) {
+void SkoutTaskMan::reconfigure()
+{
+    config()->setGroup("TaskMan");
+    m_defaultExpandGroupers = config()->readBoolEntry("DefaultExpandGroupers", true);
+    m_autoSaveGroupers = config()->readBoolEntry("AutoSaveGroupers", false);
+    m_showTaskIcons = config()->readBoolEntry("ShowTaskIcons", true);
+    m_showAllDesktops = config()->readBoolEntry("ShowTasksFromAllDesktops", true);
+    m_showDesktopNumber = config()->readBoolEntry("ShowDesktopNumber", false);
+    m_bigGrouperIcons = config()->readBoolEntry("BigGrouperIcons", true);
+
+    TQTimer::singleShot(0, this, TQ_SLOT(updateTaskVisibility()));
+}
+
+void SkoutTaskMan::addWindow(WId w)
+{
     if (m_tasks[w] != nullptr) return;
 
     KWin::WindowInfo info = KWin::windowInfo(w);
@@ -123,68 +155,84 @@ void SkoutTaskMan::addWindow(WId w) {
     if (appClass.isNull()) appClass = windowClass;
     if (appClass.isNull()) return;
 
-    kdDebug() << "windowClass: " << windowClass << endl
-              << "   appClass: " << appClass<< endl;
-
     SkoutTaskContainer *c = m_containers[appClass];
-    if (!c) {
+    if (!c)
+    {
         c = new SkoutTaskContainer(this, windowClass, appClass);
         addContainer(c);
     }
     SkoutTask *t = new SkoutTask(c, w);
     m_tasks.insert(w, t);
+    c->update();
 
-    if (w == m_twin->activeWindow()) {
+    if (w == m_twin->activeWindow())
+    {
         emit windowActivated(w);
     }
 }
 
-void SkoutTaskMan::removeWindow(WId w) {
+void SkoutTaskMan::removeWindow(WId w)
+{
     SkoutTask *t = m_tasks[w];
     if (!t) return;
 
-    if (t->container()->count() < 2 && !t->container()->pinned()) {
-      SkoutTaskContainer *c = t->container();
-      m_tasks.remove(w);
-      removeContainer(c);
-    }
-    else m_tasks.remove(w);
-
-    parentWidget()->layout()->invalidate();
+    SkoutTaskContainer *c = t->container();
+    m_tasks.remove(w);
 }
 
-void SkoutTaskMan::addContainer(SkoutTaskContainer *c) {
+void SkoutTaskMan::addContainer(SkoutTaskContainer *c)
+{
     if (!c) return;
     m_containers.insert(c->applicationClass(), c);
     connect(c, TQ_SIGNAL(pinChanged(bool)), TQ_SLOT(slotPinChanged(bool)));
     layout()->add(c);
 }
 
-void SkoutTaskMan::removeContainer(SkoutTaskContainer *c) {
+void SkoutTaskMan::removeContainer(SkoutTaskContainer *c)
+{
     if (!c) return;
     m_containers.remove(c->applicationClass());
+    relayout();
 }
 
-void SkoutTaskMan::relayout() {
+void SkoutTaskMan::updateTaskVisibility()
+{
+    TQDictIterator<SkoutTaskContainer> it(m_containers);
+    for (; it.current(); ++it)
+    {
+        (*it)->updateTaskVisibility();
+    }
+    relayout();
+}
+
+void SkoutTaskMan::relayout()
+{
     TQDictIterator<SkoutTaskContainer> it(m_containers);
 
     // Move non-pinned applications after pinned ones
-    for (; it.current(); ++it) {
-      if (!it.current()->pinned()) {
+    for (; it.current(); ++it)
+    {
+      if (!it.current()->isPinned())
+      {
           layout()->remove(it.current());
           layout()->add(it.current());
       }
     }
 }
 
-void SkoutTaskMan::updateWindow(WId w, uint changes) {
+void SkoutTaskMan::updateWindow(WId w, uint changes)
+{
+    if (!changes) return;
+
     SkoutTask *t = m_tasks[w];
     if (!t) return;
 
-    if (changes & NET::WMState) {
+    if (changes & NET::WMState)
+    {
         NETWinInfo info (tqt_xdisplay(),  w, tqt_xrootwin(), NET::WMState | NET::XAWMState);
 
-        if (info.state() & NET::SkipTaskbar) {
+        if (info.state() & NET::SkipTaskbar)
+        {
             removeWindow(w);
         }
         else {
@@ -196,33 +244,46 @@ void SkoutTaskMan::updateWindow(WId w, uint changes) {
     {
         t->update();
     }
+
+    if (changes & NET::WMDesktop)
+    {
+        t->container()->updateTaskVisibility();
+        relayout();
+    }
 }
 
-void SkoutTaskMan::savePinnedApplications() {
+void SkoutTaskMan::savePinnedApplications()
+{
     TQStringList pinned;
     TQDictIterator<SkoutTaskContainer> it(m_containers);
-    for (; it.current(); ++it) {
+    for (; it.current(); ++it)
+    {
         SkoutTaskContainer *c = it.current();
-        if (c->pinned() && c->pinnable()) {
+        if (c->isPinned() && c->isPinnable())
+        {
             TQString entry;
             entry += c->service()->storageId();
             entry += ":";
-            entry += c->windowClass();
+            entry += c->applicationClass();
             pinned << entry;
         }
     }
-    SkoutSettings::setPinnedApplications(pinned);
-    SkoutSettings::writeConfig();
+    config()->setGroup("TaskMan");
+    config()->writeEntry("Pinned", pinned);
+    config()->sync();
 }
 
-void SkoutTaskMan::slotPinChanged(bool pinned) {
+void SkoutTaskMan::slotPinChanged(bool pinned)
+{
     savePinnedApplications();
     relayout();
 }
 
-TQString SkoutTaskMan::className(WId w) {
+TQString SkoutTaskMan::className(WId w)
+{
     XClassHint hint;
-    if (!XGetClassHint(tqt_xdisplay(), w, &hint)) {
+    if (!XGetClassHint(tqt_xdisplay(), w, &hint))
+    {
         return TQString::null;
     }
 
@@ -232,9 +293,11 @@ TQString SkoutTaskMan::className(WId w) {
     return nh;
 }
 
-TQString SkoutTaskMan::classClass(WId w) {
+TQString SkoutTaskMan::classClass(WId w)
+{
     XClassHint hint;
-    if (!XGetClassHint(tqt_xdisplay(), w, &hint)) {
+    if (!XGetClassHint(tqt_xdisplay(), w, &hint))
+    {
         return TQString::null;
     }
 
@@ -244,7 +307,8 @@ TQString SkoutTaskMan::classClass(WId w) {
     return nh;
 }
 
-KWinModule *SkoutTaskMan::twin() {
+KWinModule *SkoutTaskMan::twin()
+{
     return m_twin;
 }
 

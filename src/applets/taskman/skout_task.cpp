@@ -1,6 +1,10 @@
 /*******************************************************************************
-  Skout - a Be-style panel for TDE
-  Copyright (C) 2023 Mavridis Philippe <mavridisf@gmail.com>
+  Skout - a DeskBar-style panel for TDE
+  Copyright (C) 2023-25 Mavridis Philippe <mavridisf@gmail.com>
+
+  Portions from Kicker taskbar applet.
+    Copyright (c) 2001 Matthias Elter <elter@kde.org>
+    Copyright (c) 2001 John Firebaugh <jfirebaugh@kde.org>
 
   This program is free software: you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free Software
@@ -24,13 +28,13 @@
 
 // TDE
 #include <tdeapplication.h>
-#include <kstandarddirs.h>
+#include <tdestandarddirs.h>
 #include <kiconloader.h>
 #include <twinmodule.h>
 #include <tdepopupmenu.h>
 #include <kpassivepopup.h>
 #include <tdelocale.h>
-#include <kprocess.h>
+#include <tdeprocess.h>
 #include <kdebug.h>
 
 // Skout
@@ -44,119 +48,209 @@
 #include <cerrno>
 
 SkoutTask::SkoutTask(SkoutTaskContainer *parent, WId w)
-  : SkoutTaskButton(parent),
+  : SkoutTaskButton(parent, SkoutTaskButton::Task),
+    m_container(parent),
     m_window_id(w)
 {
     setOn(info().isMinimized());
-    connect(this, TQ_SIGNAL(toggled(bool)), TQ_SLOT(setIconified(bool)));
     parent->update();
-
-    if (!parent->grouper()->expanded()) {
-        hide();
-    }
+    updateVisibility();
 }
 
-SkoutTask::~SkoutTask() {
+SkoutTask::~SkoutTask()
+{
     TQTimer::singleShot(0, container(), TQ_SLOT(update()));
 }
 
-KWin::WindowInfo SkoutTask::info() {
+KWin::WindowInfo SkoutTask::info()
+{
     return KWin::windowInfo(windowID());
 }
 
-TQString SkoutTask::name() {
-    return info().visibleNameWithState();
+SkoutTaskContainer* SkoutTask::container()
+{
+    return m_container;
 }
 
-TQPixmap SkoutTask::icon() {
+KWinModule* SkoutTask::twin()
+{
+    return container()->twin();
+}
+
+TQString SkoutTask::name()
+{
+    TQString taskName = info().visibleNameWithState();
+
+    if (container()->manager()->showDesktopNumber())
+    {
+        TQString deskName;
+        int deskNo = desktop();
+        if (deskNo > 1)
+        {
+            deskName = TQString::number(deskNo);
+        }
+        else if (deskNo == 0)
+        {
+            deskName = "*";
+        }
+        taskName = TQString("[%1] %2").arg(deskNo).arg(taskName);
+    }
+
+    return taskName;
+}
+
+TQPixmap SkoutTask::icon()
+{
     return icon(smallIconSize());
 }
 
-TQPixmap SkoutTask::icon(TQSize size) {
+TQPixmap SkoutTask::icon(TQSize size)
+{
     TQPixmap ico = KWin::icon(windowID(), size.width(), size.height(), true);
     if (!ico.isNull()) {
         return ico;
     }
 
-    ico = kapp->iconLoader()->loadIcon(className().lower(),
-                                       TDEIcon::Panel, size.height(),
-                                       TDEIcon::DefaultState,
-                                       0, true);
-    if (!ico.isNull()) {
+    ico = tdeApp->iconLoader()->loadIcon(className().lower(),
+                                         TDEIcon::Panel, size.height(),
+                                         TDEIcon::DefaultState,
+                                         0, true);
+    if (!ico.isNull())
+    {
         return ico;
     }
 
     return container()->groupIcon();
 }
 
-TQString SkoutTask::className() {
+TQString SkoutTask::className()
+{
     return SkoutTaskMan::className(windowID());
 }
 
-TQString SkoutTask::classClass() {
+TQString SkoutTask::classClass()
+{
     return SkoutTaskMan::classClass(windowID());
 }
 
-TQString SkoutTask::applicationName() {
+TQString SkoutTask::applicationName()
+{
     return container()->application();
 }
 
-void SkoutTask::mousePressEvent(TQMouseEvent *me) {
-    switch (me->button()) {
+void SkoutTask::updateVisibility()
+{
+    setShown(
+      container()->grouper()->expanded() &&
+      (container()->manager()->showAllDesktops() || isOnCurrentDesktop())
+    );
+}
+
+void SkoutTask::mousePressEvent(TQMouseEvent *me)
+{
+    switch (me->button())
+    {
         case LeftButton:
-            activate();
+            if (me->state() & (ControlButton | AltButton))
+            {
+                close();
+            }
+            else
+            {
+                activate();
+            }
             return;
+
         case MidButton:
-            toggle();
+            toggleIconified();
             return;
+
         default:
             me->ignore();
     }
 }
 
-void SkoutTask::contextMenuEvent(TQContextMenuEvent *cme) {
-    TDEPopupMenu ctx(this);
+void SkoutTask::contextMenuEvent(TQContextMenuEvent *cme)
+{
+    TDEPopupMenu ctx(this), desks(this);
     ctx.setCheckable(true);
 
     int item;
-    item = ctx.insertItem(SmallIcon("go-top"), i18n("Stays on top"),
+    item = ctx.insertItem(SmallIcon("go-top"), i18n("Stays on &top"),
                           this, TQ_SLOT(toggleStayAbove()));
     ctx.setItemChecked(item, staysAbove());
 
-    item = ctx.insertItem(SmallIcon("go-bottom"), i18n("Stays on bottom"),
+    item = ctx.insertItem(SmallIcon("go-bottom"), i18n("Stays on &bottom"),
                           this, TQ_SLOT(toggleStayBelow()));
     ctx.setItemChecked(item, staysBelow());
 
     ctx.insertSeparator();
 
-    ctx.insertItem(SmallIcon("kicker"), i18n("Hide into tray"),
+    int numberOfDesktops = KWin::numberOfDesktops();
+
+    if (numberOfDesktops > 1)
+    {
+        desks.clear();
+        desks.setCheckable(true);
+
+        int currentDesktop = KWin::currentDesktop();
+        if (desktop() != currentDesktop)
+        {
+            item = ctx.insertItem(SmallIcon("desktop"), i18n("Move to &current desktop"), this, TQ_SLOT(setDesktop(int)));
+            ctx.setItemParameter(item, currentDesktop);
+        }
+
+        item = desks.insertItem(i18n("&All desktops"), this, TQ_SLOT(setDesktop(int)));
+        desks.setItemParameter(item, 0);
+        desks.setItemChecked(item, desktop() == 0);
+
+        desks.insertSeparator();
+
+        for (int i = 1; i <= numberOfDesktops; ++i)
+        {
+            TQString deskName = twin()->desktopName(i).replace("&", "&&");
+            item = desks.insertItem(TQString("[&%1] %2").arg(i).arg(deskName),
+                                    this, TQ_SLOT(setDesktop(int)));
+            desks.setItemParameter(item, i);
+            desks.setItemChecked(item, desktop() == i);
+        }
+
+        ctx.insertItem(SmallIcon("kpager"), i18n("Move to &desktop..."), &desks);
+        ctx.insertSeparator();
+    }
+
+    item = ctx.insertItem(i18n("S&hade"), this, TQ_SLOT(toggleShaded()));
+    ctx.setItemChecked(item, isShaded());
+
+    ctx.insertItem(SmallIcon("kicker"), i18n("&Hide to system tray"),
                    this, TQ_SLOT(sendToTray()));
 
     ctx.insertSeparator();
 
-    item = ctx.insertItem(SmallIcon("view-fullscreen"), i18n("Fullscreen"),
+    item = ctx.insertItem(SmallIcon("view-fullscreen"), i18n("&Fullscreen"),
                           this, TQ_SLOT(toggleFullScreen()));
-    ctx.setItemChecked(item, fullScreen());
+    ctx.setItemChecked(item, isFullScreen());
 
     ctx.insertSeparator();
 
     item = ctx.insertItem(TQPixmap(locate("data", "skout/pics/iconify.png")),
-                          i18n("Minimize"), this, TQ_SLOT(toggleIconified()));
-    ctx.setItemChecked(item, iconified());
+                          i18n("Mi&nimize"), this, TQ_SLOT(toggleIconified()));
+    ctx.setItemChecked(item, isIconified());
 
     item = ctx.insertItem(TQPixmap(locate("data", "skout/pics/maximize.png")),
-                          i18n("Maximize"), this, TQ_SLOT(toggleMaximized()));
-    ctx.setItemChecked(item, maximized());
+                          i18n("Ma&ximize"), this, TQ_SLOT(toggleMaximized()));
+    ctx.setItemChecked(item, isMaximized());
 
     ctx.insertSeparator();
 
     ctx.insertItem(TQPixmap(locate("data", "skout/pics/close.png")),
-                   i18n("Close"), this, TQ_SLOT(close()));
+                   i18n("&Close"), this, TQ_SLOT(close()));
 
     ctx.exec(cme->globalPos());
 }
 
-void SkoutTask::sendToTray() {
+void SkoutTask::sendToTray()
+{
     TDEProcess ksystray;
     ksystray << "ksystraycmd" << "--hidden"
              << "--wid" << TQString::number(windowID());
@@ -168,121 +262,186 @@ void SkoutTask::sendToTray() {
     }
 }
 
-bool SkoutTask::checkWindowState(unsigned long state) {
+void SkoutTask::setDesktop(int desktop)
+{
+    KWin::setOnAllDesktops(windowID(), desktop == 0);
+    if (desktop > 0)
+    {
+        KWin::setOnDesktop(windowID(), desktop);
+    }
+}
+
+bool SkoutTask::checkWindowState(unsigned long state)
+{
     KWin::WindowInfo i(info());
     return i.valid() && (i.state() & state);
 }
 
-void SkoutTask::addWindowState(unsigned long state) {
+void SkoutTask::addWindowState(unsigned long state)
+{
     KWin::setState(windowID(), state);
 }
 
-void SkoutTask::removeWindowState(unsigned long state) {
+void SkoutTask::removeWindowState(unsigned long state)
+{
     KWin::clearState(windowID(), state);
 }
 
-void SkoutTask::setWindowState(unsigned long state, bool set) {
+void SkoutTask::setWindowState(unsigned long state, bool set)
+{
     if (set) addWindowState(state);
     else removeWindowState(state);
 }
 
-void SkoutTask::setMaximized(bool maximized) {
+void SkoutTask::setMaximized(bool maximized)
+{
     setWindowState(NET::MaxVert|NET::MaxHoriz, maximized);
 }
 
-void SkoutTask::setIconified(bool iconified) {
+void SkoutTask::setIconified(bool iconified)
+{
     if (iconified) KWin::iconifyWindow(windowID());
     else KWin::deIconifyWindow(windowID());
 }
 
-void SkoutTask::setFullScreen(bool fullscreen) {
+void SkoutTask::setFullScreen(bool fullscreen)
+{
     setWindowState(NET::FullScreen, fullscreen);
 }
 
-void SkoutTask::setStayAbove(bool stay) {
+void SkoutTask::setStayAbove(bool stay)
+{
     if (stay && staysBelow()) {
         setStayBelow(false);
     }
     setWindowState(NET::StaysOnTop, stay);
 }
 
-void SkoutTask::setStayBelow(bool stay) {
+void SkoutTask::setStayBelow(bool stay)
+{
     if (stay && staysAbove()) {
         setStayAbove(false);
     }
     setWindowState(NET::KeepBelow, stay);
 }
 
-void SkoutTask::toggleStayAbove() {
+void SkoutTask::setShaded(bool shaded)
+{
+    setWindowState(NET::Shaded, shaded);
+}
+
+void SkoutTask::toggleStayAbove()
+{
     setStayAbove(!staysAbove());
 }
 
-void SkoutTask::toggleStayBelow() {
+void SkoutTask::toggleStayBelow()
+{
     setStayBelow(!staysBelow());
 }
 
-void SkoutTask::toggleIconified() {
-    setIconified(!iconified());
+void SkoutTask::toggleIconified()
+{
+    setIconified(!isIconified());
 }
 
-void SkoutTask::toggleMaximized() {
-    setMaximized(!maximized());
+void SkoutTask::toggleMaximized()
+{
+    setMaximized(!isMaximized());
 }
 
-void SkoutTask::toggleFullScreen() {
-    setFullScreen(!fullScreen());
+void SkoutTask::toggleFullScreen()
+{
+    setFullScreen(!isFullScreen());
 }
 
-void SkoutTask::close() {
+void SkoutTask::toggleShaded()
+{
+    setShaded(!isShaded());
+}
+
+void SkoutTask::close()
+{
     NETRootInfo ri(tqt_xdisplay(), NET::CloseWindow);
     ri.closeWindowRequest(windowID());
 }
 
-void SkoutTask::activate() {
+void SkoutTask::activate()
+{
     KWin::forceActiveWindow(windowID());
 }
 
-bool SkoutTask::active() {
+bool SkoutTask::isActive()
+{
     return container()->twin()->activeWindow() == windowID();
 }
 
-bool SkoutTask::staysAbove() {
+bool SkoutTask::staysAbove()
+{
     return checkWindowState(NET::StaysOnTop);
 }
 
-bool SkoutTask::staysBelow() {
+bool SkoutTask::staysBelow()
+{
     return checkWindowState(NET::KeepBelow);
 }
 
-bool SkoutTask::iconified() {
+bool SkoutTask::isIconified()
+{
     KWin::WindowInfo i(info());
     return i.valid() && i.isMinimized();
 }
 
-bool SkoutTask::maximized() {
+bool SkoutTask::isMaximized()
+{
     return checkWindowState(NET::MaxVert|NET::MaxHoriz);
 }
 
-bool SkoutTask::fullScreen() {
+bool SkoutTask::isFullScreen()
+{
     return checkWindowState(NET::FullScreen);
 }
 
-bool SkoutTask::shaded() {
+bool SkoutTask::isShaded()
+{
     return checkWindowState(NET::Shaded);
 }
 
-TQFont SkoutTask::font() {
-    return active() ? boldFont() : normalFont();
+int SkoutTask::desktop()
+{
+    KWin::WindowInfo i(info());
+    if (!i.valid()) return -1;
+
+    if (i.onAllDesktops())
+    {
+        return 0;
+    }
+
+    return i.desktop();
 }
 
-TQColorGroup SkoutTask::colors() {
-    TQColorGroup cg = palette().active();
-    if (active()) {
-        TQColor highlight = blendColors(cg.button(), cg.highlight());
-        cg.setColor(TQColorGroup::Button,     highlight);
+bool SkoutTask::isOnCurrentDesktop()
+{
+    int deskno = desktop();
+    return deskno == 0 || deskno == twin()->currentDesktop();
+}
+
+TQFont SkoutTask::font()
+{
+    return isActive() ? boldFont() : normalFont();
+}
+
+TQColorGroup SkoutTask::colors()
+{
+    TQColorGroup cg = SkoutTaskButton::colors();
+    if (isActive())
+    {
+        cg.setColor(TQColorGroup::Button,     cg.highlight());
+        cg.setColor(TQColorGroup::Background, cg.highlight());
         cg.setColor(TQColorGroup::ButtonText, cg.highlightedText());
     }
-    else if (!container()->active()) {
+    else if (!container()->isActive())
+    {
         cg.setColor(TQColorGroup::Button,     cg.background());
         cg.setColor(TQColorGroup::ButtonText, cg.foreground());
     }
@@ -292,7 +451,8 @@ TQColorGroup SkoutTask::colors() {
 /* Yes, I know this is deprecated and the actual application might be on another
    host, but this is the best way I can think of to get the application's
    executable and figure out its corresponding desktop file. */
-pid_t SkoutTask::pid() {
+pid_t SkoutTask::pid()
+{
     KWin::Info i = KWin::info(windowID());
     return i.pid;
 }

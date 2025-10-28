@@ -1,6 +1,6 @@
 /*******************************************************************************
-  Skout - a Be-style panel for TDE
-  Copyright (C) 2023 Mavridis Philippe <mavridisf@gmail.com>
+  Skout - a DeskBar-style panel for TDE
+  Copyright (C) 2023-2025 Mavridis Philippe <mavridisf@gmail.com>
 
   This program is free software: you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free Software
@@ -26,25 +26,58 @@
 
 // TQt
 #include <tqwhatsthis.h>
+#include <tqcheckbox.h>
+#include <tqlabel.h>
+#include <tqvbox.h>
 
 // TDE
 #include <tdeapplication.h>
+#include <tdeaboutdata.h>
 #include <tdelocale.h>
+#include <kdebug.h>
 
 // Skout
-#include "skoutsettings.h"
 #include "skout_system_tray.h"
 #include "skout_status_widget.h"
+#include "skout_system_tray_cfg.h"
 #include "skout_utils.h"
+#include "version.h"
 
-extern "C" {
-    TDE_EXPORT SkoutApplet *init(SkoutPanel *parent) {
-        return new SkoutSysTray(parent);
+extern "C"
+{
+    TDE_EXPORT SkoutApplet *init(SkoutPanel *parent, TDEConfig *cfg)
+    {
+        return new SkoutSysTray(parent, cfg);
+    }
+
+    TDE_EXPORT TDEAboutData *about()
+    {
+        auto about = new TDEAboutData(
+            "skout_system_tray",
+            I18N_NOOP("System Tray"),
+            skout::version,
+            I18N_NOOP("Area for resident application icons"),
+            TDEAboutData::License_GPL_V3,
+            skout::copyright,
+            I18N_NOOP("Based on the Kicker system tray applet.")
+        );
+        about->addCredit("Matthias Ettrich", I18N_NOOP("Kicker applet developer") " (2000-2001)", "ettrich@kde.org");
+        about->addCredit("Matthias Elter",   I18N_NOOP("Kicker applet developer") " (2000-2001)", "elter@kde.org");
+        about->addCredit("Carsten Pfeiffer", I18N_NOOP("Kicker applet developer") " (2001)",      "pfeiffer@kde.org");
+        about->addCredit("Martijn Klingens", I18N_NOOP("Kicker applet developer") " (2001)",      "mklingens@yahoo.com");
+        about->addCredit("Aaron J. Seigo",   I18N_NOOP("Kicker applet developer") " (2004)",      "aseigo@kde.org");
+        about->addCredit("Timothy Pearson",  I18N_NOOP("Kicker applet developer") " (2010)",      "kb9vqf@pearsoncomputing.net");
+        return about;
+    }
+
+    TDE_EXPORT TQWidget *config(TQWidget *parent, const TQString& cfg)
+    {
+        return new SkoutSysTrayConfig(parent, cfg);
     }
 }
 
-SkoutSysTray::SkoutSysTray(SkoutPanel *parent)
-  : SkoutApplet(parent, "SkoutSystray"),
+SkoutSysTray::SkoutSysTray(SkoutPanel *parent, TDEConfig *cfg)
+  : SkoutApplet(parent, cfg, "SkoutSystray"),
     m_layout(nullptr),
     m_cols(0),
     m_doingRelayout(false),
@@ -55,6 +88,11 @@ SkoutSysTray::SkoutSysTray(SkoutPanel *parent)
     m_status(nullptr)
 {
     setSizePolicy(TQSizePolicy::MinimumExpanding, TQSizePolicy::Maximum);
+    setPaletteBackgroundColor(colorGroup().button().dark(110));
+    setFrameStyle(TQFrame::StyledPanel|TQFrame::Sunken);
+    setLineWidth(1);
+    setMidLineWidth(3);
+    setMargin(5);
 
     m_twin = new KWinModule(this);
 
@@ -71,7 +109,7 @@ SkoutSysTray::SkoutSysTray(SkoutPanel *parent)
     connect(m_twin, TQ_SIGNAL(systemTrayWindowRemoved(WId)),
             this,   TQ_SLOT(updateTrayWindows()));
 
-    connect(kapp,   TQ_SIGNAL(tdedisplayPaletteChanged()),
+    connect(tdeApp, TQ_SIGNAL(tdedisplayPaletteChanged()),
             this,   TQ_SLOT(paletteChanged()));
 
     m_valid = acquireSystemTray();
@@ -87,11 +125,23 @@ SkoutSysTray::SkoutSysTray(SkoutPanel *parent)
     relayout(true);
 }
 
-SkoutSysTray::~SkoutSysTray() {
+SkoutSysTray::~SkoutSysTray()
+{
     ZAP(m_status);
 }
 
-bool SkoutSysTray::acquireSystemTray() {
+TQSize SkoutSysTray::sizeHint() const
+{
+    return m_layout->sizeHint();
+}
+
+void SkoutSysTray::reconfigure()
+{
+    relayout(true);
+}
+
+bool SkoutSysTray::acquireSystemTray()
+{
     TQCString screenstr;
     screenstr.setNum(tqt_xscreen());
     TQCString trayatom = "_NET_SYSTEM_TRAY_S" + screenstr;
@@ -102,7 +152,8 @@ bool SkoutSysTray::acquireSystemTray() {
 
     XSetSelectionOwner(d, net_system_tray_selection, winId(), CurrentTime);
 
-    if (XGetSelectionOwner(d, net_system_tray_selection) == winId()) {
+    if (XGetSelectionOwner(d, net_system_tray_selection) == winId())
+    {
         WId root = tqt_xrootwin();
 
         XClientMessageEvent xe;
@@ -125,7 +176,8 @@ bool SkoutSysTray::acquireSystemTray() {
     return false;
 }
 
-void SkoutSysTray::embedWindow(WId w, bool tde_tray) {
+void SkoutSysTray::embedWindow(WId w, bool tde_tray)
+{
     TrayEmbed *ew = new TrayEmbed(tde_tray, this);
     ew->setAutoDelete(false);
 
@@ -142,7 +194,8 @@ void SkoutSysTray::embedWindow(WId w, bool tde_tray) {
     }
     else ew->embed(w);
 
-    if (ew->embeddedWinId() == 0) { // error embedding
+    if (ew->embeddedWinId() == 0)
+    {
         ZAP(ew)
         return;
     }
@@ -155,7 +208,8 @@ void SkoutSysTray::embedWindow(WId w, bool tde_tray) {
     ew->show();
 }
 
-bool SkoutSysTray::isWinManaged(WId w) {
+bool SkoutSysTray::isWinManaged(WId w)
+{
     TrayEmbedList::const_iterator it;
     for (it = m_tray.begin(); it != m_tray.end(); ++it) {
         if ((*it)->embeddedWinId() == w) {
@@ -165,14 +219,16 @@ bool SkoutSysTray::isWinManaged(WId w) {
     return false;
 }
 
-void SkoutSysTray::trayWindowAdded(WId w) {
+void SkoutSysTray::trayWindowAdded(WId w)
+{
     if (isWinManaged(w)) return;
 
     embedWindow(w, true);
     relayout(true);
 }
 
-void SkoutSysTray::updateTrayWindows() {
+void SkoutSysTray::updateTrayWindows()
+{
     TrayEmbedList::iterator it = m_tray.begin();
     while (it != m_tray.end()) {
         WId w = (*it)->embeddedWinId();
@@ -188,12 +244,15 @@ void SkoutSysTray::updateTrayWindows() {
     relayout(true);
 }
 
-void SkoutSysTray::resizeEvent(TQResizeEvent *) {
+void SkoutSysTray::resizeEvent(TQResizeEvent *)
+{
     relayout();
 }
 
-bool SkoutSysTray::x11Event(XEvent *xe) {
-    if (xe->type == ClientMessage) {
+bool SkoutSysTray::x11Event(XEvent *xe)
+{
+    if (xe->type == ClientMessage)
+    {
         if (xe->xclient.message_type == net_system_tray_opcode &&
             xe->xclient.data.l[1] == SYSTRAY_REQUEST_DOCK)
         {
@@ -211,7 +270,8 @@ bool SkoutSysTray::x11Event(XEvent *xe) {
     return false;
 }
 
-void SkoutSysTray::relayout(bool force) {
+void SkoutSysTray::relayout(bool force)
+{
     if (m_doingRelayout) return;
 
     TQSize icon = iconSize();
@@ -227,8 +287,11 @@ void SkoutSysTray::relayout(bool force) {
     int col = 0, row = 0;
     m_cols = cols;
 
-    if (SkoutSettings::enableStatusWidget()) {
-        if (!m_status) {
+    config()->setGroup("SysTray");
+    if (config()->readBoolEntry("EnableStatusWidget", true))
+    {
+        if (!m_status)
+        {
             m_status = new SkoutStatusWidget(this);
         }
         m_layout->addMultiCellWidget(m_status, 0, 0, 0, m_cols);
@@ -236,10 +299,12 @@ void SkoutSysTray::relayout(bool force) {
     }
 
     TrayEmbedList::const_iterator it;
-    for (it = m_tray.begin(); it != m_tray.end(); ++it) {
+    for (it = m_tray.begin(); it != m_tray.end(); ++it)
+    {
         m_layout->addWidget((*it), row, col, TQt::AlignCenter);
         ++col;
-        if (col >= m_cols) {
+        if (col >= m_cols)
+        {
             ++row;
             col = 0;
         }
@@ -253,9 +318,11 @@ void SkoutSysTray::relayout(bool force) {
     m_doingRelayout = false;
 }
 
-void SkoutSysTray::paletteChanged() {
+void SkoutSysTray::paletteChanged()
+{
     TrayEmbedList::const_iterator it;
-    for (it = m_tray.begin(); it != m_tray.end(); ++it) {
+    for (it = m_tray.begin(); it != m_tray.end(); ++it)
+    {
         XClearArea(x11Display(), (*it)->embeddedWinId(), 0, 0, 0, 0, True);
     }
 }

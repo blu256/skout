@@ -1,6 +1,6 @@
 /*******************************************************************************
-  Skout - a Be-style panel for TDE
-  Copyright (C) 2023 Mavridis Philippe <mavridisf@gmail.com>
+  Skout - a DeskBar-style panel for TDE
+  Copyright (C) 2023-2025 Mavridis Philippe <mavridisf@gmail.com>
 
   This program is free software: you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free Software
@@ -22,19 +22,21 @@
 #include <tqbuttongroup.h>
 #include <tqcheckbox.h>
 #include <tqradiobutton.h>
+#include <tqpushbutton.h>
 #include <tqspinbox.h>
-#include <tqgroupbox.h>
 #include <tqlabel.h>
 #include <tqvbox.h>
+#include <tqhbox.h>
 #include <tqwhatsthis.h>
 
 // TDE
-#include <tdeaboutdata.h>
+#include <tdeaboutapplication.h>
 #include <tdeapplication.h>
 #include <kgenericfactory.h>
 #include <tdemessagebox.h>
 #include <kiconloader.h>
 #include <kjanuswidget.h>
+#include <kdialog.h>
 #include <tdelocale.h>
 #include <dcopref.h>
 
@@ -42,30 +44,45 @@
 #include "tdecm_skout.h"
 #include "skout_appletdb.h"
 #include "skout_applet_selector.h"
+#include "skout_applet_config.h"
+#include "skout_applet_config_dialog.h"
 #include "skoutsettings.h"
 #include "version.h"
+
+/* > I want it to start when I start KDE. How do I do this?
+ * Hacker-ish approach: You need to change the line "Exec=kicker" to
+ * "Exec=slicker" in panel.desktop. This file should either be located in
+ * ~/.kde/share/autostart, or in [KDE-directory]/share/autostart
+ */
 
 typedef KGenericFactory<SkoutConfig, TQWidget> SkoutConfigFactory;
 K_EXPORT_COMPONENT_FACTORY(kcm_skout, SkoutConfigFactory("kcm_skout"))
 
 static const char description[] = I18N_NOOP("Skout panel configuration module");
 
-extern "C" {
-    void start_skout() {
+extern "C"
+{
+    void start_skout()
+    {
         if (!SkoutConfig::skoutAlive())
-            kapp->startServiceByDesktopName("skout");
+        {
+            tdeApp->startServiceByDesktopName("skout");
+        }
     }
 
-    void stop_skout() {
+    void stop_skout()
+    {
         DCOPRef skout("skout", "SkoutIface");
         skout.call("quit()");
     }
 
-    void start_kicker() {
-        kapp->tdeinitExec("kicker");
+    void start_kicker()
+    {
+        tdeApp->tdeinitExec("kicker");
     }
 
-    void stop_kicker() {
+    void stop_kicker()
+    {
         DCOPRef kicker("kicker", "kicker");
         kicker.call("quit()");
     }
@@ -77,15 +94,15 @@ SkoutConfig::SkoutConfig(TQWidget *parent, const char *name, const TQStringList 
     SkoutSettings::instance("skoutrc");
 
     TDEAboutData *about = new TDEAboutData(I18N_NOOP("kcm_skout"),
-                          I18N_NOOP("SkoutConfig"), version, description,
-                          TDEAboutData::License_GPL_V3, copyright);
+                          I18N_NOOP("SkoutConfig"), skout::version, description,
+                          TDEAboutData::License_GPL_V3, skout::copyright);
     setAboutData(about);
 
     TDEGlobal::locale()->insertCatalogue("skout");
 
     setQuickHelp( i18n("<h1>Skout</h1> This control module can be used to enable and configure"
-        " Skout. Skout is a Be-style panel for TDE. If you choose to use Skout, Kicker will be"
-        " automatically disabled."));
+        " Skout. Skout is a BeOS-style panel for TDE. If you choose to use Skout, Kicker will"
+        " be automatically disabled."));
 
     new TQVBoxLayout(this);
 
@@ -106,7 +123,6 @@ SkoutConfig::SkoutConfig(TQWidget *parent, const char *name, const TQStringList 
 
     TQVBox *tabApplets = m_tabWidget->addVBoxPage(i18n("Applets"),
                                                   "Applets", ICON("kicker"));
-#undef ICON
 
 #define VBOX_PAGE_PREPARE(tab, stretch) \
     tab->layout()->setAutoAdd(false); \
@@ -155,14 +171,31 @@ SkoutConfig::SkoutConfig(TQWidget *parent, const char *name, const TQStringList 
     VBOX_PAGE_PREPARE(tabLook, true)
 
     // Applets tab
-    m_appletSelector = new SkoutAppletSelector(tabApplets);
-    tabApplets->layout()->add(m_appletSelector);
+    TQHBox *appletHBox = new TQHBox(tabApplets);
+    m_appletSelector = new SkoutAppletSelector(appletHBox);
 
+    TQVBox *appletActions = new TQVBox(appletHBox);
+    appletActions->setSizePolicy(TQSizePolicy::Maximum, TQSizePolicy::Fixed);
+    appletActions->setMargin(KDialog::marginHint());
+
+    m_appletAbout = new TQPushButton(ICON("help-about"), i18n("About"), appletActions);
+    m_appletAbout->setEnabled(false);
+
+    m_appletConfig = new TQPushButton(ICON("configure"), i18n("Options"), appletActions);
+    m_appletConfig->setEnabled(false);
+
+    tabApplets->layout()->add(appletHBox);
+
+    connect(m_appletAbout,    TQ_SIGNAL(clicked()), TQ_SLOT(appletAbout()));
+    connect(m_appletConfig,   TQ_SIGNAL(clicked()), TQ_SLOT(appletConfig()));
     connect(m_appletSelector, TQ_SIGNAL(changed()), TQ_SLOT(changed()));
+    connect(m_appletSelector, TQ_SIGNAL(activeSelectionChanged()),
+                              TQ_SLOT(appletSelected()));
 
     VBOX_PAGE_PREPARE(tabApplets, false)
 
 #undef VBOX_PAGE_PREPARE
+#undef ICON
 
     // Final touches
     setButtons(Help|Apply);
@@ -170,8 +203,46 @@ SkoutConfig::SkoutConfig(TQWidget *parent, const char *name, const TQStringList 
     show();
 }
 
-void SkoutConfig::changed() {
+/// slot
+void SkoutConfig::appletSelected()
+{
+    AppletData applet;
+    if (m_appletSelector->selectedApplet(applet))
+    {
+        m_appletAbout->setEnabled(true);
+        m_appletConfig->setEnabled(applet.hasConfig);
+        changed();
+    }
+}
+
+/// slot
+void SkoutConfig::changed()
+{
     TDECModule::changed();
+}
+
+/// slot
+void SkoutConfig::appletAbout()
+{
+    AppletData applet;
+    if (m_appletSelector->selectedApplet(applet))
+    {
+        auto aboutDlg = new TDEAboutApplication(applet.about, this);
+        aboutDlg->exec();
+        delete aboutDlg;
+    }
+}
+
+/// slot
+void SkoutConfig::appletConfig()
+{
+    AppletData applet;
+    if (m_appletSelector->selectedApplet(applet) && applet.hasConfig)
+    {
+        auto configDlg = new SkoutAppletConfigDialog(this, applet);
+        configDlg->exec();
+        delete configDlg;
+    }
 }
 
 void SkoutConfig::load() {
@@ -194,7 +265,7 @@ void SkoutConfig::save() {
     SkoutSettings::setAutostart(m_autostart->isChecked());
     SkoutSettings::setReplaceKicker(m_replaceKicker->isChecked());
 
-    // General tab
+    // Appearance tab
     SkoutSettings::setPosition(m_grpPos->selectedId());
     SkoutSettings::setPanelWidth(m_width->value());
 
@@ -208,21 +279,25 @@ void SkoutConfig::save() {
             i18n("<qt>You have choosed to enable the Skout panel. Would you like to start it immediately?"
                  "<br><br>Note: even if you select 'No', Skout will be normally started the next time you log in.</qt>"));
 
-        if (result == KMessageBox::Yes) {
+        if (result == KMessageBox::Yes)
+        {
             startStopSkout(true);
         }
     }
-    else if (!m_autostart->isChecked() && skoutAlive()) {
+    else if (!m_autostart->isChecked() && skoutAlive())
+    {
         int result = KMessageBox::questionYesNo(this,
             i18n("<qt>You have choosed to disable the Skout panel. Would you like to stop it immediately?</qt>"));
 
-        if (result == KMessageBox::Yes) {
+        if (result == KMessageBox::Yes)
+        {
             startStopSkout(false);
         }
     }
 
     // Update applets
-    while (item) {
+    while (item)
+    {
         applets << static_cast<SkoutAppletItem *>(item)->data().id;
         item = item->next();
     }
@@ -235,34 +310,43 @@ void SkoutConfig::save() {
     skout.call("reconfigure()");
 }
 
-void SkoutConfig::loadApplets() {
+void SkoutConfig::loadApplets()
+{
     TQStringList active = SkoutSettings::applets();
     SkoutAppletDB *appletdb = SkoutAppletDB::instance();
     TQValueList<TQCString> applets = appletdb->applets();
     TQValueList<TQCString>::iterator it;
-    for (it = applets.begin(); it != applets.end(); ++it) {
+    for (it = applets.begin(); it != applets.end(); ++it)
+    {
         TQCString id((*it));
         AppletData &applet = (*appletdb)[id];
         int index;
-        if ((index = active.findIndex(id)) != -1) {
+        if ((index = active.findIndex(id)) != -1)
+        {
             m_appletSelector->insertActiveApplet(applet, index);
         }
-        else {
+        else
+        {
             m_appletSelector->insertApplet(applet);
         }
     }
 }
 
-void SkoutConfig::startStopSkout(bool enable) {
-    if (enable) {
-        if (SkoutSettings::replaceKicker()) {
+void SkoutConfig::startStopSkout(bool enable)
+{
+    if (enable)
+    {
+        if (SkoutSettings::replaceKicker())
+        {
             stop_kicker();
         }
         start_skout();
     }
-    else {
+    else
+    {
         stop_skout();
-        if (SkoutSettings::replaceKicker()) {
+        if (SkoutSettings::replaceKicker())
+        {
             start_kicker();
         }
     }
@@ -275,12 +359,16 @@ bool SkoutConfig::skoutAlive()
     return reply.isValid() && (bool)reply == true;
 }
 
-extern "C" {
-    TDE_EXPORT void init_skout() {
+extern "C"
+{
+    TDE_EXPORT void init_skout()
+    {
         SkoutSettings::instance("skoutrc");
 
-        if (SkoutSettings::autostart()) {
-            if (SkoutSettings::replaceKicker()) {
+        if (SkoutSettings::autostart())
+        {
+            if (SkoutSettings::replaceKicker())
+            {
                 stop_kicker();
             }
             start_skout();

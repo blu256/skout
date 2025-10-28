@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Pager
+Comment=A pager applet
+Type=SkoutApplet
+Icon=kpager
+Copyright=Copyright © 2025 Mavridis Philippe
+License=GPLv2
+
+X-TDE-Library=skoutapplet_pager

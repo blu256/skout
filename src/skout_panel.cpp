@@ -1,6 +1,6 @@
 /*******************************************************************************
-  Skout - a Be-style panel for TDE
-  Copyright (C) 2023 Mavridis Philippe <mavridisf@gmail.com>
+  Skout - a DeskBar-style panel for TDE
+  Copyright (C) 2023-2025 Mavridis Philippe <mavridisf@gmail.com>
 
   This program is free software: you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free Software
@@ -18,6 +18,7 @@
 
 // TQt
 #include <tqlayout.h>
+#include <tqobjectlist.h>
 
 // TDE
 #include <tdeapplication.h>
@@ -36,6 +37,12 @@
 #include "skout_menu_button.h"
 #include "skout_utils.h"
 #include "skoutsettings.h"
+#include <config.h>
+
+#ifdef WITH_KICKER_APPLETS
+# include "kickerSettings.h"
+# include "skout_kicker_applet.h"
+#endif
 
 // NetWM
 #include <netwm_def.h>
@@ -58,7 +65,9 @@ SkoutPanel::SkoutPanel()
     skoutPanel = this;
 
     setSizePolicy(TQSizePolicy::Fixed, TQSizePolicy::Fixed);
+    setFrameStyle(TQFrame::StyledPanel|TQFrame::Raised);
 
+    m_appletConfig = new TDEConfig("skoutappletrc");
     m_appletDB = SkoutAppletDB::instance();
     m_appletExt = SkoutAppletPanelExtension::instance();
     connect(m_appletExt, TQ_SIGNAL(popupRequest(TQString, TQString, TQString)),
@@ -66,10 +75,15 @@ SkoutPanel::SkoutPanel()
     connect(m_appletExt, TQ_SIGNAL(launchRequest(KService::Ptr, KURL::List)),
                          TQ_SLOT(launch(KService::Ptr, KURL::List)));
 
+#ifdef WITH_KICKER_APPLETS
+    KickerSettings::instance("kickerrc");
+#endif
+
     setWindowType();
 
     new TQVBoxLayout(this);
     layout()->setAutoAdd(false);
+    layout()->setMargin(1);
 
     w_menubtn = new SkoutMenuBtn(this);
     layout()->add(w_menubtn);
@@ -90,17 +104,35 @@ void SkoutPanel::showEvent(TQShowEvent *e) {
 void SkoutPanel::setPosition(PanelPosition pos, bool force) {
     m_pos = pos;
     m_forcePos = force;
-    if (isShown()) {
+    if (isShown())
+    {
         relayout();
     }
 }
 
-void SkoutPanel::reconfigure() {
+void SkoutPanel::reconfigure()
+{
     SkoutSettings::self()->readConfig();
-    relayout();
+    applySize();
+    TQTimer::singleShot(0, this, TQ_SLOT(relayout()));
 }
 
-TQPoint SkoutPanel::originPos() const {
+void SkoutPanel::reloadApplet(TQString appletId)
+{
+    if (appletId.isNull() || !m_appletDB) return;
+
+    AppletData applet = (*m_appletDB)[appletId];
+    if (!applet.valid()) return;
+
+    appletConfig()->reparseConfiguration();
+
+    unloadApplet(applet);
+    loadApplet(applet);
+    TQTimer::singleShot(0, this, TQ_SLOT(relayout()));
+}
+
+TQPoint SkoutPanel::originPos() const
+{
     TQRect desktop = TQApplication::desktop()->geometry();
     switch (position()) {
         case PanelPosition::TopLeft:
@@ -114,26 +146,31 @@ TQPoint SkoutPanel::originPos() const {
     }
 }
 
-void SkoutPanel::applyPosition() {
-    if (!m_forcePos) {
+void SkoutPanel::applyPosition()
+{
+    if (!m_forcePos)
+    {
         m_pos = (PanelPosition)SkoutSettings::position();
     }
     move(originPos());
     reserveStrut();
 }
 
-void SkoutPanel::applySize() {
+void SkoutPanel::applySize()
+{
     setFixedSize(SkoutSettings::panelWidth(), layout()->minimumSize().height());
     applyPosition();
 }
 
-void SkoutPanel::setWindowType() {
+void SkoutPanel::setWindowType()
+{
     KWin::setType(winId(), NET::Dock);
     KWin::setState(winId(), NET::Sticky);
     KWin::setOnAllDesktops(winId(), true);
 }
 
-void SkoutPanel::reserveStrut() {
+void SkoutPanel::reserveStrut()
+{
     NETExtendedStrut strut;
 
     switch (position()) {
@@ -187,11 +224,30 @@ bool SkoutPanel::loadApplet(AppletData &applet) {
         return false;
     }
 
-    void *init = lib->symbol("init");
-    SkoutApplet *(*c)(SkoutPanel *) = (SkoutApplet *(*)(SkoutPanel *))init;
-    applet.ptr = c(this);
-    if (!applet.ptr->valid()) {
-        TQString error(applet.ptr->lastErrorMessage());
+#ifdef WITH_KICKER_APPLETS
+    if (applet.isKickerApplet)
+    {
+        unloadApplet(applet);
+        applet.ptr = new SkoutKickerApplet(this, applet);
+    }
+    else
+#endif
+    {
+        void *init = lib->symbol("init");
+        SkoutApplet *(*c)(SkoutPanel *, TDEConfig *) =
+            (SkoutApplet *(*)(SkoutPanel *, TDEConfig *))init;
+        applet.ptr = c(this, appletConfig());
+    }
+
+    if (!applet.ptr || !applet.ptr->valid())
+    {
+        kdDebug() << "bad applet" << endl;
+
+        TQString error = i18n("Unknown error");
+        if (applet.ptr)
+        {
+            error = applet.ptr->lastErrorMessage();
+        }
 
         popup("error", i18n("Unable to load \"%1\" applet!").arg(applet.name),
                        i18n(ERR_CHK_INSTALLATION).arg(error));
@@ -239,13 +295,13 @@ void SkoutPanel::relayout() {
     TQStringList::Iterator it;
     for (it = applets.begin(); it != applets.end(); ++it) {
         AppletData &applet = (*m_appletDB)[(*it)];
-        layout()->remove(applet.ptr);
+        if (applet.ptr)
+        {
+            layout()->remove(applet.ptr);
+        }
         addApplet(applet);
     }
-    applySize();
 }
-
-
 
 void SkoutPanel::popup(TQString icon, TQString caption, TQString message) {
     KPassivePopup::message(caption, message, SmallIcon(icon), this);
@@ -259,7 +315,7 @@ bool SkoutPanel::launch(KService::Ptr service, KURL::List urls) {
     args.pop_front();
 
     TQString error;
-    if (0 != kapp->tdeinitExec(app, args, &error)) {
+    if (0 != tdeApp->tdeinitExec(app, args, &error)) {
         popup("error", i18n("Unable to launch %1!").arg(service->name()),
                        i18n(ERR_CHK_INSTALLATION).arg(error));
         return false;

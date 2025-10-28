@@ -1,0 +1,655 @@
+<?xml version="1.0" ?>
+<!DOCTYPE book PUBLIC "-//KDE//DTD DocBook XML V4.2-Based Variant V1.1//EN"
+"dtd/kdex.dtd" [
+  <!ENTITY skout "<application>Skout</application>">
+  <!ENTITY kappname "&skout;">
+  <!ENTITY % addindex "IGNORE">
+  <!ENTITY % English "INCLUDE">
+]>
+
+<book lang="&language;">
+
+<bookinfo>
+<title>The &skout; Handbook</title>
+
+<authorgroup>
+<author>
+<firstname>Philippe</firstname>
+<surname>Mavridis</surname>
+<address><email>mavridisf@gmail.com</email></address>
+</author>
+
+<!-- TRANS:ROLES_OF_TRANSLATORS -->
+
+</authorgroup>
+
+<copyright>
+<year>2024</year>
+<year>2025</year>
+<holder>Philippe Mavridis</holder>
+</copyright>
+
+<legalnotice>&FDLNotice;</legalnotice>
+
+<date>2025-02-08</date>
+<releaseinfo>1.0.0</releaseinfo>
+
+<abstract>
+<para>
+&skout; is a &tde; desktop panel which follows the philosophy of the BeOS Deskbar.
+</para>
+</abstract>
+
+<keywordset>
+<keyword>Skout</keyword>
+<keyword>Kicker</keyword>
+<keyword>panel</keyword>
+<keyword>BeOS</keyword>
+<keyword>Haiku</keyword>
+<keyword>Deskbar</keyword>
+<keyword>menu</keyword>
+<keyword>taskbar</keyword>
+<keyword>tray</keyword>
+<keyword>applet</keyword>
+</keywordset>
+
+</bookinfo>
+
+<chapter id="introduction">
+<title>Introduction</title>
+
+<para>
+&skout; is a desktop panel for the Trinity Desktop Environment inspired by the BeOS Deskbar.
+</para>
+
+<para>
+Its function is essentially similar to the standard Kicker panel which comes with &tde; by default, but it is meant to be a more powerful alternative oriented towards power users, BeOS/Haiku enthusiasts and fans of vertical panels.
+</para>
+
+<para>
+The panel comes with its own set of applets and is not currently compatible with Kicker applets (compatibility is planned in a later version). The current version comes with the following applets:
+</para>
+
+<itemizedlist>
+<listitem><para>System tray</para></listitem>
+<listitem><para>Task manager</para></listitem>
+<listitem><para>Calendar</para></listitem>
+</itemizedlist>
+
+<para>
+To enable &skout;, go to the <menuchoice><guimenu>Appearance &amp; Themes</guimenu> <guisubmenu>&skout;</guisubmenu></menuchoice> section of &kcontrolcenter; and select <guilabel>Start Skout automatically on startup</guilabel>. If you want &skout; to replace the &kicker; panel, also select <guilabel>Replace Kicker panel</guilabel>. Please refer to the <link
+linkend="config">Configuration module</link> section to learn more about the available options.
+</para>
+
+</chapter>
+
+<chapter id="skout-panel">
+<title>The &skout; panel</title>
+
+<para>
+The Skout panel by default resides in the top right corner of the screen and contains the menu button and some applets, such as the system tray and the task manager.
+</para>
+
+<sect1 id="skout-menu">
+<title>&skout; menu</title>
+
+<para>
+The &skout; menu button is the topmost widget in the &skout; panel. It's not actually an applet, but a fixed element of the layout.
+</para>
+
+<para>
+Clicking on the menu button brings up the menu. Here you will find all your applications, as well as bookmarks, settings, recent documents and session management options.
+</para>
+
+<para>
+You can use either the mouse or the keyboard to navigate through the menu entries. The latter is achieved using <keycap>Tab</keycap> and <keycombo action="simul">&Shift;<keycap>Tab</keycap></keycombo> to go through the entries and <keycap>Enter</keycap> to select the needed entry. <keycap>Escape</keycap> closes the currently open (sub)menu.
+</para>
+
+<sect2 id="skout-menu-search">
+<title>Searching</title>
+<para>
+If you start typing on the keyboard, you will notice that a small search box appears at the bottom of the menu with the phrase that you have typed. You will also notice that menu items which don't match the search terms are disabled. This is a quick way to find the menu entry that you are looking for.
+</para>
+
+<para>
+Pressing <keycap>Tab</keycap> initially focuses on the first matching entry and then cycles through the entries which match the search phrase. Alternatively, pressing <keycombo action="simul">&Shift;<keycap>Tab</keycap></keycombo> cycles through the entries in reverse order.
+</para>
+
+<para>
+<keycap>Enter</keycap> activates the currently selected entry (or the first matching entry if no entry has been selected yet). If it is an application, it is launched. Alternatively, if it is a submenu, it is shown.
+</para>
+
+<para>
+By pressing <keycap>Escape</keycap> you can cancel the current search. This clears and hides the search box and restores all menu entries to their default enabled state.
+</para>
+
+</sect2>
+
+<sect2 id="skout-menu-context-menu">
+<title>The context menu</title>
+<para>
+Clicking the &RMB; on the menu button brings up the &skout; context menu, which contains some useful actions.
+</para>
+
+<variablelist>
+
+<varlistentry>
+<term><guimenuitem>Edit menu</guimenuitem></term>
+<listitem>
+<para>
+Opens the &tde; menu editor, allowing you to edit the items in the menu. Changes made here also apply to the &kicker; panel.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><guimenuitem>&skout; Preferences</guimenuitem></term>
+<listitem>
+<para>
+Opens the &skout; configuration module. Consult the <link
+linkend="config">Configuration module</link> section to learn more about it.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><guimenuitem>Help</guimenuitem></term>
+<listitem>
+<para>
+This is a standard Help submenu which contains the following items:
+
+<variablelist>
+
+<varlistentry>
+<term><guimenuitem>&skout; Handbook</guimenuitem></term>
+<listitem>
+<para>
+Opens the &skout; handbook in &khelpcenter; (you're reading it).
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><guimenuitem>What's this?</guimenuitem></term>
+<listitem>
+<para>
+The standard &tde; "What's This?" feature, which allows you to click on a widget to get an informative tooltip describing its functionality.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><guimenuitem>Report Bug/Request Enhancement</guimenuitem></term>
+<listitem>
+<para>
+Currently unused.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><guimenuitem>Change application language...</guimenuitem></term>
+<listitem>
+<para>
+Opens a dialog allowing you to change the language of the application independently of the system locale.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><guimenuitem>About &skout;</guimenuitem></term>
+<listitem>
+<para>
+Opens an about dialog with information about this program.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><guimenuitem>About &tde;</guimenuitem></term>
+<listitem>
+<para>
+Opens an about dialog with information about the amazing Trinity Desktop Environment.
+</para>
+</listitem>
+</varlistentry>
+
+</variablelist>
+</para>
+</listitem>
+</varlistentry>
+
+</variablelist>
+
+</sect2>
+
+</sect1>
+
+</chapter>
+
+
+<chapter id="config">
+<title>Configuration module</title>
+
+<para>
+The &skout; configuration module can be invoked either from &kcontrolcenter; or from the context menu of the &skout; menu button. It provides settings for the &skout; panel as well as applet configuration.
+</para>
+
+<sect1 id="config-general">
+<title>General tab</title>
+
+<para>
+Here you can find some general settings affecting &skout;.
+</para>
+
+<variablelist>
+
+<varlistentry>
+<term>Start &skout; automatically on startup</term>
+<listitem>
+<para>
+Whether &skout; should automatically start when the user session starts. If checked, &skout; will autostart itself when you log in. By default it won't replace &kicker;, the &tde; panel; see the next option for this.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term>Replace &kicker; panel</term>
+<listitem>
+<para>
+Whether &skout; should replace &kicker;, the &tde; panel, when it starts.
+</para>
+</listitem>
+</varlistentry>
+
+</variablelist>
+
+</sect1>
+
+<sect1 id="config-look">
+<title>Appearance tab</title>
+
+<para>
+Some settings which affect the geometry of the panel.
+</para>
+
+<variablelist>
+
+<varlistentry>
+<term>Panel position</term>
+<listitem>
+<para>
+Which corner of the screen &skout; will attach itself to; at present top right (default) and top left are available.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term>Panel width</term>
+<listitem>
+<para>
+How wide in pixels should the panel be.
+</para>
+</listitem>
+</varlistentry>
+
+</variablelist>
+
+</sect1>
+
+<sect1 id="config-applets">
+<title>Applets tab</title>
+
+<para>
+Here you can add, remove, rearrange and configure the panel applets.
+</para>
+
+<para>
+On the left you can see a list of available applets. On the right is the selected applets list which makes up the current panel layout. You can use the <guibutton>up</guibutton> and <guibutton>down</guibutton> buttons right to the selected applets list to change the applet order. To add or remove applets you can use the <guibutton>left</guibutton> and <guibutton>right</guibutton> buttons left to the selected applets list or you can double-click on an applet to send it to the other list.
+</para>
+
+<para>
+To learn more about an applet, select it and press the <guibutton>About</guibutton> button at the right.
+</para>
+
+<para>
+To configure an applet, select it and press the <guibutton>Preferences</guibutton> button at the right. Preferences are not available for all applets.
+</para>
+
+<variablelist>
+
+<varlistentry>
+<term>Panel position</term>
+<listitem>
+<para>
+Which corner of the screen &skout; will attach itself to; at present top right (default) and top left are available.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term>Panel width</term>
+<listitem>
+<para>
+How wide in pixels should the panel be.
+</para>
+</listitem>
+</varlistentry>
+
+</variablelist>
+
+</sect1>
+
+</chapter>
+
+<chapter id="applets">
+<title>Applets</title>
+
+<para>
+</para>
+
+<sect1 id="systray">
+<title>System tray</title>
+
+<para>
+The system tray applet provides a notification area for resident applications, for easy access to often used functionality.
+</para>
+
+<para>
+The tray arranges the icons in a grid. Any application can place an icon in the system tray (even multiple icons), but there can be only one system tray per session. This might cause conflicts with other panels (e.g. &kicker;) or standalone system tray applications, which will try to claim the system tray role for themselves.
+</para>
+
+<para>
+Optionally, the system tray applet can contain a "status widget". The status widget is a small bar above the system tray which provides a clock, a CPU usage graph and a memory usage graph. You can enable the status widget via the applet preferences (see below).
+</para>
+
+<sect2 id="systray-config">
+<title>Preferences</title>
+
+<variablelist>
+
+<varlistentry>
+<term>Enable status widget</term>
+<listitem>
+<para>
+Whether to show the status widget above the system tray. See above for a description of what the status widget is.
+</para>
+</listitem>
+</varlistentry>
+
+</variablelist>
+
+</sect2>
+
+</sect1>
+
+<sect1 id="taskman">
+<title>Task manager</title>
+
+<para>
+The task manager is a powerful applet which displays the currently running applications and their windows and allows to perform different kinds of window operations.
+</para>
+
+<para>
+The applet looks like a list of windows grouped by application. It consists of two basic GUI elements:
+
+<variablelist>
+
+<varlistentry>
+<term>Grouper</term>
+<listitem>
+<para>
+A grouper is the "header" of a window group. It contains the application name and icon. A grouper allows mass operations on open windows and groupers can be pinned to the panel.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term>Task</term>
+<listitem>
+<para>
+A task is basically an open window. Individual window operations can be performed on it.
+</para>
+</listitem>
+</varlistentry>
+
+</variablelist>
+
+Operations on groupers and tasks can be invoked either via the context menu or by a combination of mouse and keyboard actions.
+
+</para>
+
+<sect2 id="taskman-grouper">
+<title>Groupers</title>
+
+<sect3 id="taskman-expand">
+<title>Collapsing and expanding</title>
+
+<para>
+A grouper can be expanded or collapsed according to users' will. An expanded grouper displays the tasks of an application; a collapsed grouper shows only the grouper itself. Clicking on a collapsed grouper expands it and clicking on an expanded grouper collapses it.
+</para>
+
+<para>
+By default the grouper state is reset between sessions to the default state, which is expanded groupers. These defaults can be configured via the <link linkend="taskman-config">applet preferences</link>.
+</para>
+
+<para>
+You can manually save a grouper's current state by clicking the &RMB; menu on it and selecting <menuchoice><guimenu>Grouper options</guimenu> <guisubmenu>Auto-expand this application</guisubmenu></menuchoice> (for expanded groupers) or <menuchoice><guimenu>Grouper options</guimenu> <guisubmenu>Don't auto-expand this application</guisubmenu></menuchoice> (for collapsed groupers). If the relevant option is already enabled you will see a checkbox next to the menu item indicating that the option is on.
+</para>
+
+</sect3>
+
+<sect3 id="taskman-pin">
+<title>Pinning applications</title>
+
+<para>
+A grouper can be permanently pinned to the panel. When a grouper is pinned, it does not disappear when the application has no open windows. Instead, it is always present in the task manager, allowing users to easily and conveniently launch the application when needed. Pinned application groupers are always shown above ordinary groupers.
+</para>
+
+<para>
+To pin or unpin a grouper click the &RMB; on the grouper and select <guimenuitem>Pin application</guimenuitem> or <guimenuitem>Unpin application</guimenuitem> (the item you will see depends on whether the current application is already pinned to the taskbar).
+</para>
+
+<para>
+If you don't see an option to pin the current application, then &skout; was unable to find the application launcher. Ensure that the application is properly installed or try filing a bug either to its developer or the author of &skout; (see the <link
+linkend="bugs">Reporting bugs</link> section).
+</para>
+
+</sect3>
+
+<sect3 id="taskman-grouper-ops">
+<title>Mass window operations</title>
+
+<para>
+Thanks to groupers you can perform some window operations on all the windows of an application at once.
+</para>
+
+<para>
+To minimize (iconify) all the windows of an application at once you can click the &RMB; and select <guimenuitem>Minimize all</guimenuitem> from the context menu; alternatively, just press the &MMB; on the grouper.
+</para>
+
+<para>
+To close all the windows of an application at once you can click the &RMB; and select <guimenuitem>Close all</guimenuitem> from the context menu; alternatively, hold <keycombo action="simul">&Ctrl;&Alt;</keycombo> and click on the grouper. A confirmation window will then appear to prevent accidental triggering of this action.
+</para>
+
+</sect3>
+
+<sect3 id="taskman-grouper-prefs">
+<title>Properties</title>
+
+<para>
+You can customize the grouper as if it was an ordinary launcher. Click the &RMB; and select <guimenuitem>Properties</guimenuitem> from the context menu. A standard properties dialog appears where you can modify launcher variables such as icon, application name, command, etc. Changes to the launcher are applied immediately after the dialog is closed and affect the grouper; tasks are mostly unaffected by these changes.
+</para>
+
+<para>
+If you don't see a <guimenuitem>Properties</guimenuitem> item in the menu, then &skout; was unable to find the launcher associated with the application. Ensure that the application is properly installed or try filing a bug either to its developer or the author of &skout; (see the <link
+linkend="bugs">Reporting bugs</link> section).
+</para>
+
+</sect3>
+
+</sect2>
+
+<sect2 id="taskman-task">
+<title>Tasks</title>
+
+<sect3 id="taskman-task-ops">
+<title>Task operations</title>
+
+<para>
+Window operations can also be performed on a per-window basis.
+</para>
+
+<para>
+To minimize (iconify) a window click the &RMB; on its task and select <guimenuitem>Minimize</guimenuitem> from the context menu; alternatively, press the &MMB; on the task. Performing these actions a second time restores the window to its former geometry.
+</para>
+
+<para>
+To maximize a window click the &RMB; on its task and select <guimenuitem>Maximize</guimenuitem> from the context menu. Selecting this option a second time restores the window to its former geometry.
+</para>
+
+<para>
+To close a window click the &RMB; on its task and select <guimenuitem>Close</guimenuitem> from the context menu; alternatively, hold <keycombo action="simul">&Ctrl;&Alt;</keycombo> and click on the grouper. No confirmation is needed for this action.
+</para>
+
+<para>
+To make a window stay on top click the &RMB; on its task and select <guimenuitem>Stays on top</guimenuitem> from the context menu. To make it stay on bottom instead select <guimenuitem>Stays on bottom</guimenuitem>. The two options cancel each other out. Selecting one of those options a second time disables them.
+</para>
+
+<para>
+To make a window go fullscreen click the &RMB; on its task and select <guimenuitem>Fullscreen</guimenuitem> from the context menu. Use the means provided by the application or &twin; to exit fullscreen mode.
+</para>
+
+<para>
+You can hide a window to the system tray by pressing &RMB; on its task and selecting <guimenuitem>Hide to system tray</guimenuitem> from the context menu. Windows sent to the system tray disappear from the task manager. Such windows are represented by the window icon and can be toggled by clicking on them. Some additional actions are available in the context menu of its system tray icon. Under the hood this feature relies on KSysTrayCmd.
+</para>
+
+</sect3>
+
+</sect2>
+
+<sect2 id="taskman-config">
+<title>Preferences</title>
+
+<sect3 id="taskman-config-behaviour">
+<title>Behaviour tab</title>
+
+<variablelist>
+
+<varlistentry>
+<term>Expand groupers by default</term>
+<listitem>
+<para>
+If this option is checked, groupers that don't have a preference set will be expanded automatically (default). Otherwise they will be shown in a collapsed state.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term>Automatically save grouper states</term>
+<listitem>
+<para>
+If this option is checked, expanding or collapsing a grouper automatically saves the current state as the preferred for this grouper. Use this option if you want &skout; to remember grouper states across sessions. Beware that the config file might grow big depending on how many different applications &skout; will ever see.
+</para>
+</listitem>
+</varlistentry>
+
+</variablelist>
+
+</sect3>
+
+<sect3 id="taskman-config-appearance">
+<title>Appearance tab</title>
+
+<variablelist>
+
+<varlistentry>
+<term>Use big icons in groupers</term>
+<listitem>
+<para>
+If checked, groupers will use slightly bigger application icons in relation to tasks, making them stand out a little more.
+</para>
+</listitem>
+</varlistentry>
+
+</variablelist>
+
+</sect3>
+
+</sect2>
+
+</sect1>
+
+<sect1 id="calendar">
+<title>Calendar</title>
+
+<para>The calendar applet is a simple calendar which doesn't to much. It embeds a standard &tde; calendar widget into &skout;.</para>
+
+<para>You can click on a day to select it. The currently selected day will be highlighed. Today is always marked with a box even when you select another day.</para>
+
+<para>Clicking on days of the past month (marked with gray) jumps to the previous month. Clicking on days of the next month (also marked with gray) jumps to the next month.</para>
+
+<tip>
+<title>Info for developers</title>
+<para>Calendar is the simplest example of a &skout; applet, comprehensively documented through comments.</para>
+</tip>
+
+</sect1>
+
+</chapter>
+
+<chapter id="advanced">
+<title>Advanced topics</title>
+
+<para>Information in this section is generally meant for power users and developers.</para>
+
+<sect1 id="files">
+<title>Configuration files</title>
+
+<para>The main &skout; configuration is stored in the <filename>$TDEHOME/share/config/skoutrc</filename> file.</para>
+
+<para>Applet configuration is generally stored in <filename>$TDEHOME/share/config/skoutappletrc</filename>.</para>
+
+</sect1>
+
+<sect1 id="applet-dev">
+<title>Developing applets</title>
+
+<para>This section is a work in progress, sorry for the inconvenience.</para>
+
+<para>
+Meanwhile, please refer to the source code of the Calendar applet, a commented, well-documented example of an applet which exists in the source tree under the <filename>src/applets/calendar</filename> path.
+</para>
+
+<para>
+In general you need to subclass the SkoutApplet class, export some C functions and install a .desktop file in order to make your applet usable by &skout;, much like you would develop a Kicker applet or an ordinary plugin under &tde;.
+</para>
+
+<para>If you have any questions, feel free to contact the author.</para>
+
+</sect1>
+
+</chapter>
+
+<chapter id="bugs">
+<title>Reporting bugs</title>
+
+<para>Please direct any questions and report any problems with &skout; or its documentation to its author.</para>
+
+</chapter>
+
+<chapter id="credits">
+<title>Credits and License</title>
+
+<para>Program and documentation copyright 2024, 2025 Philippe Mavridis <email>mavridisf@gmail.com</email></para>
+
+<!-- TRANS:CREDIT_FOR_TRANSLATORS -->
+
+&underFDL;               <!-- FDL: do not remove -->
+&underGPL;               <!-- FDL: do not remove -->
+
+</chapter>
+
+&documentation.index;
+
+</book>

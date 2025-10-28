@@ -1,6 +1,6 @@
 /*******************************************************************************
-  Skout - a Be-style panel for TDE
-  Copyright (C) 2023 Mavridis Philippe <mavridisf@gmail.com>
+  Skout - a DeskBar-style panel for TDE
+  Copyright (C) 2023-2025 Mavridis Philippe <mavridisf@gmail.com>
 
   This program is free software: you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free Software
@@ -34,7 +34,7 @@ class SkoutCalendar : public SkoutApplet {
   TQ_OBJECT
 
   public:
-    SkoutCalendar(SkoutPanel *panel); // constructor
+    SkoutCalendar(SkoutPanel *panel, TDEConfig *cfg); // constructor
     ~SkoutCalendar(); // destructor
 
     // This function tells Skout whether the applet has been initialized
@@ -46,6 +46,11 @@ class SkoutCalendar : public SkoutApplet {
     // This function is called to get an error message if initialization of this
     // applet has failed (that is, valid() has returned false).
     TQString lastErrorMessage() { return TQString::null; }
+
+    // This function is called when the configuration options of the applet
+    // have changed. Since this applet has none, we will leave this out.
+    // Configuration is currently beyond the scope of this example.
+    // void reconfigure();
 
     // This is an implementation detail of the example and is not part of the
     // mandatory basic structure.

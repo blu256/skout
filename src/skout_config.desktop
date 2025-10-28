@@ -9,7 +9,7 @@ X-TDE-Init=skout
 X-TDE-ParentApp=kcontrol
 
 Name=Skout
-Comment=Skout configuration (Be-style panel)
+Comment=Skout configuration (BeOS-style panel)
 
 Keywords=panel;kicker;skout
 

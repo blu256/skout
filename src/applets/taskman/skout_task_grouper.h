@@ -1,6 +1,6 @@
 /*******************************************************************************
-  Skout - a Be-style panel for TDE
-  Copyright (C) 2023 Mavridis Philippe <mavridisf@gmail.com>
+  Skout - a DeskBar-style panel for TDE
+  Copyright (C) 2023-2025 Mavridis Philippe <mavridisf@gmail.com>
 
   This program is free software: you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free Software
@@ -23,29 +23,38 @@
 #include "skout_task_button.h"
 
 class SkoutTaskContainer;
+class SkoutTaskMan;
 
 class SkoutTaskGrouper : public SkoutTaskButton {
   TQ_OBJECT
 
   public:
-    SkoutTaskGrouper(SkoutTaskContainer *parent, TQString name);
+    SkoutTaskGrouper(SkoutTaskContainer *parent, TDEConfig *cfg, TQString name);
     ~SkoutTaskGrouper();
 
     TQString name();
     TQPixmap icon();
 
     bool expanded() { return m_expanded; }
+    void setExpanded(bool expanded, bool dontSave = false);
+
+    bool autoExpand();
+    void setAutoExpand(bool autoExpand);
 
     static void updateStaticPixmaps();
 
     bool pinnable();
     bool pinned() { return m_pinned; }
 
+    SkoutTaskMan *manager() const;
+
   public slots:
-    void setExpanded(bool show);
     void pin();
     void unpin();
     void showPropertiesDialog();
+    void saveState();
+    void loadState();
+    void toggleAutoExpand();
 
   protected:
     TQFont font();
@@ -56,6 +65,7 @@ class SkoutTaskGrouper : public SkoutTaskButton {
     void mouseDoubleClickEvent(TQMouseEvent *);
 
   private:
+    TDEConfig *m_config;
     bool m_expanded;
     bool m_pinned;
 

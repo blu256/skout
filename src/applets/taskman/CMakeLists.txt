@@ -25,6 +25,7 @@ tde_add_kpart(
 
   SOURCES
     skout_task_manager.cpp
+    skout_task_manager_cfg.cpp
     skout_task_container.cpp
     skout_task_button.cpp
     skout_task_grouper.cpp

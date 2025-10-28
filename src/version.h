@@ -1,6 +1,6 @@
 /*******************************************************************************
-  Skout - a Be-style panel for TDE
-  Copyright (C) 2023 Mavridis Philippe <mavridisf@gmail.com>
+  Skout - a DeskBar-style panel for TDE
+  Copyright (C) 2023-2025 Mavridis Philippe <mavridisf@gmail.com>
 
   This program is free software: you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free Software
@@ -19,7 +19,9 @@
 #ifndef _VERSION_H
 #define _VERSION_H
 
-static const char version[] = "0.0.1";
-static const char* copyright = "Copyright © 2023 Mavridis Philippe";
+namespace skout {
+    static const char version[] = "1.0";
+	static const char* copyright = "Copyright © 2023-25 Philippe Mavridis";
+};
 
 #endif // _VERSION_H

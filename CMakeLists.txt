@@ -27,7 +27,9 @@ include( TDESetupPaths )
 tde_setup_paths( )
 
 ### Optional support ###########################################################
-# option( WITH_ALL_OPTIONS      "Enable all optional support" OFF )
+option( WITH_ALL_OPTIONS    "Enable all optional support"                  OFF )
+option( WITH_XCOMPOSITE     "Enable XComposite extension support"          ${WITH_ALL_OPTIONS} )
+option( WITH_KICKER_APPLETS "Enable Kicker applets support (EXPERIMENTAL)" ${WITH_ALL_OPTIONS} )
 
 ### Modules to build ###########################################################
 option( BUILD_ALL               "Build all"                   ON )

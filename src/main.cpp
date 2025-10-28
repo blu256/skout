@@ -1,6 +1,6 @@
 /*******************************************************************************
-  Skout - a Be-style panel for TDE
-  Copyright (C) 2023 Mavridis Philippe <mavridisf@gmail.com>
+  Skout - a DeskBar-style panel for TDE
+  Copyright (C) 2023-2025 Mavridis Philippe <mavridisf@gmail.com>
 
   This program is free software: you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free Software
@@ -30,7 +30,7 @@
 #include "skout_panel.h" // PanelPosition
 #include "version.h"
 
-static const char description[] = I18N_NOOP("A Be-style panel for TDE");
+static const char description[] = I18N_NOOP("a DeskBar-style panel for TDE");
 
 static TDECmdLineOptions options[] = {
     {"topright", I18N_NOOP("Place panel in the top right corner (default)"), 0},
@@ -39,15 +39,15 @@ static TDECmdLineOptions options[] = {
 };
 
 int main(int argc, char **argv) {
-    TDEAboutData about("skout", I18N_NOOP("Skout"), version, description,
-                       TDEAboutData::License_GPL_V3, copyright,
-                       I18N_NOOP("Skout is a Be-style panel for TDE"));
+    TDEAboutData about("skout", I18N_NOOP("Skout"), skout::version, description,
+                       TDEAboutData::License_GPL_V3, skout::copyright,
+                       I18N_NOOP("Skout is a DeskBar-style panel for TDE"));
 
     TDECmdLineArgs::init(argc, argv, &about);
     TDECmdLineArgs::addCmdLineOptions(options);
 
-    KUniqueApplication::addCmdLineOptions();
-    if (!KUniqueApplication::start()) {
+    TDEUniqueApplication::addCmdLineOptions();
+    if (!TDEUniqueApplication::start()) {
         fprintf(stderr, "Skout is already running!\n");
         exit(0);
     }

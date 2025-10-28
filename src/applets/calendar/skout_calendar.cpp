@@ -1,6 +1,6 @@
 /*******************************************************************************
-  Skout - a Be-style panel for TDE
-  Copyright (C) 2023 Mavridis Philippe <mavridisf@gmail.com>
+  Skout - a DeskBar-style panel for TDE
+  Copyright (C) 2023-2025 Mavridis Philippe <mavridisf@gmail.com>
 
   This program is free software: you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free Software
@@ -31,29 +31,36 @@
 
 // Skout
 #include "skout_calendar.h" // SkoutCalendar class
-#include "skout_utils.h" // ZAP(...)
 
-extern "C" {
+extern "C"
+{
     // Here we export the applet constructor so that Skout can understand it.
-    // Notice that the function accepts a SkoutPanel* argument, which it then
-    // passes on to the constructor below - this argument is mandatory.
-    TDE_EXPORT SkoutApplet *init(SkoutPanel *parent) {
-        return new SkoutCalendar(parent);
+    // Notice that the function accepts a SkoutPanel* and a TDEConfig* argument,
+    // which it then passes on to the constructor below - these two arguments
+    // are mandatory.
+    // The cfg argument is a pointer to the configuration file which stores
+    // Skout applet settings. It is shared among multiple applets, so when
+    // store your settings always in a separate group named after your applet
+    // to avoid clashes. Configuration is beyond the scope of this example,
+    // please see the source code of the other applets for that.
+    TDE_EXPORT SkoutApplet *init(SkoutPanel *parent, TDEConfig *cfg)
+    {
+        return new SkoutCalendar(parent, cfg);
     }
 }
 
 // The applet constructor. You have to inherit from SkoutApplet. Notice the
-// SkoutPanel* argument we saw below - here we pass it on to the constructor of
+// two arguments we saw above - here we pass them on to the constructor of
 // SkoutApplet, along with an optional (but recommended) const char *name.
 // SkoutApplet is defined in the skout_applet.h header, which is by default
 // installed in your TDE include directory.
-SkoutCalendar::SkoutCalendar(SkoutPanel *parent)
-  : SkoutApplet(parent, "SkoutCalendar")
+SkoutCalendar::SkoutCalendar(SkoutPanel *parent, TDEConfig *cfg)
+  : SkoutApplet(parent, cfg, "SkoutCalendar")
 {
     // SkoutApplet is essentially a TQFrame
     setFrameStyle(TQFrame::StyledPanel | TQFrame::Sunken);
 
-    // Purely aesthetic ;-)
+    // Purely aesthetic
     setFixedHeight(TQFontMetrics(TDEGlobalSettings::generalFont()).height() * 7);
 
     // SkoutApplet has no layout by default, here we create one.
@@ -79,13 +86,11 @@ SkoutCalendar::SkoutCalendar(SkoutPanel *parent)
     // right.
 }
 
-// The applet destructor. You can delete unneeded stuff here. You can use the
-// ZAP(...) macro to quickly delete the object pointed to by a pointer and set
-// its value to nullptr. This macro is part of skout_utils.h, which does NOT get
-// installed on your system. If you want to package an applet separate from the
-// main source tree, keep that in mind.
-SkoutCalendar::~SkoutCalendar() {
-    ZAP(m_calendar);
+// The applet destructor.
+SkoutCalendar::~SkoutCalendar()
+{
+    delete m_calendar;
+    m_calendar = nullptr;
 }
 
 // Don't forget to include this or your build will probably fail.

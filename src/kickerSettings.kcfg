@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+      http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
+
+<include>tdeapplication.h</include>
+<include>tdelocale.h</include>
+<kcfgfile arg="true" />
+
+<group name="General">
+
+<entry name="Locked" type="Bool" >
+      <label>When this option is enabled, the panels may not be moved and items cannot be removed or added</label>
+      <default>false</default>
+   </entry>
+
+<entry name="ConserveSpace" type="Bool" >
+      <label>Enable conserve space</label>
+      <default>true</default>
+   </entry>
+
+<entry name="Transparent" type="Bool" >
+      <label>Enable transparency</label>
+      <whatsthis>When this option is enabled, the panel will become pseudo-transparent</whatsthis>
+      <default>false</default>
+   </entry>
+
+<entry name="UseResizeHandle" type="Bool" >
+      <label>Enable resize handles</label>
+      <whatsthis>When this option is enabled, the panel will provide a resize handle on order to change its width via click-and-drag</whatsthis>
+      <default>false</default>
+   </entry>
+
+<entry name="ShowDeepButtons" type="Bool" >
+     <label>Make the task buttons push further into the screen when activated</label>
+     <default>false</default>
+   </entry>
+
+<entry name="MenubarPanelTransparent" type="Bool" >
+      <label>Enable transparency for menubar panel</label>
+      <whatsthis>When this option is enabled, the panel containing the menubar will become pseudo-transparent as well</whatsthis>
+      <default>false</default>
+   </entry>
+
+<entry name="MenubarPanelBlurred" type="Bool" >
+      <label>Enable blurring for menubar panel</label>
+      <whatsthis>When this option is enabled, the panel containing the menubar will blur pseudo-transparent image</whatsthis>
+      <default>false</default>
+   </entry>
+
+<entry name="UseBackgroundTheme" type="Bool" >
+      <label>Enable background image</label>
+      <whatsthis>When this option is enabled, the panel will display a tiled image as its background</whatsthis>
+      <default>true</default>
+   </entry>
+
+<entry name="ColorizeBackground" type="Bool" >
+      <label>Enable colourized background.</label>
+      <default>false</default>
+   </entry>
+
+<entry name="RotateBackground" type="Bool" >
+      <label>Rotate background</label>
+      <whatsthis>When this option is enabled, when the panel is placed on the side or top edges of the screen, the background image will be rotated to match the panel's orientation</whatsthis>
+      <default>true</default>
+   </entry>
+
+<entry name="BackgroundTheme" type="Path" >
+      <label>Background image</label>
+      <whatsthis>Here you can choose an image to be displayed on the panel. Press the 'browse' button to choose a theme using the file dialog. This option is only effective if 'Enable background image' is selected</whatsthis>
+      <default>wallpapers/default.png</default>
+   </entry>
+
+<entry name="TintValue" type="Int" >
+      <label>Controls the saturation level of the tint color used with transparent panels</label>
+      <default>33</default>
+      <min>0</min>
+      <max>100</max>
+   </entry>
+
+<entry name="TintColor" type="Color" >
+      <label>The tint color used to colorize transparent panels</label>
+      <default code="true">(TQApplication::palette().active().mid())</default>
+      <whatsthis>This option sets the color to use when tinting transparent panels</whatsthis>
+   </entry>
+
+<entry name="UnhideLocation" type="Int">
+      <label>Raise when the pointer touches the screen here</label>
+      <default>0</default>
+    </entry>
+
+<entry name="FadeOutAppletHandles" type="Bool">
+      <label>Fade out applet handles</label>
+      <default>true</default>
+      <whatsthis>Select this option to make applet handles only visible on mouse hover. Applet handles let you move, remove and configure applets.</whatsthis>
+   </entry>
+
+<entry name="HideAppletHandles" type="Bool">
+      <label>Hide applet handles</label>
+      <default>false</default>
+      <whatsthis>Select this option to always hide the applet handles. Beware this could disable moving, removing or configuring some applets.</whatsthis>
+   </entry>
+
+<entry name="ShowToolTips" type="Bool" >
+      <label>Show informational tooltips</label>
+      <default>true</default>
+   </entry>
+
+<entry name="ShowIconActivationEffect" type="Bool" >
+      <label>Show visual effect when panel icon is activated.</label>
+      <default>true</default>
+   </entry>
+
+<entry name="UntrustedApplets" type="StringList">
+      <label>A list of applets that have been loaded at runtime. In the case of a crash these applets will not be loaded at the next Kicker start, in case they caused the crash</label>
+   </entry>
+
+<entry name="UntrustedExtensions" type="StringList">
+      <label>A list of extensions that have been loaded at runtime. In the case of a crash these extensions will not be loaded at the next Kicker start, in case they caused the crash</label>
+   </entry>
+
+<entry name="LegacyKMenu" type="Bool" >
+      <label>When this option is enabled, the classic TDE Menu is used.</label>
+      <default>true</default>
+   </entry>
+
+<entry name="OpenOnHover" type="Bool" >
+      <label>When this option is enabled, the Kickoff Menu opens on mouse hover.</label>
+      <default>true</default>
+   </entry>
+
+<entry name="ScrollFlipView" type="Bool" >
+      <label>When this option is enabled, the Kickoff Menu application view switching will scroll.</label>
+      <default>true</default>
+   </entry>
+
+<entry name="KMenuWidth" type="Int">
+      <label>Preferred width of the KMenu</label>
+      <default>0</default>
+    </entry>
+
+<entry name="KMenuHeight" type="Int">
+      <label>Preferred width of the KMenu</label>
+      <default>0</default>
+    </entry>
+
+<entry name="KickoffFontPointSizeOffset" type="Int" >
+      <label>With this option the scale of the fonts Kickoff uses can be influenced</label>
+      <default>0</default>
+      <min>-100</min>
+      <max>100</max>
+   </entry>
+
+<entry name="KickoffSearchAddressBook" type="Bool" >
+      <label>When this option is enabled, tdeabc is utilized to search for addresses. This may start KMail.</label>
+      <default>false</default>
+   </entry>
+
+<entry name="KickoffDrawGeekoEye" type="Bool" >
+      <label>When this option is enabled, the Geeko eye moves when the mouse hovers the start menu button</label>
+      <default>false</default>
+   </entry>
+
+<entry name="KickoffTabBarFormat" type="Enum" >
+        <choices>
+            <choice name="LabelAndIcon">
+                <label>Show names and icons on tabs</label>
+            </choice>
+            <choice name="LabelOnly">
+                <label>Show only the names</label>
+            </choice>
+            <choice name="IconOnly">
+                <label>Show only the icons</label>
+            </choice>
+        </choices>
+        <default>LabelAndIcon</default>
+        <label>Appearace of the Kickoff tabbar</label>
+    </entry>
+
+<entry name="KickoffSwitchTabsOnHover" type="Bool" >
+      <label>When this option is enabled, the tabs in the Kickoff menu will switch without the need to click</label>
+      <default>true</default>
+   </entry>
+
+
+</group>
+
+<group name="menus">
+
+    <entry name="MenuEntryFormat" type="Enum" >
+        <choices>
+            <choice name="NameOnly">
+                <label>Show simple menu entries</label>
+            </choice>
+            <choice name="NameAndDescription">
+                <label>Show names first on detailed entries</label>
+            </choice>
+            <choice name="DescriptionOnly">
+                <label>Show only description for menu entries</label>
+            </choice>
+            <choice name="DescriptionAndName">
+                <label>Show detailed menu entries</label>
+            </choice>
+        </choices>
+        <default>DescriptionAndName</default>
+        <label>Formation of the menu entry text</label>
+    </entry>
+
+<entry name="ShowMenuTitles" type="Bool" >
+      <label>Show section titles in Kmenu</label>
+      <default>true</default>
+   </entry>
+
+<entry name="ReduceMenuDepth" type="Bool" >
+      <label>Simplify menus with only a single item inside</label>
+      <default>false</default>
+   </entry>
+
+<entry name="MenuEntryHeight" type="Int" >
+      <label>Height of menu entries in pixels</label>
+      <default>0</default>
+   </entry>
+
+<entry name="ShowHiddenFiles" type="Bool" >
+      <label>Show hidden files in Quick Browser</label>
+      <default>false</default>
+   </entry>
+
+<entry name="ShowOpenInTerminal" type="Bool" >
+      <label>Show Open in Terminal entry in Quick Browser</label>
+      <default>true</default>
+   </entry>
+
+<entry name="MaxEntries2" type="UInt" >
+      <label>Maximum number of entries</label>
+      <default>30</default>
+      <min>1</min>
+   </entry>
+
+<entry name="UseBookmarks" type="Bool" >
+      <label>Show bookmarks in KMenu</label>
+      <default>false</default>
+   </entry>
+
+<entry name="UseBrowser" type="Bool" >
+      <label>Use the Quick Browser</label>
+      <default>false</default>
+   </entry>
+
+<entry name="MenuExtensions" key="Extensions" type="StringList" >
+      <label>Optional Menus</label>
+      <default>prefmenu.desktop,systemmenu.desktop</default>
+   </entry>
+
+<entry name="RecentAppsStat" type="StringList" >
+      <label>Recently used applications</label>
+   </entry>
+
+<entry name="NumVisibleEntries" type="UInt" >
+      <label>Number of visible entries</label>
+      <default>5</default>
+      <max>100</max>
+   </entry>
+
+<entry name="RecentVsOften" type="Bool" >
+      <label>Show most recently used applications rather than most frequently used</label>
+      <default>false</default>
+   </entry>
+
+<entry name="Favorites" type="StringList">
+      <label>The menu entries shown in the Favorites tab</label>
+   </entry>
+
+<entry name="FirstRun" type="Bool" >
+      <label>Whether the panel has been started before or not</label>
+      <default>false</default>
+   </entry>
+
+<entry name="FirstSeenApps" type="StringList">
+      <label>When the applications were first seen by Kickoff</label>
+   </entry>
+
+</group>
+
+<group name="button_tiles">
+
+<entry name="EnableKMenuTiles" type="Bool">
+      <label>Enable a tile background image for the KMenu button</label>
+      <default>false</default>
+   </entry>
+
+<entry name="EnableDesktopButtonTiles" type="Bool">
+      <label>Enable a tile background image for the Desktop button</label>
+      <default>false</default>
+   </entry>
+
+<entry name="EnableURLTiles" type="Bool" >
+      <label>Enable a tile background image for Application, URL and special buttons</label>
+      <default>false</default>
+   </entry>
+
+<entry name="EnableBrowserTiles" type="Bool" >
+      <label>Enable a tile background image for the Quick Browser button</label>
+      <default>false</default>
+   </entry>
+
+<entry name="EnableWindowListTiles" type="Bool" >
+      <label>Enable a tile background image for the Window List button</label>
+      <default>false</default>
+   </entry>
+
+<entry name="KMenuTile" type="Path" >
+      <label>Image tile for Kmenu button background</label>
+   </entry>
+
+<entry name="KMenuTileColor" type="Color" >
+      <label>Color to use for Kmenu button background</label>
+      <default code="true">TQColor()</default>
+   </entry>
+
+<entry name="DesktopButtonTile" type="Path" >
+      <label>Image tile for Desktop button background</label>
+   </entry>
+
+<entry name="DesktopButtonTileColor" type="Color" >
+      <label>Color to use for Kmenu button background</label>
+      <default code="true">TQColor()</default>
+   </entry>
+
+<entry name="URLTile" type="Path" >
+      <label>Image tile for Application, URL and special button backgrounds</label>
+   </entry>
+
+<entry name="URLTileColor" type="Color" >
+      <label>Color to use for Application, URL and special button backgrounds</label>
+      <default code="true">TQColor()</default>
+   </entry>
+
+<entry name="BrowserTile" type="Path" >
+      <label>Image tile for Browser button background</label>
+   </entry>
+
+<entry name="BrowserTileColor" type="Color" >
+      <label>Color to use for Browser button background</label>
+      <default code="true">TQColor()</default>
+   </entry>
+
+<entry name="WindowListTile" type="Path" >
+      <label>Image tile for Window List button background</label>
+   </entry>
+
+<entry name="WindowListTileColor" type="Color" >
+      <label>Color to use for Window List button background</label>
+      <default code="true">TQColor()</default>
+   </entry>
+
+</group>
+
+<group name="KMenu" >
+
+   <entry name="UseSidePixmap" type="Bool" >
+      <label>Use side image in Kmenu</label>
+      <default>true</default>
+   </entry>
+
+   <entry name="UseTooltip" type="Bool" >
+      <label>Use Tooltip in Kmenu</label>
+      <default>false</default>
+   </entry>
+
+   <entry name="UseSearchBar" type="Bool" >
+      <label>Show searh field in Kmenu</label>
+      <default>true</default>
+   </entry>
+
+   <entry name="UseTopSide" type="Bool" >
+      <label>Use side image on top of Kmenu</label>
+      <default>false</default>
+   </entry>
+
+   <entry name="LeftSideTopPixmapName" key="LeftSideTopName" type="String" >
+      <label>The name of the file to use as the side image in the TDE Menu</label>
+      <default>kside_top_left.png</default>
+   </entry>
+
+   <entry name="RightSideTopPixmapName" key="RightSideTopName" type="String" >
+      <label>The name of the file to use as the side image in the TDE Menu</label>
+      <default>kside_top_right.png</default>
+   </entry>
+
+   <entry name="SideTopTileName" key="SideTopTileName" type="String" >
+      <label>The name of the file used as a tile to fill the height of TDE Menu that SidePixmapName does not cover</label>
+      <default>kside_top_tile.png</default>
+   </entry>
+
+   <entry name="SidePixmapName" key="SideName" type="String" >
+      <label>The name of the file to use as the side image in the TDE Menu</label>
+      <default>kside.png</default>
+   </entry>
+
+   <entry name="SideTileName" key="SideTileName" type="String" >
+      <label>The name of the file used as a tile to fill the height of TDE Menu that SidePixmapName does not cover</label>
+      <default>kside_tile.png</default>
+   </entry>
+
+   <entry name="ShowKMenuText" key="ShowText" type="Bool" >
+      <label>Show text on the TDE Menu button</label>
+      <default>false</default>
+   </entry>
+
+   <entry name="KMenuText" key="Text" type="String" >
+      <label>Text to be shown on TDE Menu Button</label>
+      <default code="true">i18n("Applications")</default>
+   </entry>
+
+   <entry name="CustomKMenuIcon" key="CustomIcon" type="Path" >
+      <label>Custom TDE Menu Button Icon</label>
+      <default code="true">TQString("kmenu")</default>
+   </entry>
+
+   <entry name="SearchShortcut" type="String" >
+     <label>Search shortcut</label>
+     <default>/</default>
+   </entry>
+
+</group>
+
+<group name="buttons" >
+
+<entry name="ShowMouseOverEffects" key="EnableIconZoom" type="Bool" >
+      <label>Enable icon mouse over effects</label>
+      <default>true</default>
+   </entry>
+
+<entry name="MouseOversShowIcon" type="Bool" >
+      <label>Show icons in mouse over effects</label>
+      <default>true</default>
+   </entry>
+
+<entry name="MouseOversShowText" type="Bool" >
+      <label>Show text in mouse over effects</label>
+      <default>true</default>
+   </entry>
+
+<entry name="MouseOversSpeed" type="Int" >
+      <label>Controls how fast the tooltips fade in, measured in thousandths of a second</label>
+      <default>500</default>
+      <min>0</min>
+   </entry>
+
+   <entry name="MouseOversShowDelay" type="UInt" >
+       <label>Mouse over effects are shown after the defined time (in milliseconds)</label>
+       <default>500</default>
+   </entry>
+
+   <entry name="MouseOversHideDelay" type="UInt" >
+       <label>Mouse over effects are hidden after the defined time (in milliseconds)</label>
+       <default>200</default>
+   </entry>
+
+<entry name="EnableTileBackground" type="Bool" >
+      <label>Enable background tiles</label>
+      <default>false</default>
+   </entry>
+
+<entry name="IconMargin" key="IconMargin" type="Int" >
+      <label>The margin between panel icons and the panel border</label>
+      <default>3</default>
+   </entry>
+
+<entry name="MaximumTDEMenuButtonHeight" key="MaximumTDEMenuButtonHeight" type="Int" >
+      <label>The maximum height of the TDE Menu button in pixels</label>
+      <default>30</default>
+   </entry>
+
+<entry name="RemoveButtonsWhenBroken" type="Bool" >
+      <label>Buttons that represent KServices (applications, primarily) watch for the removal of the service and delete themselves when this happens. This setting turns this off.</label>
+      <default>true</default>
+   </entry>
+
+<entry name="ButtonFont" key="Font" type="Font" >
+      <label>Font for the buttons with text.</label>
+      <default code="true">TDEGlobalSettings::generalFont()</default>
+   </entry>
+
+<entry name="ButtonTextColor" key="TextColor" type="Color" >
+      <label>Text color for the buttons.</label>
+      <default code="true">TDEGlobalSettings::textColor()</default>
+   </entry>
+
+</group>
+
+  <group name="SearchField">
+    <entry key="History" type="PathList">
+      <default></default>
+      <label></label>
+      <whatsthis></whatsthis>
+    </entry>
+    <entry key="HistoryLength" type="Int">
+      <default>50</default>
+      <label></label>
+      <whatsthis></whatsthis>
+    </entry>
+    <entry key="CompletionItems" type="PathList">
+      <default></default>
+      <label></label>
+      <whatsthis></whatsthis>
+    </entry>
+    <entry key="CompletionMode" type="Int">
+      <default>2</default>
+      <label></label>
+      <whatsthis></whatsthis>
+    </entry>
+  </group>
+
+</kcfg>
+
+

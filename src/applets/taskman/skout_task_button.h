@@ -1,6 +1,6 @@
 /*******************************************************************************
-  Skout - a Be-style panel for TDE
-  Copyright (C) 2023 Mavridis Philippe <mavridisf@gmail.com>
+  Skout - a DeskBar-style panel for TDE
+  Copyright (C) 2023-2025 Mavridis Philippe <mavridisf@gmail.com>
 
   This program is free software: you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free Software
@@ -20,36 +20,48 @@
 #define _SKOUT_TASK_BUTTON_H
 
 // TQt
-#include <tqtoolbutton.h>
+#include <tqbutton.h>
 
 class SkoutTaskContainer;
 
-class SkoutTaskButton : public TQToolButton {
+class SkoutTaskButton : public TQButton
+{
   TQ_OBJECT
 
   public:
-    SkoutTaskButton(SkoutTaskContainer *parent, bool bigIcon = false, bool frame = false);
+    enum ButtonType
+    {
+      Task = 0,
+      Grouper,
+      BUTTONTYPE_MAX
+    };
+
+    SkoutTaskButton(SkoutTaskContainer *parent, ButtonType type);
     ~SkoutTaskButton();
+
+    ButtonType buttonType() const { return m_buttonType; }
 
     virtual TQString name();
     virtual TQPixmap icon();
 
-    bool useBigIcon() const { return m_bigIcon; }
-    bool drawFrame() const { return m_drawFrame; }
-
     SkoutTaskContainer *container() const;
 
+    bool showFrame() const;
+    bool showIcon() const;
+    bool useBigIcon() const;
+
     static TQPixmap defaultIcon(TQSize size = TQSize());
+
     static TQSize bigIconSize();
     static TQSize smallIconSize();
+
     TQSize iconSize() const;
+    TQPoint iconOffset() const;
 
     static TQFont normalFont();
     static TQFont boldFont();
 
     static TQColor blendColors(const TQColor c1, const TQColor c2);
-
-    TQPoint margin() const { return m_margin; }
 
   public slots:
     void update();
@@ -65,9 +77,9 @@ class SkoutTaskButton : public TQToolButton {
     void drawButton(TQPainter *p);
 
   private:
-    bool m_bigIcon;
-    bool m_drawFrame;
-    TQPoint m_margin;
+    ButtonType m_buttonType;
 };
 
 #endif // _SKOUT_TASK_BUTTON_H
+
+/* kate: replace-tabs true; tab-width 2; */

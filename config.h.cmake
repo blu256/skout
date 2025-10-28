@@ -9,3 +9,9 @@
 
 // Needed for external/dmctl to build
 #define KDE_CONFDIR "@TDE_CONFIG_DIR@"
+
+// Option: XComposite support
+#cmakedefine COMPOSITE 1
+
+// Option: Kicker applet support
+#cmakedefine WITH_KICKER_APPLETS 1

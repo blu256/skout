@@ -1,6 +1,6 @@
 /*******************************************************************************
-  Skout - a Be-style panel for TDE
-  Copyright (C) 2023 Mavridis Philippe <mavridisf@gmail.com>
+  Skout - a DeskBar-style panel for TDE
+  Copyright (C) 2023-2025 Mavridis Philippe <mavridisf@gmail.com>
 
   This program is free software: you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free Software
@@ -39,7 +39,7 @@ class SkoutTaskMan : public SkoutApplet {
   TQ_OBJECT
 
   public:
-    SkoutTaskMan(SkoutPanel *panel);
+    SkoutTaskMan(SkoutPanel *panel, TDEConfig *cfg);
     virtual ~SkoutTaskMan();
 
     static TQString className(WId w);
@@ -48,11 +48,19 @@ class SkoutTaskMan : public SkoutApplet {
     bool valid() { return true; }
     KWinModule *twin();
 
+    bool autoSaveGroupers() { return m_autoSaveGroupers; }
+    bool defaultExpandGroupers() { return m_defaultExpandGroupers; }
+    bool showAllDesktops() { return m_showAllDesktops; }
+    bool showDesktopNumber() { return m_showDesktopNumber; }
+    bool bigGrouperIcons() { return m_bigGrouperIcons; }
+    bool showTaskIcons() { return m_showTaskIcons; }
+
   public slots:
     void addWindow(WId w);
     void removeWindow(WId w);
     void updateWindow(WId w, unsigned int changes);
     void savePinnedApplications();
+    void updateTaskVisibility();
     void relayout();
 
   signals:
@@ -63,11 +71,16 @@ class SkoutTaskMan : public SkoutApplet {
     TQIntDict<SkoutTask> m_tasks;
     KWinModule *m_twin;
 
+    bool m_autoSaveGroupers, m_defaultExpandGroupers,
+         m_showTaskIcons, m_showAllDesktops, m_showDesktopNumber,
+         m_bigGrouperIcons;
+
     void addContainer(SkoutTaskContainer *c);
     void removeContainer(SkoutTaskContainer *c);
 
   private slots:
     void slotPinChanged(bool pinned);
+    void reconfigure();
 
   friend class SkoutTaskContainer;
 };

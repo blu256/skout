@@ -1,6 +1,6 @@
 /*******************************************************************************
-  Skout - a Be-style panel for TDE
-  Copyright (C) 2023 Mavridis Philippe <mavridisf@gmail.com>
+  Skout - a DeskBar-style panel for TDE
+  Copyright (C) 2023-2025 Mavridis Philippe <mavridisf@gmail.com>
 
   This program is free software: you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free Software
@@ -25,29 +25,45 @@
 // TDE
 #include <tqmap.h>
 
+// Skout
+#include <config.h>
+
+class TDEAboutData;
 class SkoutApplet;
 
-struct AppletData {
+struct AppletData
+{
+    bool loaded = false;
+    TQString desktopFile;
+#ifdef WITH_KICKER_APPLETS
+    bool isKickerApplet = false;
+#endif
+
     TQCString id;
     TQString name;
     TQString icon;
     TQString library;
     TQString comment;
+    TDEAboutData *about;
+    bool hasConfig;
+    bool unique;
     SkoutApplet *ptr = nullptr;
 
-    bool valid() {
-        return !id.isNull() && !name.isNull()
-            && !library.isNull();
+    bool valid()
+    {
+        return loaded && !id.isNull() && !name.isNull() && !library.isNull();
     }
 
-    const char *libPath() {
+    const char *libPath()
+    {
         return TQFile::encodeName(library);
     }
 };
 
 typedef TQMap<TQCString, AppletData> AppletMap;
 
-class SkoutAppletDB : public TQObject {
+class SkoutAppletDB : public TQObject
+{
   public:
     static SkoutAppletDB *instance();
 
@@ -56,6 +72,11 @@ class SkoutAppletDB : public TQObject {
     TQValueList<TQCString> applets();
 
     AppletData &operator[](TQString id);
+
+    static int licenseFromString(TQString str);
+
+  protected:
+    bool loadApplet(AppletData &data);
 
   private:
     AppletMap m_applets;

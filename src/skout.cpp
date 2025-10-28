@@ -1,6 +1,6 @@
 /*******************************************************************************
-  Skout - a Be-style panel for TDE
-  Copyright (C) 2023 Mavridis Philippe <mavridisf@gmail.com>
+  Skout - a DeskBar-style panel for TDE
+  Copyright (C) 2023-2025 Mavridis Philippe <mavridisf@gmail.com>
 
   This program is free software: you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free Software
@@ -24,38 +24,50 @@
 #include "skoutsettings.h"
 #include "skout_utils.h"
 
-Skout::Skout(PanelPosition pos) : DCOPObject("SkoutIface") {
+Skout::Skout(PanelPosition pos) : DCOPObject("SkoutIface")
+{
     disableSessionManagement();
 
-    if (!kapp->dcopClient()->isRegistered()) {
-        kapp->dcopClient()->registerAs("skout");
+    if (!tdeApp->dcopClient()->isRegistered())
+    {
+        tdeApp->dcopClient()->registerAs("skout");
     }
-    kapp->dcopClient()->setDefaultObject("SkoutIface");
+    tdeApp->dcopClient()->setDefaultObject("SkoutIface");
 
     SkoutSettings::instance("skoutrc");
 
     m_panel = new SkoutPanel();
-    if (pos != PanelPosition::Saved) {
+    if (pos != PanelPosition::Saved)
+    {
         m_panel->setPosition(pos, true);
     }
     setTopWidget(m_panel);
     m_panel->show();
 }
 
-Skout::~Skout() {
+Skout::~Skout()
+{
     ZAP(m_panel)
 }
 
-bool Skout::ping() {
+bool Skout::ping()
+{
     return true;
 }
 
-void Skout::reconfigure() {
+void Skout::reconfigure()
+{
     m_panel->reconfigure();
 }
 
-void Skout::quit() {
-    kapp->quit();
+void Skout::reloadApplet(TQString applet)
+{
+    m_panel->reloadApplet(applet);
+}
+
+void Skout::quit()
+{
+    tdeApp->quit();
 }
 
 #include "skout.moc"

@@ -1,6 +1,6 @@
 /*******************************************************************************
-  Skout - a Be-style panel for TDE
-  Copyright (C) 2023 Mavridis Philippe <mavridisf@gmail.com>
+  Skout - a DeskBar-style panel for TDE
+  Copyright (C) 2023-2025 Mavridis Philippe <mavridisf@gmail.com>
 
   This file has borrowed code from tdebase/ksysguard/gui/SensorShellAgent.cpp
       KSysGuard, the KDE System Guard
@@ -31,11 +31,11 @@
 // TDE
 #include <tdeapplication.h>
 #include <tdeglobalsettings.h>
-#include <kstandarddirs.h>
+#include <tdestandarddirs.h>
 #include <tdeconfig.h>
 #include <tdepopupmenu.h>
 #include <kiconloader.h>
-#include <kprocess.h>
+#include <tdeprocess.h>
 #include <tdelocale.h>
 #include <krun.h>
 #include <kdebug.h>
@@ -58,8 +58,6 @@ SkoutSystemGraph::SkoutSystemGraph(SkoutStatusWidget *status, const char *name,
     m_aggregateMaxValues(aggregateMaxValues)
 {
     m_endpoints = TQStringList(endpoints);
-
-    setSizePolicy(TQSizePolicy::Expanding, TQSizePolicy::Minimum);
 
     TQToolTip::add(this, i18n(name));
     TQWhatsThis::add(this, i18n("<qt><p>This graph monitors the <b>%1</b> sensor "
@@ -162,7 +160,7 @@ void SkoutSystemGraph::update() {
                                  .arg(name())
                                  .arg(perc));
         }
-        repaint();
+        TQTimer::singleShot(0, this, TQ_SLOT(repaint()));
 
         reset();
         int pollingTimeout = m_pollingFrequency;

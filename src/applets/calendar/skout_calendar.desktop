@@ -3,5 +3,7 @@ Name=Calendar
 Comment=A simple calendar
 Type=SkoutApplet
 Icon=date
+Copyright=Copyright © 2024 Mavridis Philippe
+License=GPLv2
 
 X-TDE-Library=skoutapplet_calendar

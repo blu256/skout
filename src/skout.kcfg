@@ -40,12 +40,27 @@
     <entry key="PinnedApplications" type="StringList">
       <label>Pinned windows</label>
     </entry>
+    <entry key="IconThemeArrows" type="Bool">
+        <label>Use arrows from icon theme</label>
+        <default>false</default>
+    </entry>
   </group>
   <group name="SysTray">
     <entry key="EnableStatusWidget" type="Bool">
       <label>Enable status widget</label>
       <default>true</default>
       <whatsthis>Enables the status widget. The status widget is placed in the top of your system tray and includes a clock and some system sensors (CPU, Memory usage).</whatsthis>
+    </entry>
+  </group>
+  <group name="Pager">
+    <entry key="Layout" type="Enum">
+      <choices>
+        <choice name="Classical"/>
+        <choice name="Horizontal"/>
+        <choice name="Vertical"/>
+      </choices>
+      <default>Classical</default>
+      <label>Pager layout</label>
     </entry>
   </group>
 </kcfg>

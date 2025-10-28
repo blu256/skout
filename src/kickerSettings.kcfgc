@@ -1,0 +1,8 @@
+File=kickerSettings.kcfg
+Singleton=true
+ClassName=KickerSettings
+Mutators=true
+Visibility=TDE_EXPORT
+IncludeFiles=tqapplication.h
+GlobalEnums=true
+MemberVariables=dpointer

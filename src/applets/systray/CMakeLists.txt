@@ -25,6 +25,7 @@ tde_add_kpart( skoutapplet_systray AUTOMOC
     skout_system_tray.cpp
     skout_status_widget.cpp
     skout_system_graph.cpp
+    skout_system_tray_cfg.cpp
 
   LINK
     tdecore-shared

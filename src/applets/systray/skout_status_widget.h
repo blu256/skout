@@ -1,6 +1,6 @@
 /*******************************************************************************
-  Skout - a Be-style panel for TDE
-  Copyright (C) 2023 Mavridis Philippe <mavridisf@gmail.com>
+  Skout - a DeskBar-style panel for TDE
+  Copyright (C) 2023-2025 Mavridis Philippe <mavridisf@gmail.com>
 
   This program is free software: you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free Software
@@ -20,7 +20,7 @@
 #define _SKOUT_STATUS_WIDGET_H
 
 // TQt
-#include <tqhbox.h>
+#include <tqframe.h>
 
 // Skout
 #include "skout_system_tray.h"
@@ -42,7 +42,7 @@ class TQTimer;
 
 class SkoutSystemGraph;
 
-class SkoutStatusWidget : public TQHBox {
+class SkoutStatusWidget : public TQFrame {
   TQ_OBJECT
 
   public:

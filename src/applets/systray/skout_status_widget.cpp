@@ -1,6 +1,6 @@
 /*******************************************************************************
-  Skout - a Be-style panel for TDE
-  Copyright (C) 2023 Mavridis Philippe <mavridisf@gmail.com>
+  Skout - a DeskBar-style panel for TDE
+  Copyright (C) 2023-2025 Mavridis Philippe <mavridisf@gmail.com>
 
   This program is free software: you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free Software
@@ -41,15 +41,26 @@
 #include "skout_system_graph.h"
 
 SkoutStatusWidget::SkoutStatusWidget(SkoutSysTray *tray)
-  : TQHBox(tray)
+  : TQFrame(tray)
 {
-    layout()->setSpacing(5);
+    // CPU
+    TQStringList cpuEndpoints;
+    cpuEndpoints << "cpu/nice" << "cpu/sys" << "cpu/user";
+    m_cpuGraph = new SkoutSystemGraph(this, "CPU", cpuEndpoints, false);
+    m_cpuGraph->setSizePolicy(TQSizePolicy::MinimumExpanding, TQSizePolicy::Minimum);
+
+    // Memory
+    TQStringList memEndpoints;
+    memEndpoints << "mem/physical/used" << "mem/swap/used";
+    m_memGraph = new SkoutSystemGraph(this, "Memory", memEndpoints);
+    m_memGraph->setSizePolicy(TQSizePolicy::MinimumExpanding, TQSizePolicy::Minimum);
 
     // Clock
     TQString clockPlaceholder = formatDateTime(TQDateTime::currentDateTime(),
                                                FormatTime);
     m_clock = new TQLabel(clockPlaceholder, this);
     m_clock->setFixedWidth(m_clock->fontMetrics().width(clockPlaceholder));
+    m_clock->setSizePolicy(TQSizePolicy::Fixed, TQSizePolicy::Maximum);
     m_clock->setAlignment(TQt::AlignCenter);
     updateClock();
 
@@ -58,21 +69,18 @@ SkoutStatusWidget::SkoutStatusWidget(SkoutSysTray *tray)
     m_clockTimer->start(2000);
 
     TQWhatsThis::add(m_clock, i18n("<qt><p>The clock displays the current time."
-                                   "<ul><li>Click on it to see a calendar.</li>"
-                                   "<li>Press the middle mouse button to copy "
-                                   "the time and/or date.</li>"
-                                   "<li>Press the right mouse button to see "
-                                   "a menu with more options.</li></ul></qt>"));
+            "<ul><li>Click on it to see a calendar.</li>"
+            "<li>Press the middle mouse button to copy "
+            "the time and/or date.</li>"
+            "<li>Press the right mouse button to see "
+            "a menu with more options.</li></ul></qt>"));
 
-    // CPU
-    TQStringList cpuEndpoints;
-    cpuEndpoints << "cpu/nice" << "cpu/sys" << "cpu/user";
-    m_cpuGraph = new SkoutSystemGraph(this, "CPU", cpuEndpoints, false);
-
-    // Memory
-    TQStringList memEndpoints;
-    memEndpoints << "mem/physical/used" << "mem/swap/used";
-    m_memGraph = new SkoutSystemGraph(this, "Memory", memEndpoints);
+    // Layout
+    TQHBoxLayout *l = new TQHBoxLayout(this);
+    l->setSpacing(1);
+    l->addWidget(m_cpuGraph);
+    l->addWidget(m_memGraph);
+    l->addWidget(m_clock);
 }
 
 SkoutStatusWidget::~SkoutStatusWidget() {
@@ -164,7 +172,7 @@ void SkoutStatusWidget::mousePressEvent(TQMouseEvent *e) {
 
 void SkoutStatusWidget::copyDateTime(int choice) {
     if (choice < 0 || choice >= DATETIMEFORMAT_END) return;
-    kapp->clipboard()->setText(formatDateTime(dtCopy, (DateTimeFormat)choice));
+    tdeApp->clipboard()->setText(formatDateTime(dtCopy, (DateTimeFormat)choice));
 }
 
 #include "skout_status_widget.moc"

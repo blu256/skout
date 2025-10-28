@@ -26,6 +26,7 @@ tde_add_library(
   SOURCES
     skout_applet.cpp
     skout_applet_panel_extension.cpp
+    skout_applet_config.cpp
     skoutsettings.kcfgc
 
   LINK
@@ -35,6 +36,14 @@ tde_add_library(
 )
 
 ### skout (executable) #########################################################
+set(SKOUT_OPTIONAL_SOURCES "")
+if (${WITH_KICKER_APPLETS})
+  list(APPEND SKOUT_OPTIONAL_SOURCES
+    skout_kicker_applet.cpp
+    kickerSettings.kcfgc
+  )
+endif()
+
 tde_add_executable(
   skout AUTOMOC
 
@@ -48,6 +57,7 @@ tde_add_executable(
     skout_root_menu.cpp
     skout_settings_menu.cpp
     skoutiface.skel
+    ${SKOUT_OPTIONAL_SOURCES}
 
   LINK
     tdecore-shared
@@ -67,6 +77,7 @@ tde_add_kpart(
     tdecm_skout.cpp
     skout_appletdb.cpp
     skout_applet_selector.cpp
+    skout_applet_config_dialog.cpp
     skoutsettings.kcfgc
 
   LINK

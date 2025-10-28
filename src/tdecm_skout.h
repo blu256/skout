@@ -1,6 +1,6 @@
 /*******************************************************************************
-  Skout - a Be-style panel for TDE
-  Copyright (C) 2023 Mavridis Philippe <mavridisf@gmail.com>
+  Skout - a DeskBar-style panel for TDE
+  Copyright (C) 2023-2025 Mavridis Philippe <mavridisf@gmail.com>
 
   This program is free software: you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free Software
@@ -23,6 +23,7 @@
 #include <tdecmodule.h>
 
 class TQGroupBox;
+class TQPushButton;
 class TQButtonGroup;
 class TQSpinBox;
 class KJanusWidget;
@@ -44,6 +45,9 @@ class SkoutConfig : public TDECModule {
 
   protected slots:
     void changed();
+    void appletSelected();
+    void appletAbout();
+    void appletConfig();
 
   private:
     SkoutSettings *m_settings;
@@ -57,6 +61,7 @@ class SkoutConfig : public TDECModule {
 
     // Applets tab
     SkoutAppletSelector *m_appletSelector;
+    TQPushButton *m_appletAbout, *m_appletConfig;
 
     void loadApplets();
 };

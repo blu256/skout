@@ -1,6 +1,6 @@
 /*******************************************************************************
-  Skout - a Be-style panel for TDE
-  Copyright (C) 2023 Mavridis Philippe <mavridisf@gmail.com>
+  Skout - a DeskBar-style panel for TDE
+  Copyright (C) 2023-2025 Mavridis Philippe <mavridisf@gmail.com>
 
   This program is free software: you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free Software
@@ -58,11 +58,10 @@ SkoutRootMenu::SkoutRootMenu(SkoutPanel *panel)
 {
     insertSeparator();
     m_bookmarkMenu = new SkoutMenu(panel);
-    m_bookmarks = new KBookmarkMenu(
-        KBookmarkManager::userBookmarksManager(),
-        new KBookmarkOwner(),
-        m_bookmarkMenu,
-        nullptr, true);
+    m_bookmarks = new KBookmarkMenu(KBookmarkManager::userBookmarksManager(),
+                                    new KBookmarkOwner(),
+                                    m_bookmarkMenu,
+                                    nullptr, true);
     addSubmenu(m_bookmarkMenu, "bookmark_folder", i18n("Bookmarks"));
 
     m_recentsMenu = new SkoutMenu(panel);
@@ -75,18 +74,20 @@ SkoutRootMenu::SkoutRootMenu(SkoutPanel *panel)
 
     insertSeparator();
 
-    if (kapp->authorize("run_command")) {
+    if (tdeApp->authorize("run_command"))
+    {
         addItem("system-run", i18n("Run command..."), this, TQ_SLOT(runCommand()));
     }
 
     m_sessionMenu = new SkoutMenu(panel);
     addSubmenu(m_sessionMenu, "switchuser", i18n("Switch User"));
 
-    if (kapp->authorize("lock_screen")) {
+    if (tdeApp->authorize("lock_screen"))
+    {
         addItem("system-lock-screen", i18n("Lock Session"), this, TQ_SLOT(lockScreen()));
     }
 
-    if (kapp->authorize("logout"))
+    if (tdeApp->authorize("logout"))
     {
         addItem("system-log-out", i18n("Log Out..."), this, TQ_SLOT(logOut()));
     }
@@ -98,31 +99,38 @@ SkoutRootMenu::SkoutRootMenu(SkoutPanel *panel)
     connect(m_recentsMenu, TQ_SIGNAL(activated(int)), TQ_SLOT(openRecentDoc(int)));
 }
 
-SkoutRootMenu::~SkoutRootMenu() {
+SkoutRootMenu::~SkoutRootMenu()
+{
     ZAP(m_bookmarks)
 }
 
-void SkoutRootMenu::runCommand() {
+void SkoutRootMenu::runCommand()
+{
     DCOPRef kdesktop("kdesktop", "KDesktopIface");
     kdesktop.send("popupExecuteCommand()");
 }
 
-void SkoutRootMenu::lockScreen() {
+void SkoutRootMenu::lockScreen()
+{
     DCOPRef kdesktop("kdesktop", "KScreensaverIface");
     kdesktop.send("lock()");
 }
 
-void SkoutRootMenu::logOut() {
+void SkoutRootMenu::logOut()
+{
     hide();
-    kapp->requestShutDown();
+    tdeApp->requestShutDown();
 }
 
-void SkoutRootMenu::populateSessions() {
+void SkoutRootMenu::populateSessions()
+{
     DM dm;
     m_sessionMenu->clear();
     int p = dm.numReserve();
-    if (kapp->authorize("start_new_session") && p >= 0) {
-        if (kapp->authorize("lock_screen")) {
+    if (tdeApp->authorize("start_new_session") && p >= 0)
+    {
+        if (tdeApp->authorize("lock_screen"))
+        {
             m_sessionMenu->addItem("system-lock-screen",
                                    i18n("Lock Current && Start New Session"),
                                    SessionMenuItem::LockAndNewSession);
@@ -143,9 +151,11 @@ void SkoutRootMenu::populateSessions() {
     }
 
     SessList sessions;
-    if (dm.localSessions(sessions)) {
+    if (dm.localSessions(sessions))
+    {
         SessList::ConstIterator it = sessions.begin();
-        for (; it != sessions.end(); ++it) {
+        for (; it != sessions.end(); ++it)
+        {
             SessEnt s(*it);
             int id = m_sessionMenu->addItem(TQString::null, DM::sess2Str(s), s.vt);
             m_sessionMenu->setItemEnabled(id, s.vt);
@@ -154,19 +164,24 @@ void SkoutRootMenu::populateSessions() {
     }
 }
 
-void SkoutRootMenu::activateSession(int item) {
-    if (item == SessionMenuItem::LockAndNewSession) {
+void SkoutRootMenu::activateSession(int item)
+{
+    if (item == SessionMenuItem::LockAndNewSession)
+    {
         startNewSession();
     }
-    else if (item == SessionMenuItem::NewSession) {
+    else if (item == SessionMenuItem::NewSession)
+    {
         startNewSession(false);
     }
-    else if (!m_sessionMenu->isItemChecked(item)) {
+    else if (!m_sessionMenu->isItemChecked(item))
+    {
         DM().lockSwitchVT(item);
     }
 }
 
-void SkoutRootMenu::startNewSession(bool lockCurrent) {
+void SkoutRootMenu::startNewSession(bool lockCurrent)
+{
     int result = KMessageBox::warningContinueCancel(0,
         i18n("<p>You have chosen to open another desktop session.<br>"
                "The current session will be hidden "
@@ -184,27 +199,33 @@ void SkoutRootMenu::startNewSession(bool lockCurrent) {
         ":confirmNewSession",
         KMessageBox::PlainCaption | KMessageBox::Notify);
 
-    if (result == KMessageBox::Cancel) return;
+    if (result == KMessageBox::Cancel)
+    {
+        return;
+    }
 
     if (lockCurrent) lockScreen();
     DM().startReserve();
 }
 
-void SkoutRootMenu::populateRecentDocs() {
+void SkoutRootMenu::populateRecentDocs()
+{
     m_recentsMenu->clear();
     m_recentDocs = TDERecentDocument::recentDocuments();
     TQStringList::ConstIterator it;
     int index = 100;
-    for (it = m_recentDocs.begin(); it != m_recentDocs.end(); ++it) {
-        KDesktopFile df((*it));
+    for (it = m_recentDocs.begin(); it != m_recentDocs.end(); ++it)
+    {
+        TDEDesktopFile df((*it));
         m_recentsMenu->addItem(df.readIcon(), df.readName(), index);
         ++index;
     }
 }
 
-void SkoutRootMenu::openRecentDoc(int item) {
+void SkoutRootMenu::openRecentDoc(int item)
+{
     TQString path = m_recentDocs[item - 100];
-    if (!KDesktopFile::isDesktopFile(path)) return;
+    if (!TDEDesktopFile::isDesktopFile(path)) return;
     (void) new KRun(path);
 }
 

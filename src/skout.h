@@ -1,6 +1,6 @@
 /*******************************************************************************
-  Skout - a Be-style panel for TDE
-  Copyright (C) 2023 Mavridis Philippe <mavridisf@gmail.com>
+  Skout - a DeskBar-style panel for TDE
+  Copyright (C) 2023-2025 Mavridis Philippe <mavridisf@gmail.com>
 
   This program is free software: you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free Software
@@ -20,13 +20,13 @@
 #define _SKOUT_H
 
 // TDE
-#include <kuniqueapplication.h>
+#include <tdeuniqueapplication.h>
 
 // Skout
 #include "skoutiface.h"
 #include "skout_panel.h"
 
-class Skout : public KUniqueApplication, SkoutIface {
+class Skout : public TDEUniqueApplication, SkoutIface {
   TQ_OBJECT
 
   public:
@@ -35,6 +35,7 @@ class Skout : public KUniqueApplication, SkoutIface {
 
     bool ping();
     void reconfigure();
+    void reloadApplet(TQString applet);
     void quit();
 
   private:

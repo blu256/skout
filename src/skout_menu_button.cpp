@@ -1,6 +1,6 @@
 /*******************************************************************************
-  Skout - a Be-style panel for TDE
-  Copyright (C) 2023 Mavridis Philippe <mavridisf@gmail.com>
+  Skout - a DeskBar-style panel for TDE
+  Copyright (C) 2023-2025 Mavridis Philippe <mavridisf@gmail.com>
 
   This program is free software: you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free Software
@@ -26,7 +26,7 @@
 // TDE
 #include <tdeglobalsettings.h>
 #include <tdeapplication.h>
-#include <kstandarddirs.h>
+#include <tdestandarddirs.h>
 #include <kiconloader.h>
 #include <kimageeffect.h>
 #include <tdepopupmenu.h>
@@ -43,8 +43,9 @@ static KHelpMenu *helpMenu = nullptr;
 SkoutMenuBtn::SkoutMenuBtn(SkoutPanel *panel)
   : KPushButton(panel, "SkoutMenuBtn")
 {
-    if (!helpMenu) {
-        helpMenu = new KHelpMenu(0, kapp->aboutData());
+    if (!helpMenu)
+    {
+        helpMenu = new KHelpMenu(0, tdeApp->aboutData());
     }
 
     m_menu = new SkoutRootMenu(panel);
@@ -53,30 +54,35 @@ SkoutMenuBtn::SkoutMenuBtn(SkoutPanel *panel)
     setBackgroundOrigin(AncestorOrigin);
 
     setText(i18n("Menu"));
-    setIconSet(kapp->iconLoader()->loadIconSet("go", TDEIcon::Panel, 22));
+    setIconSet(tdeApp->iconLoader()->loadIconSet("go", TDEIcon::Panel, 22));
 
     TQToolTip::add(this, i18n("Skout Menu"));
     TQWhatsThis::add(this, i18n("The Skout Menu provides access to installed "
                                 "applications, locations and common actions."));
 }
 
-SkoutMenuBtn::~SkoutMenuBtn() {
-}
+SkoutMenuBtn::~SkoutMenuBtn()
+{}
 
-TQSize SkoutMenuBtn::sizeHint() const {
+TQSize SkoutMenuBtn::sizeHint() const
+{
     TQFontMetrics fm(TDEGlobalSettings::generalFont());
     return TQSize(width(), fm.height() * 2);
 }
 
-void SkoutMenuBtn::mousePressEvent(TQMouseEvent *e) {
-    if (e->button() == TQt::LeftButton) {
+void SkoutMenuBtn::mousePressEvent(TQMouseEvent *e)
+{
+    if (e->button() == TQt::LeftButton)
+    {
         showMenu();
     }
-    else if (e->button() == TQt::RightButton) {
+    else if (e->button() == TQt::RightButton)
+    {
         TDEIconLoader *il = TDEGlobal::iconLoader();
         TDEPopupMenu ctx;
 
-        if (kapp->authorizeTDEAction("menuedit")) {
+        if (tdeApp->authorizeTDEAction("menuedit"))
+        {
             ctx.insertItem(il->loadIconSet("kmenuedit", TDEIcon::Small),
                            i18n("Edit menu"),
                            panel(), TQ_SLOT(launchMenuEditor()));
@@ -99,7 +105,8 @@ void SkoutMenuBtn::showMenu() {
     SkoutPanel *panel = static_cast<SkoutPanel *>(parent());
 
     TQPoint origin;
-    switch (panel->position()) {
+    switch (panel->position())
+    {
         case PanelPosition::TopLeft:
             origin = geometry().topRight();
             break;
