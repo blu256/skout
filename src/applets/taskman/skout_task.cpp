@@ -1,6 +1,6 @@
 /*******************************************************************************
   Skout - a DeskBar-style panel for TDE
-  Copyright (C) 2023-25 Mavridis Philippe <mavridisf@gmail.com>
+  Copyright (C) 2023-2025 Philippe Mavridis <philippe.mavridis@yandex.com>
 
   Portions from Kicker taskbar applet.
     Copyright (c) 2001 Matthias Elter <elter@kde.org>

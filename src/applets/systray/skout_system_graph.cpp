@@ -1,10 +1,10 @@
 /*******************************************************************************
   Skout - a DeskBar-style panel for TDE
-  Copyright (C) 2023-2025 Mavridis Philippe <mavridisf@gmail.com>
+  Copyright (C) 2023-2025 Philippe Mavridis <philippe.mavridis@yandex.com>
 
-  This file has borrowed code from tdebase/ksysguard/gui/SensorShellAgent.cpp
-      KSysGuard, the KDE System Guard
-      Copyright (c) 1999 - 2001 Chris Schlaeger <cs@kde.org>
+  Portions from tdebase/ksysguard/gui/SensorShellAgent.cpp
+    KSysGuard, the KDE System Guard
+    Copyright (c) 1999 - 2001 Chris Schlaeger <cs@kde.org>
 
   This program is free software: you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free Software

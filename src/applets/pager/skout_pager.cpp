@@ -1,6 +1,6 @@
 /*******************************************************************************
   Skout - a DeskBar-style panel for TDE
-  Copyright (C) 2025 Mavridis Philippe <mavridisf@gmail.com>
+  Copyright (C) 2023-2025 Philippe Mavridis <philippe.mavridis@yandex.com>
 
   Partially based on KPager.
   Copyright (C) 2000  Antonio Larrosa Jimenez

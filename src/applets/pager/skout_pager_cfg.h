@@ -1,6 +1,6 @@
 /*******************************************************************************
-  Skout - a BeOS-inspired panel for TDE
-  Copyright (C) 2025 Mavridis Philippe <mavridisf@gmail.com>
+  Skout - a DeskBar-style panel for TDE
+  Copyright (C) 2023-2025 Philippe Mavridis <philippe.mavridis@yandex.com>
 
   This program is free software: you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free Software
