@@ -9,6 +9,6 @@
 add_subdirectory(systray)
 add_subdirectory(taskman)
 add_subdirectory(calendar)
-# add_subdirectory(pager)
+tde_conditional_add_subdirectory(BUILD_PAGER pager)
 
 # kate: replace-tabs true; tab-width 2;
