@@ -457,7 +457,7 @@ bool SkoutConfig::installPanelAutostart()
     }
 
     TDEDesktopFile panelAutostart(path.path());
-    panelAutostart.writeEntry("Type", "service");
+    panelAutostart.writeEntry("Type", "Service");
     panelAutostart.writeEntry("Exec", "skout");
     panelAutostart.writeEntry("OnlyShowIn", "TDE;");
     panelAutostart.writeEntry("X-TDE-autostart-after", "kdesktop");
